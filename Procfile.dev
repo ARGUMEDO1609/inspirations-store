@@ -1,0 +1,2 @@
+web: cd house && npm run dev
+api: cd server && rails s -p 3000
