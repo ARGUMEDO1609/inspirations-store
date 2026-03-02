@@ -1,0 +1,2 @@
+This file replaces the old base_controller.rb to avoid superclass mismatch errors.
+The new base controller for the API is api_controller.rb.
