@@ -1,6 +1,8 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import api from '../api/axios';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
@@ -28,28 +30,32 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
-    const response = await api.post('http://localhost:3000/login', {
+    const response = await api.post('/users/sign_in', {
       user: { email, password }
     });
     const token = response.headers.authorization;
     localStorage.setItem('token', token);
-    setUser(response.data.data);
+    setUser(response.data.user);
     return response.data;
   };
 
   const logout = async () => {
-    await api.delete('http://localhost:3000/logout');
+    try {
+      await api.delete('/users/sign_out');
+    } catch (error) {
+      // Ignore logout errors
+    }
     localStorage.removeItem('token');
     setUser(null);
   };
 
   const signup = async (userData) => {
-    const response = await api.post('http://localhost:3000/signup', {
+    const response = await api.post('/users', {
       user: userData
     });
     const token = response.headers.authorization;
     localStorage.setItem('token', token);
-    setUser(response.data.data);
+    setUser(response.data.user);
     return response.data;
   };
 

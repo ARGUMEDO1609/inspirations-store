@@ -12,7 +12,7 @@ class Api::V1::OrdersController < Api::V1::ApiController
   def create
     @order = current_user.orders.new(order_params)
     @order.status = :pending
-    
+
     # Calculate total from cart
     cart_items = current_user.cart_items.includes(:product)
     if cart_items.empty?
@@ -20,8 +20,16 @@ class Api::V1::OrdersController < Api::V1::ApiController
       return
     end
 
+    # Check stock availability
+    cart_items.each do |item|
+      if item.product.stock < item.quantity
+        render json: { error: "Insufficient stock for #{item.product.title}" }, status: :unprocessable_entity
+        return
+      end
+    end
+
     @order.total = cart_items.sum { |item| item.product.price * item.quantity }
-    
+
     if @order.save
       cart_items.each do |item|
         @order.order_items.create!(
@@ -29,6 +37,8 @@ class Api::V1::OrdersController < Api::V1::ApiController
           quantity: item.quantity,
           unit_price: item.product.price
         )
+        # Deduct stock
+        item.product.decrement!(:stock, item.quantity)
       end
       cart_items.destroy_all
       render json: @order, status: :created
