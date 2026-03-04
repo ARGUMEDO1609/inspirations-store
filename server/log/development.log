@@ -13124,3 +13124,56 @@ DEPRECATION WARNING: resource received a hash argument only. Please use a keywor
 DEPRECATION WARNING: resource received a hash argument path. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:11)
 DEPRECATION WARNING: resource received a hash argument path_names. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:11)
 DEPRECATION WARNING: resource received a hash argument controller. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:11)
+Started GET "/admin/products" for 127.0.0.1 at 2026-03-03 09:42:21 -0500
+  [1m[36mActiveRecord::SchemaMigration Load (0.8ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='Server'*/[0m
+DEPRECATION WARNING: resource received a hash argument only. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:11)
+DEPRECATION WARNING: resource received a hash argument path. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:11)
+DEPRECATION WARNING: resource received a hash argument path_names. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:11)
+DEPRECATION WARNING: resource received a hash argument controller. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:11)
+Processing by Admin::ProductsController#index as HTML
+  [1m[36mAdminUser Load (1.3ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."id" = 2 ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/index.html.arb
+  [1m[36mProduct Load (1.5ms)[0m  [1m[34mSELECT "products".* FROM "products" ORDER BY "products"."id" desc LIMIT 30 OFFSET 0 /*action='index',application='Server',controller='products'*/[0m
+  [1m[36mCategory Load (0.6ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 9 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:8:in `block (2 levels) in <top (required)>'
+  [1m[36mCategory Load (0.6ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 8 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:8:in `block (2 levels) in <top (required)>'
+  [1m[36mCategory Load (0.6ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 7 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:8:in `block (2 levels) in <top (required)>'
+  [1m[36mCACHE Category Load (0.0ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 7 LIMIT 1[0m
+  ↳ app/admin/products.rb:8:in `block (2 levels) in <top (required)>'
+  [1m[36mCACHE Category Load (0.0ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 9 LIMIT 1[0m
+  ↳ app/admin/products.rb:8:in `block (2 levels) in <top (required)>'
+  [1m[36mCategory Load (0.7ms)[0m  [1m[34mSELECT "categories".* FROM "categories" /*action='index',application='Server',controller='products'*/[0m
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/index.html.arb (Duration: 80.9ms | GC: 9.3ms)
+Completed 200 OK in 144ms (Views: 87.4ms | ActiveRecord: 33.1ms (8 queries, 2 cached) | GC: 10.4ms)
+
+
+Started GET "/api/v1/products" for ::1 at 2026-03-03 09:42:25 -0500
+Started GET "/api/v1/products" for ::1 at 2026-03-03 09:42:25 -0500
+Processing by Api::V1::ProductsController#index as HTML
+Processing by Api::V1::ProductsController#index as HTML
+  [1m[36mProduct Load (0.8ms)[0m  [1m[34mSELECT "products".* FROM "products" /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/controllers/api/v1/products_controller.rb:10:in `index'
+Completed 200 OK in 11ms (Views: 0.3ms | ActiveRecord: 0.8ms (1 query, 0 cached) | GC: 0.0ms)
+
+
+  [1m[36mProduct Load (26.9ms)[0m  [1m[34mSELECT "products".* FROM "products" /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/controllers/api/v1/products_controller.rb:10:in `index'
+Completed 200 OK in 33ms (Views: 1.0ms | ActiveRecord: 35.7ms (1 query, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/api/v1/products" for ::1 at 2026-03-03 09:42:26 -0500
+Started GET "/api/v1/products" for ::1 at 2026-03-03 09:42:26 -0500
+Processing by Api::V1::ProductsController#index as HTML
+Processing by Api::V1::ProductsController#index as HTML
+  [1m[36mProduct Load (3.5ms)[0m  [1m[34mSELECT "products".* FROM "products" /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/controllers/api/v1/products_controller.rb:10:in `index'
+  [1m[36mProduct Load (1.2ms)[0m  [1m[34mSELECT "products".* FROM "products" /*action='index',application='Server',controller='products'*/[0m
+Completed 200 OK in 9ms (Views: 0.2ms | ActiveRecord: 3.4ms (1 query, 0 cached) | GC: 0.0ms)
+
+
+  ↳ app/controllers/api/v1/products_controller.rb:10:in `index'
+Completed 200 OK in 12ms (Views: 0.3ms | ActiveRecord: 1.1ms (1 query, 0 cached) | GC: 0.0ms)
+
+
