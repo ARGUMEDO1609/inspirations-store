@@ -8,10 +8,35 @@
 // $sidebar-width: 242px;
 
 // Active Admin's got SASS!
-@import "active_admin/mixins";
-@import "active_admin/base";
+@import "arctic_admin";
 
-// Overriding any non-variable Sass must be done after the fact.
-// For example, to change the default status-tag color:
-//
-//   .status_tag { background: #6090DB; }
+// Estilos personalizados para mejorar la legibilidad en móviles
+body {
+  font-size: 16px; // Tamaño base más grande para móviles
+}
+
+@media (max-width: 768px) {
+  #header {
+    height: 60px;
+    padding: 0 10px;
+  }
+
+  .index_as_table {
+    overflow-x: auto;
+    display: block;
+    width: 100%;
+  }
+
+  .attributes_table {
+    font-size: 1.1rem;
+  }
+
+  // Mejorar botones en móvil
+  .action_item a, .actions a {
+    padding: 10px 15px !important;
+    font-size: 1rem !important;
+    display: inline-block;
+    margin: 5px 0;
+  }
+}
+

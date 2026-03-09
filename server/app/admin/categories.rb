@@ -1,4 +1,5 @@
 ActiveAdmin.register Category do
+  menu false
   permit_params :name, :slug, :description, :image
 
   controller do

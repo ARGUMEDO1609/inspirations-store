@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_09_075800) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_09_092100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -56,6 +56,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_075800) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "addresses", force: :cascade do |t|
+    t.string "address_line_1", null: false
+    t.string "address_line_2"
+    t.integer "address_type", default: 0
+    t.bigint "addressable_id", null: false
+    t.string "addressable_type", null: false
+    t.string "city", null: false
+    t.string "country", default: "Colombia"
+    t.datetime "created_at", null: false
+    t.string "state"
+    t.datetime "updated_at", null: false
+    t.string "zip_code"
+    t.index ["addressable_type", "addressable_id"], name: "index_addresses_on_addressable"
+  end
+
   create_table "admin_users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
@@ -91,6 +106,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_075800) do
     t.datetime "exp", null: false
     t.string "jti", null: false
     t.index ["jti"], name: "index_jwt_denylist_on_jti"
+  end
+
+  create_table "notes", force: :cascade do |t|
+    t.bigint "admin_user_id", null: false
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.bigint "notable_id", null: false
+    t.string "notable_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id"], name: "index_notes_on_admin_user_id"
+    t.index ["notable_type", "notable_id"], name: "index_notes_on_notable"
   end
 
   create_table "order_items", force: :cascade do |t|
@@ -129,6 +155,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_075800) do
     t.index ["slug"], name: "index_products_on_slug", unique: true
   end
 
+  create_table "reviews", force: :cascade do |t|
+    t.text "comment"
+    t.datetime "created_at", null: false
+    t.integer "rating", default: 5, null: false
+    t.bigint "reviewable_id", null: false
+    t.string "reviewable_type", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["reviewable_type", "reviewable_id"], name: "index_reviews_on_reviewable"
+    t.index ["user_id"], name: "index_reviews_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "address"
     t.datetime "created_at", null: false
@@ -149,8 +187,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_075800) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "cart_items", "products"
   add_foreign_key "cart_items", "users"
+  add_foreign_key "notes", "admin_users"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "users"
   add_foreign_key "products", "categories"
+  add_foreign_key "reviews", "users"
 end

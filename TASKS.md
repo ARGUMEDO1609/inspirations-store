@@ -1,6 +1,7 @@
 # Inspiration Store - Proyecto
 
 ## Estructura del Proyecto
+
 ```
 inspiration-store/
 ├── server/    # Backend Rails API
@@ -21,6 +22,7 @@ inspiration-store/
 ```
 
 ## Stack Tecnológico
+
 - **Backend**: Rails 7, JWT, Devise, ActiveAdmin, PostgreSQL
 - **Frontend**: React 18, Vite, Tailwind CSS, React Router
 
@@ -34,6 +36,10 @@ inspiration-store/
 - [x] **Fix: Interceptor de axios incompleto** - No maneja errores 401 para hacer logout automático
 - [x] **Fix: No hay manejo de stock** - Al comprar no se descuenta el stock del producto
 - [x] **Fix: WebhooksController** - Heredaba de ApplicationController incorrectamente, no manejaba errores
+- [x] **Arquitectura Polimórfica Completa** - Implementado polimorfismo en `Reviews`, `Addresses` (para Usuarios/Pedidos) y `Notes` (para Auditoría interna).
+- [x] **Fix: Root path intercepting Rails routes** - El catch-all `*path` bloqueaba el acceso a imágenes de ActiveStorage (204 No Content)
+- [x] **Fix: Rails Server PID lock** - El archivo `server.pid` impedía el arranque del servidor tras un cierre no limpio
+- [x] **Fix: ActiveStorage Image Loading** - Uso de `rails_storage_proxy_url` y configuración de host `127.0.0.1` para resolver problemas de CORS/Redirección en WSL
 - [x] **Fix: Category slug** - Slug se regeneraba en cada validación
 
 ## 🟡 Mejoras
@@ -55,10 +61,12 @@ inspiration-store/
 ## 🟠 Testing (RSpec)
 
 ### Tests Creados
+
 - **Modelos**: User, Category, Product, Order, CartItem (36 tests)
 - **Controladores API**: Products, Categories, CartItems, Orders (19 tests)
 
 ### Ejecutar Tests
+
 ```bash
 cd server
 bundle exec rspec                          # Todos los tests

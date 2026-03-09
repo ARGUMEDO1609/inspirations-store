@@ -5,8 +5,10 @@ class User < ApplicationRecord
 
   enum :role, { customer: 0, admin: 1 }
 
-  has_many :orders
-  has_many :cart_items, dependent: :destroy
+  has_many :cart_items
+  has_many :reviews, dependent: :destroy
+  has_many :addresses, as: :addressable, dependent: :destroy
+  has_many :notes, as: :notable, dependent: :destroy
 
   validates :name, presence: true
 
