@@ -1,6 +1,7 @@
 class Category < ApplicationRecord
   has_one_attached :image
   has_many :products, dependent: :destroy
+  has_many :reviews, as: :reviewable, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
   validates :slug, presence: true, uniqueness: true

@@ -1,4 +1,5 @@
 ActiveAdmin.register Product do
+  menu false
   permit_params :title, :description, :price, :stock, :category_id, :image, :slug
 
   controller do
