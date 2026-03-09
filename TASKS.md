@@ -52,6 +52,8 @@ inspiration-store/
 
 ## 🟢 Nuevas Funcionalidades
 
+- [x] **Real-time Updates (Backend)** - ActionCable configurado para transmitir cambios en Productos y Categorías.
+- [x] **Real-time Updates (Frontend)** - Integrado `useActionCable` en React para actualizar la galería instantáneamente.
 - [ ] **Dashboard de usuario** - Ver historial de pedidos
 - [ ] **Detalle de producto** - Página individual para cada producto
 - [ ] **Formulario de checkout** - Dirección de envío, datos del cliente

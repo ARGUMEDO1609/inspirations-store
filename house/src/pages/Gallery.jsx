@@ -3,13 +3,34 @@ import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
 import { Loader2 } from 'lucide-react';
 
+import useActionCable from '../api/useActionCable';
+
 const Gallery = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Manejar cambios en tiempo real desde Rails
+  useActionCable('StoreChannel', {
+    PRODUCT_CHANGE: (data) => {
+      const { action, product } = data;
+      
+      setProducts(prevProducts => {
+        if (action === 'create') {
+          return [product, ...prevProducts];
+        } else if (action === 'update') {
+          return prevProducts.map(p => p.id === product.id ? product : p);
+        } else if (action === 'destroy') {
+          return prevProducts.filter(p => p.id !== product.id);
+        }
+        return prevProducts;
+      });
+    }
+  });
+
   useEffect(() => {
     fetchProducts();
   }, []);
+
 
   const fetchProducts = async () => {
     try {
