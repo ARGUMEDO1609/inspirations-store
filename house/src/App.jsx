@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Gallery from './pages/Gallery';
 import Cart from './pages/Cart';
+import ProductDetail from './pages/ProductDetail';
 import { useAuth } from './context/AuthContext';
 import { ShoppingCart, User, LogOut, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -73,6 +74,7 @@ const App = () => {
       <main className="max-w-7xl mx-auto px-4 pb-40">
         <Routes>
           <Route path="/" element={<Gallery />} />
+          <Route path="/product/:slug" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />

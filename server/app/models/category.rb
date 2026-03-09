@@ -1,13 +1,14 @@
 class Category < ApplicationRecord
+  has_one_attached :image
   has_many :products, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
   validates :slug, presence: true, uniqueness: true
 
-  before_validation :generate_slug, on: :create
+  before_validation :generate_slug, on: [ :create, :update ]
 
   def self.ransackable_attributes(auth_object = nil)
-    [ "created_at", "id", "name", "slug", "updated_at" ]
+    [ "created_at", "description", "id", "name", "slug", "updated_at" ]
   end
 
   private
