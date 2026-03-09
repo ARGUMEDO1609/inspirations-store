@@ -83,7 +83,7 @@ const Cart = () => {
             <div key={item.id} className="bg-slate-900/50 backdrop-blur-3xl border border-slate-800 p-8 rounded-[40px] flex flex-col md:flex-row items-center justify-between gap-8 hover:border-amber-500/30 transition-all duration-500">
               <div className="flex items-center gap-10 w-full">
                 <div className="w-32 h-32 rounded-3xl overflow-hidden bg-slate-950 flex-shrink-0 border border-slate-800">
-                   <img src={item.product.image || 'https://via.placeholder.com/200'} alt={item.product.title} className="w-full h-full object-cover opacity-80" />
+                   <img src={item.product.image_url || 'https://via.placeholder.com/200'} alt={item.product.title} className="w-full h-full object-cover opacity-80" />
                 </div>
                 <div className="flex-grow">
                   <h3 className="text-2xl font-black text-white italic tracking-tighter mb-2 leading-none">{item.product.title}</h3>

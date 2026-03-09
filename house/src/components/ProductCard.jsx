@@ -10,7 +10,7 @@ const ProductCard = ({ product, onAddToCart }) => {
         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl group-hover:bg-amber-500/10 transition duration-1000"></div>
         
         <img 
-          src={product.image || 'https://via.placeholder.com/600'} 
+          src={product.image_url || 'https://via.placeholder.com/600'} 
           alt={product.title}
           className="w-full h-full object-cover group-hover:scale-110 transition duration-1000 opacity-60 group-hover:opacity-100"
         />

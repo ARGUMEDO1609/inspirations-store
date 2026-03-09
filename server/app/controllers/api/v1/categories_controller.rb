@@ -1,5 +1,5 @@
 class Api::V1::CategoriesController < Api::V1::ApiController
-  skip_before_action :authenticate_user!, only: [:index, :show]
+  skip_before_action :authenticate_user!, only: [ :index, :show ]
 
   def index
     @categories = Category.all
@@ -21,9 +21,19 @@ class Api::V1::CategoriesController < Api::V1::ApiController
     end
   end
 
+  def update
+    @category = Category.find(params[:id])
+    authorize @category
+    if @category.update(category_params)
+      render json: CategorySerializer.new(@category).serializable_hash
+    else
+      render json: { errors: @category.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def category_params
-    params.require(:category).permit(:name)
+    params.require(:category).permit(:name, :slug, :description, :image)
   end
 end

@@ -1,5 +1,6 @@
 class Product < ApplicationRecord
   belongs_to :category
+  has_one_attached :image
   has_many :order_items
   has_many :cart_items
 
@@ -8,7 +9,7 @@ class Product < ApplicationRecord
   validates :stock, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :slug, presence: true, uniqueness: true
 
-  before_validation :generate_slug, on: :create
+  before_validation :generate_slug, on: [ :create, :update ]
 
   def self.ransackable_attributes(auth_object = nil)
     [ "category_id", "created_at", "description", "id", "price", "stock", "title", "updated_at" ]
