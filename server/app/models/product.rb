@@ -13,6 +13,10 @@ class Product < ApplicationRecord
 
   before_validation :generate_slug, on: [ :create, :update ]
 
+  after_create_commit  { broadcast_change("create") }
+  after_update_commit  { broadcast_change("update") }
+  after_destroy_commit { broadcast_change("destroy") }
+
   def self.ransackable_attributes(auth_object = nil)
     [ "category_id", "created_at", "description", "id", "price", "stock", "title", "updated_at" ]
   end
@@ -25,5 +29,13 @@ class Product < ApplicationRecord
 
   def generate_slug
     self.slug = title.parameterize if title.present? && slug.blank?
+  end
+
+  def broadcast_change(action)
+    ActionCable.server.broadcast("store_channel", {
+      type: "PRODUCT_CHANGE",
+      action: action,
+      product: ProductSerializer.new(self).serializable_hash[:data]
+    })
   end
 end
