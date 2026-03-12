@@ -15,7 +15,7 @@ class Api::V1::CartItemsController < Api::V1::ApiController
     if @cart_item.save
       render json: @cart_item, status: :created
     else
-      render json: { errors: @cart_item.errors.full_messages }, status: :unprocessable_entity
+      render json: { error: @cart_item.errors.full_messages.first }, status: :unprocessable_entity
     end
   end
 

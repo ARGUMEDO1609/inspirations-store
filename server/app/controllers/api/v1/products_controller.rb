@@ -2,11 +2,29 @@ class Api::V1::ProductsController < Api::V1::ApiController
   skip_before_action :authenticate_user!, only: [:index, :show]
   
   def index
-    @products = if params[:category_id]
-                  Category.find(params[:category_id]).products
-                else
-                  Product.all
-                end
+    @products = Product.all
+
+    # Filtro por Categoría
+    if params[:category].present? && params[:category] != 'all'
+      if params[:category] == 'digital'
+        @products = @products.joins(:category).where("categories.name ILIKE ?", "%Digital%")
+      elsif params[:category] == 'physical'
+        @products = @products.joins(:category).where.not("categories.name ILIKE ?", "%Digital%")
+      else
+        @products = @products.joins(:category).where("categories.name = ?", params[:category])
+      end
+    end
+
+    # Ordenamiento (Popularidad o Recientes)
+    if params[:sort] == 'popular'
+      @products = @products.left_joins(:order_items)
+                           .group(:id)
+                           .select('products.*, COUNT(order_items.id) as sales_count')
+                           .order('sales_count DESC')
+    else
+      @products = @products.order(created_at: :desc)
+    end
+
     render json: ProductSerializer.new(@products).serializable_hash
   end
 

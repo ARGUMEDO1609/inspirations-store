@@ -1,8 +1,8 @@
 import React from 'react';
-import { ShoppingCart, Eye } from 'lucide-react';
+import { ShoppingCart, Eye, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const ProductCard = ({ product, onAddToCart }) => {
+const ProductCard = ({ product, onAddToCart, isProcessing }) => {
   return (
     <div className="group bg-slate-900 border border-slate-800 rounded-[40px] overflow-hidden hover:border-amber-500/50 transition-all duration-700 shadow-2xl hover:-translate-y-4">
       <div className="aspect-square bg-slate-950 flex items-center justify-center relative overflow-hidden">
@@ -15,15 +15,16 @@ const ProductCard = ({ product, onAddToCart }) => {
           className="w-full h-full object-cover group-hover:scale-110 transition duration-1000 opacity-60 group-hover:opacity-100"
         />
 
-        <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center gap-6">
-           <Link to={`/product/${product.slug}`} className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-full text-white hover:bg-white hover:text-slate-950 transition-all duration-300">
+        <div className={`absolute inset-0 bg-slate-950/40 transition-opacity duration-500 flex items-center justify-center gap-6 ${isProcessing ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+           <Link to={`/product/${product.slug}`} className={`bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-full text-white hover:bg-white hover:text-slate-950 transition-all duration-300 ${isProcessing ? 'pointer-events-none opacity-50' : ''}`}>
              <Eye size={24} />
            </Link>
            <button 
              onClick={() => onAddToCart(product)}
-             className="bg-amber-600 p-4 rounded-full text-white hover:bg-amber-500 hover:scale-110 transition-all duration-300 shadow-2xl shadow-amber-900/40"
+             disabled={isProcessing}
+             className={`bg-amber-600 p-4 rounded-full text-white hover:bg-amber-500 hover:scale-110 transition-all duration-300 shadow-2xl shadow-amber-900/40 flex items-center justify-center min-w-[56px] ${isProcessing ? 'opacity-80 scale-90' : ''}`}
            >
-             <ShoppingCart size={24} />
+             {isProcessing ? <Loader2 size={24} className="animate-spin" /> : <ShoppingCart size={24} />}
            </button>
         </div>
       </div>

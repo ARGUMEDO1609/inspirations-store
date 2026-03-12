@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
+import { Loader2 } from 'lucide-react';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -11,21 +13,38 @@ const Signup = () => {
     address: '',
     phone: ''
   });
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.password_confirmation) {
-      setError('Las contraseñas no coinciden.');
+      toast({
+        type: 'error',
+        title: 'Validación',
+        message: 'Las contraseñas no coinciden.'
+      });
       return;
     }
+    setLoading(true);
     try {
       await signup(formData);
+      toast({
+        type: 'success',
+        title: '¡Bienvenido!',
+        message: 'Tu cuenta ha sido creada con éxito.'
+      });
       navigate('/');
     } catch (err) {
-      setError('Error al registrarse. Por favor intenta de nuevo.');
+      toast({
+        type: 'error',
+        title: 'Error de registro',
+        message: 'Hubo un problema al crear tu cuenta. Intenta con otro email.'
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,12 +62,6 @@ const Signup = () => {
           <h2 className="text-4xl font-black text-white italic tracking-tighter mb-2">Comienza tu Viaje</h2>
           <p className="text-slate-500 font-medium">Únete a la comunidad de coleccionistas de Inspiration.</p>
         </div>
-
-        {error && (
-          <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 px-6 py-4 rounded-2xl mb-8 text-sm font-bold text-center">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-6">
@@ -81,12 +94,13 @@ const Signup = () => {
             </div>
           </div>
 
-          <div className="md:col-span-2 pt-6">
+          <div className="md:col-span-2 pt-6 text-center">
             <button 
               type="submit"
-              className="w-full bg-slate-100 hover:bg-amber-500 text-slate-950 font-black py-6 rounded-2xl transition duration-500 text-lg uppercase tracking-tight shadow-2xl"
+              disabled={loading}
+              className="w-full bg-slate-100 hover:bg-amber-500 text-slate-950 font-black py-6 rounded-2xl transition duration-500 text-lg uppercase tracking-tight shadow-2xl flex items-center justify-center min-h-[72px]"
             >
-              Crear Colección de Usuario
+              {loading ? <Loader2 className="animate-spin text-slate-950" size={28} /> : "Crear Colección de Usuario"}
             </button>
             <p className="mt-8 text-center text-slate-500 font-medium text-sm">
               ¿Ya eres miembro? <Link to="/login" className="text-amber-500 hover:text-amber-400 font-bold ml-1">Inicia sesión</Link>

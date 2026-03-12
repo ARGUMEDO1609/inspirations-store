@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import { ShoppingCart, ArrowLeft, Loader2, ShieldCheck, Zap, Globe } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 const ProductDetail = () => {
   const { slug } = useParams();
@@ -9,23 +10,17 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await api.get(`/products`);
-        // Since we are using slugs and the API might not have a find_by_slug endpoint yet,
-        // we'll filter from the list or assume the ID is expected.
-        // Looking at the console error, it's trying "/product/caos-estelar".
-        // Let's check if the API supports show by ID or slug.
-        // For now, let's try to find it in the index or assume a show endpoint.
         const allProducts = response.data.data;
         const found = allProducts.find(p => p.attributes.slug === slug);
         if (found) {
-          setProduct(found.attributes);
+          setProduct({ ...found.attributes, id: found.id });
         } else {
-          // If not found in index, maybe try literal show?
-          // But show usually expects ID.
           console.error('Product not found');
         }
       } catch (error) {
@@ -42,13 +37,22 @@ const ProductDetail = () => {
     setAdding(true);
     try {
       await api.post('/cart_items', { 
-        product_id: product.id,
+        product_id: product.id.toString(),
         quantity: 1 
       });
-      alert('Añadido al carrito');
+      toast({
+        type: 'success',
+        title: '¡Excelente elección!',
+        message: `${product.title} se ha añadido a tu selección.`
+      });
     } catch (error) {
       console.error('Error adding to cart:', error);
-      alert('Inicia sesión para comprar');
+      const errorMessage = error.response?.data?.error || 'Debes iniciar sesión para añadir productos al carrito.';
+      toast({
+        type: 'error',
+        title: 'Atención',
+        message: errorMessage
+      });
     } finally {
       setAdding(false);
     }
@@ -102,9 +106,9 @@ const ProductDetail = () => {
         {/* Content Section */}
         <div className="flex flex-col">
           <div className="mb-8 font-mono text-amber-500 text-sm font-black flex items-center gap-4">
-             <span>REF: {product.slug?.toUpperCase()}</span>
-             <span className="w-1 h-1 bg-slate-800 rounded-full"></span>
-             <span>STOCK: {product.stock}</span>
+            <span>REF: {product.slug?.toUpperCase()}</span>
+            <span className="w-1 h-1 bg-slate-800 rounded-full"></span>
+            <span>STOCK: {product.stock}</span>
           </div>
           
           <h1 className="text-7xl font-black text-white italic tracking-tighter leading-[0.8] mb-8 uppercase">

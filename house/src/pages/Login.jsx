@@ -1,21 +1,36 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
+import { Loader2 } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       await login(email, password);
+      toast({
+        type: 'success',
+        title: '¡Bienvenido!',
+        message: 'Has iniciado sesión correctamente.'
+      });
       navigate('/');
     } catch (err) {
-      setError('Credenciales inválidas. Por favor intenta de nuevo.');
+      toast({
+        type: 'error',
+        title: 'Error de acceso',
+        message: 'Credenciales inválidas. Por favor intenta de nuevo.'
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -26,12 +41,6 @@ const Login = () => {
           <h2 className="text-4xl font-black text-white italic tracking-tighter mb-2">Bienvenido de Nuevo</h2>
           <p className="text-slate-500 font-medium">Accede a tu colección privada.</p>
         </div>
-
-        {error && (
-          <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 px-6 py-4 rounded-2xl mb-8 text-sm font-bold text-center">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
@@ -60,9 +69,10 @@ const Login = () => {
 
           <button 
             type="submit"
-            className="w-full bg-amber-600 hover:bg-amber-500 text-white font-black py-5 rounded-2xl transition duration-300 shadow-xl shadow-amber-900/20 text-lg uppercase tracking-tight"
+            disabled={loading}
+            className="w-full bg-amber-600 hover:bg-amber-500 text-white font-black py-5 rounded-2xl transition duration-300 shadow-xl shadow-amber-900/20 text-lg uppercase tracking-tight flex items-center justify-center min-h-[64px]"
           >
-            Iniciar Sesión
+            {loading ? <Loader2 className="animate-spin text-white" size={24} /> : "Iniciar Sesión"}
           </button>
         </form>
 
