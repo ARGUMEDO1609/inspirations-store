@@ -5,10 +5,17 @@ ActiveAdmin.register Address do
   index do
     selectable_column
     id_column
-    column :addressable
+    column :addressable do |address|
+      "#{address.addressable_type} ##{address.addressable_id}"
+    end
     column :address_type
     column :city
     column :country
     actions
   end
+
+  filter :address_type, as: :select
+  filter :city
+  filter :country
+  filter :created_at
 end

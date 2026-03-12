@@ -8,14 +8,16 @@ ActiveAdmin.register Review do
     id_column
     column :user
     column :reviewable_type
-    column :reviewable
+    column :reviewable do |review|
+      "#{review.reviewable_type} ##{review.reviewable_id}"
+    end
     column :rating
     column :created_at
     actions
   end
 
   filter :user
-  filter :reviewable_type
+  filter :reviewable_type, as: :select, collection: ["Product", "Category"]
   filter :rating
 
   form do |f|
