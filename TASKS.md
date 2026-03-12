@@ -44,19 +44,19 @@ inspiration-store/
 
 ## 🟡 Mejoras
 
-- [ ] **Añadir página de perfil de usuario** - Route `/profile` referenciada en Navbar pero no existe
-- [ ] **Sistema de filtrado por categorías** - Los botones de "Todo", "Digital", "Físico" en Gallery no funcionan
-- [ ] **Validación de cantidad en cart** - No verifica stock disponible antes de agregar
-- [ ] **Mejora UX: Toast notifications** - Reemplazar alerts por toasts
-- [ ] **Loading states en acciones** - Botones sin feedback de carga
+- [x] **Añadir página de perfil de usuario** - Implementada página `/profile` con edición de datos.
+- [x] **Sistema de filtrado por categorías** - Implementado sistema de Todo, Categorías dinámicas y Más Populares.
+- [x] **Validación de cantidad en cart** - El backend ahora verifica stock disponible y bloquea excedentes.
+- [x] **Mejora UX: Toast notifications** - Reemplazar alerts por toasts
+- [x] **Loading states en acciones** - Botones con feedback de carga y estados de procesamiento.
 
 ## 🟢 Nuevas Funcionalidades
 
 - [x] **Real-time Updates (Backend)** - ActionCable configurado para transmitir cambios en Productos y Categorías.
 - [x] **Real-time Updates (Frontend)** - Integrado `useActionCable` en React para actualizar la galería instantáneamente.
-- [ ] **Dashboard de usuario** - Ver historial de pedidos
+- [x] **Dashboard de usuario** - Implementada página `/orders` con historial de adquisiciones.
 - [ ] **Detalle de producto** - Página individual para cada producto
-- [ ] **Formulario de checkout** - Dirección de envío, datos del cliente
+- [x] **Formulario de checkout** - Flujo de dos pasos en el carrito con confirmación de dirección.
 - [ ] **Sistema de categorías** - Filtros y organización de productos
 - [ ] **Panel de admin mejorado** - Gestión de pedidos y productos
 

@@ -5,9 +5,12 @@ import Signup from './pages/Signup';
 import Gallery from './pages/Gallery';
 import Cart from './pages/Cart';
 import ProductDetail from './pages/ProductDetail';
+import Profile from './pages/Profile';
+import Orders from './pages/Orders';
 import { useAuth } from './context/AuthContext';
 import { ShoppingCart, User, LogOut, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ToastProvider } from './context/ToastContext';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -28,6 +31,9 @@ const Navbar = () => {
 
           {user ? (
             <div className="flex items-center gap-6">
+              <Link to="/orders" className="text-slate-400 hover:text-amber-500 font-bold text-sm tracking-widest uppercase">
+                Pedidos
+              </Link>
               <Link to="/profile" className="text-slate-400 hover:text-white flex items-center gap-3 font-bold text-sm tracking-widest uppercase">
                 <div className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-amber-500">
                   <User size={16} />
@@ -69,33 +75,37 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 selection:bg-amber-500/30 selection:text-amber-200">
-      <Navbar />
-      <main className="max-w-7xl mx-auto px-4 pb-40">
-        <Routes>
-          <Route path="/" element={<Gallery />} />
-          <Route path="/product/:slug" element={<ProductDetail />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-        </Routes>
-      </main>
-      
-      <footer className="border-t border-slate-900 bg-slate-950 py-20 mt-40">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col items-center">
-          <span className="text-3xl font-black text-slate-800 tracking-tighter mb-8">INSPIRATION</span>
-          <div className="flex gap-12 text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-12">
-            <a href="#" className="hover:text-amber-500 transition">Colección</a>
-            <a href="#" className="hover:text-amber-500 transition">Estudio</a>
-            <a href="#" className="hover:text-amber-500 transition">Privacidad</a>
-            <a href="#" className="hover:text-amber-500 transition">Legal</a>
+    <ToastProvider>
+      <div className="min-h-screen bg-slate-950 text-slate-200 selection:bg-amber-500/30 selection:text-amber-200">
+        <Navbar />
+        <main className="max-w-7xl mx-auto px-4 pb-40">
+          <Routes>
+            <Route path="/" element={<Gallery />} />
+            <Route path="/product/:slug" element={<ProductDetail />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+          </Routes>
+        </main>
+        
+        <footer className="border-t border-slate-900 bg-slate-950 py-20 mt-40">
+          <div className="max-w-7xl mx-auto px-4 flex flex-col items-center">
+            <span className="text-3xl font-black text-slate-800 tracking-tighter mb-8">INSPIRATION</span>
+            <div className="flex gap-12 text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-12">
+              <a href="#" className="hover:text-amber-500 transition">Colección</a>
+              <a href="#" className="hover:text-amber-500 transition">Estudio</a>
+              <a href="#" className="hover:text-amber-500 transition">Privacidad</a>
+              <a href="#" className="hover:text-amber-500 transition">Legal</a>
+            </div>
+            <p className="text-slate-700 text-[10px] font-bold tracking-widest uppercase border-t border-slate-900 pt-12">
+              &copy; 2024 Inspiration Group SA. Protegido bajo cifrado militar.
+            </p>
           </div>
-          <p className="text-slate-700 text-[10px] font-bold tracking-widest uppercase border-t border-slate-900 pt-12">
-            &copy; 2024 Inspiration Group SA. Protegido bajo cifrado militar.
-          </p>
-        </div>
-      </footer>
-    </div>
+        </footer>
+      </div>
+    </ToastProvider>
   );
 };
 export default App;

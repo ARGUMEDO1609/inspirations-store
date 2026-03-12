@@ -22,6 +22,8 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       get "current_user", to: "users#show_current"
+      patch "current_user", to: "users#update"
+      put "current_user", to: "users#update"
 
       resources :categories do
         resources :products, only: [ :index ]
