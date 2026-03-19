@@ -1,5 +1,6 @@
 class Users::SessionsController < Devise::SessionsController
   respond_to :json
+  skip_forgery_protection only: [:create, :destroy]
 
   private
 

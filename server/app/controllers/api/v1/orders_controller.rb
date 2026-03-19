@@ -1,4 +1,6 @@
 class Api::V1::OrdersController < Api::V1::ApiController
+  before_action :authenticate_user!
+
   def index
     @orders = current_user.orders.order(created_at: :desc)
     render json: @orders.as_json(include: :order_items)
@@ -13,14 +15,12 @@ class Api::V1::OrdersController < Api::V1::ApiController
     @order = current_user.orders.new(order_params)
     @order.status = :pending
 
-    # Calculate total from cart
     cart_items = current_user.cart_items.includes(:product)
     if cart_items.empty?
       render json: { error: "Cart is empty" }, status: :unprocessable_entity
       return
     end
 
-    # Check stock availability
     cart_items.each do |item|
       if item.product.stock < item.quantity
         render json: { error: "Insufficient stock for #{item.product.title}" }, status: :unprocessable_entity
@@ -37,7 +37,6 @@ class Api::V1::OrdersController < Api::V1::ApiController
           quantity: item.quantity,
           unit_price: item.product.price
         )
-        # Deduct stock
         item.product.decrement!(:stock, item.quantity)
       end
       cart_items.destroy_all

@@ -1,4 +1,6 @@
 class Api::V1::CartItemsController < Api::V1::ApiController
+  before_action :authenticate_user!
+
   def index
     @cart_items = current_user.cart_items.includes(:product)
     render json: {
@@ -11,7 +13,7 @@ class Api::V1::CartItemsController < Api::V1::ApiController
     @cart_item = current_user.cart_items.find_or_initialize_by(product_id: params[:product_id])
     @cart_item.quantity += params[:quantity].to_i if @cart_item.persisted?
     @cart_item.quantity = params[:quantity].to_i unless @cart_item.persisted?
-    
+
     if @cart_item.save
       render json: @cart_item, status: :created
     else
