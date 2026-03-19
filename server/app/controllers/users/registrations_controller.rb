@@ -1,5 +1,6 @@
 class Users::RegistrationsController < Devise::RegistrationsController
   respond_to :json
+  skip_forgery_protection only: [:create]
 
   private
 

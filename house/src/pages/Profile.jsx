@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { User, Mail, MapPin, Phone, Shield, Save, Loader2 } from 'lucide-react';
+import api from '../api/axios';
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -25,6 +26,7 @@ const Profile = () => {
           phone: formData.phone
         }
       });
+      updateUser(response.data.data);
       toast({
         type: 'success',
         title: 'Perfil Actualizado',
