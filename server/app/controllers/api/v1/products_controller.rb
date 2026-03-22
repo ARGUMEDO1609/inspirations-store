@@ -1,8 +1,4 @@
-class Api::V1::ProductsController < ActionController::API
-  include Pundit::Authorization
-
-  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
-
+class Api::V1::ProductsController < Api::V1::ApiController
   before_action :authenticate_user!, only: [ :create, :update, :destroy ]
 
   def index
@@ -64,32 +60,8 @@ class Api::V1::ProductsController < ActionController::API
 
   private
 
-  def authenticate_user!
-    token = extract_token_from_header
-
-    if token.present?
-      user = User.find_for_jwt_authentication_from_token(token)
-      if user.present?
-        @current_user = user
-        return
-      end
-    end
-
-    render json: { error: "Unauthorized" }, status: :unauthorized
-  end
-
-  def extract_token_from_header
-    header = request.headers["Authorization"]
-    return nil unless header.present?
-
-    header.split(" ").last if header.start_with?("Bearer ")
-  end
-
-  def user_not_authorized
-    render json: { error: "You are not authorized to perform this action." }, status: :forbidden
-  end
-
   def product_params
     params.require(:product).permit(:title, :description, :price, :stock, :image, :category_id)
   end
 end
+

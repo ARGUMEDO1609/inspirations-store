@@ -7,6 +7,8 @@ class Order < ApplicationRecord
   validates :total, presence: true
   validates :shipping_address, presence: true
 
+  after_update_commit { broadcast_status_change }
+  
   def self.ransackable_attributes(auth_object = nil)
     ["created_at", "id", "status", "total", "updated_at", "user_id", "shipping_address"]
   end
@@ -14,4 +16,15 @@ class Order < ApplicationRecord
   def self.ransackable_associations(auth_object = nil)
     ["user", "order_items"]
   end
+
+  private
+
+  def broadcast_status_change
+    ActionCable.server.broadcast("order_channel_#{user_id}", {
+      type: "ORDER_STATUS_UPDATE",
+      order_id: id,
+      status: status
+    })
+  end
+
 end
