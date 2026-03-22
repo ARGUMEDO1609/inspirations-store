@@ -10,11 +10,12 @@ Devise.setup do |config|
   config.email_regexp = /\A[^@\s]+@[^@\s]+\z/
   config.reset_password_within = 6.hours
   config.sign_out_via = :delete
-  config.navigational_formats = []
+  config.navigational_formats = [:html, :json]
   config.authentication_keys = [:email]
   config.case_insensitive_keys = [:email]
   config.strip_whitespace_keys = [:email]
-  config.skip_session_storage = [:http_auth, :params_auth]
+  config.skip_session_storage = [:http_auth]
+
 
   # JWT Configuration
   config.jwt do |jwt|

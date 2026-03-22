@@ -65,3 +65,6 @@ gem "activeadmin", "~> 3.4"
 gem "mercadopago-sdk", "~> 2.3"
 gem "jsonapi-serializer"
 gem "arctic_admin"
+gem "turbo-rails"
+gem "stimulus-rails"
+
