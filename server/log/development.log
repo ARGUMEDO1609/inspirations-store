@@ -49809,3 +49809,223 @@ Started GET "/cable" [WebSocket] for 127.0.0.1 at 2026-03-22 22:59:47 -0500
 Successfully upgraded to WebSocket (REQUEST_METHOD: GET, HTTP_CONNECTION: Upgrade, HTTP_UPGRADE: websocket)
 An unauthorized connection attempt was rejected
 Finished "/cable" [WebSocket] for 127.0.0.1 at 2026-03-22 22:59:47 -0500
+DEPRECATION WARNING: resource received a hash argument only. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block (3 levels) in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:15)
+DEPRECATION WARNING: resource received a hash argument path. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block (3 levels) in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:15)
+DEPRECATION WARNING: resource received a hash argument path_names. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block (3 levels) in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:15)
+DEPRECATION WARNING: resource received a hash argument controller. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block (3 levels) in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:15)
+DEPRECATION WARNING: resource received a hash argument only. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block (3 levels) in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:15)
+DEPRECATION WARNING: resource received a hash argument path. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block (3 levels) in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:15)
+DEPRECATION WARNING: resource received a hash argument path_names. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block (3 levels) in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:15)
+DEPRECATION WARNING: resource received a hash argument controller. Please use a keyword instead. Support to hash argument will be removed in Rails 8.2. (called from block (3 levels) in <top (required)> at /home/argumedo/inspiration-store/server/config/routes.rb:15)
+Started GET "/cable" for 127.0.0.1 at 2026-03-23 09:20:53 -0500
+  [1m[36mActiveRecord::SchemaMigration Load (2.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='Server'*/[0m
+Started GET "/cable" [WebSocket] for 127.0.0.1 at 2026-03-23 09:20:53 -0500
+Successfully upgraded to WebSocket (REQUEST_METHOD: GET, HTTP_CONNECTION: Upgrade, HTTP_UPGRADE: websocket)
+An unauthorized connection attempt was rejected
+Finished "/cable" [WebSocket] for 127.0.0.1 at 2026-03-23 09:20:53 -0500
+Started GET "/" for 127.0.0.1 at 2026-03-23 09:20:55 -0500
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:20:56 -0500
+Started GET "/admin" for 127.0.0.1 at 2026-03-23 09:21:00 -0500
+Processing by Admin::DashboardController#index as HTML
+Completed 401 Unauthorized in 4ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/admin/login" for 127.0.0.1 at 2026-03-23 09:21:00 -0500
+Processing by ActiveAdmin::Devise::SessionsController#new as HTML
+  Rendering layout /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/layouts/active_admin_logged_out.html.erb
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/devise/sessions/new.html.erb within layouts/active_admin_logged_out
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/devise/shared/_links.erb (Duration: 0.8ms | GC: 0.0ms)
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/devise/sessions/new.html.erb within layouts/active_admin_logged_out (Duration: 22.0ms | GC: 0.4ms)
+  Rendered layout /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/layouts/active_admin_logged_out.html.erb (Duration: 24.5ms | GC: 0.8ms)
+Completed 200 OK in 91ms (Views: 36.9ms | ActiveRecord: 36.3ms (0 queries, 0 cached) | GC: 1.5ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:21:01 -0500
+Started GET "/admin/login" for 127.0.0.1 at 2026-03-23 09:21:15 -0500
+Processing by ActiveAdmin::Devise::SessionsController#new as HTML
+  Rendering layout /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/layouts/active_admin_logged_out.html.erb
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/devise/sessions/new.html.erb within layouts/active_admin_logged_out
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/devise/shared/_links.erb (Duration: 0.7ms | GC: 0.0ms)
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/devise/sessions/new.html.erb within layouts/active_admin_logged_out (Duration: 4.7ms | GC: 0.0ms)
+  Rendered layout /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/layouts/active_admin_logged_out.html.erb (Duration: 7.2ms | GC: 0.0ms)
+Completed 200 OK in 11ms (Views: 8.3ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:21:15 -0500
+Started POST "/admin/login" for 127.0.0.1 at 2026-03-23 09:21:22 -0500
+Processing by ActiveAdmin::Devise::SessionsController#create as HTML
+  Parameters: {"authenticity_token"=>"[FILTERED]", "admin_user"=>{"email"=>"[FILTERED]", "password"=>"[FILTERED]", "remember_me"=>"0"}, "commit"=>"Login"}
+  [1m[36mAdminUser Load (6.4ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."email" = 'noslenque931@gmail.com' ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='create',application='Server',controller='sessions'*/[0m
+Redirected to http://127.0.0.1:3000/admin
+Completed 302 Found in 243ms (ActiveRecord: 6.4ms (1 query, 0 cached) | GC: 0.2ms)
+
+
+Started GET "/admin" for 127.0.0.1 at 2026-03-23 09:21:22 -0500
+Processing by Admin::DashboardController#index as HTML
+  [1m[36mAdminUser Load (0.6ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."id" = 2 ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='index',application='Server',controller='dashboard'*/[0m
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/page/index.html.arb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/page/index.html.arb (Duration: 8.8ms | GC: 0.0ms)
+Completed 200 OK in 20ms (Views: 11.7ms | ActiveRecord: 0.6ms (1 query, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:21:22 -0500
+Started GET "/admin/products" for 127.0.0.1 at 2026-03-23 09:23:09 -0500
+Processing by Admin::ProductsController#index as HTML
+  [1m[36mAdminUser Load (1.5ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."id" = 2 ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/index.html.arb
+  [1m[36mProduct Load (4.4ms)[0m  [1m[34mSELECT "products".* FROM "products" ORDER BY "products"."id" desc LIMIT 30 OFFSET 0 /*action='index',application='Server',controller='products'*/[0m
+  [1m[36mCategory Load (2.3ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 10 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mCACHE Category Load (0.0ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 10 LIMIT 1[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mCategory Load (0.7ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 7 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mCategory Load (0.6ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 9 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mCategory Load (0.4ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 8 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mCACHE Category Load (0.0ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 7 LIMIT 1[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mCACHE Category Load (0.0ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 7 LIMIT 1[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mCACHE Category Load (0.0ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 9 LIMIT 1[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (1.7ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 18 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Blob Load (1.1ms)[0m  [1m[34mSELECT "active_storage_blobs".* FROM "active_storage_blobs" WHERE "active_storage_blobs"."id" = 86 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:28:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.6ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 17 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Blob Load (0.4ms)[0m  [1m[34mSELECT "active_storage_blobs".* FROM "active_storage_blobs" WHERE "active_storage_blobs"."id" = 85 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:28:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.6ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 16 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Blob Load (0.4ms)[0m  [1m[34mSELECT "active_storage_blobs".* FROM "active_storage_blobs" WHERE "active_storage_blobs"."id" = 84 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:28:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.5ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 15 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Blob Load (0.6ms)[0m  [1m[34mSELECT "active_storage_blobs".* FROM "active_storage_blobs" WHERE "active_storage_blobs"."id" = 82 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:28:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.5ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 14 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.4ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 13 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.4ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 12 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.9ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 11 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mCategory Load (0.5ms)[0m  [1m[34mSELECT "categories".* FROM "categories" /*action='index',application='Server',controller='products'*/[0m
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/index.html.arb (Duration: 215.5ms | GC: 37.4ms)
+Completed 200 OK in 242ms (Views: 195.3ms | ActiveRecord: 30.3ms (23 queries, 4 cached) | GC: 37.4ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:23:09 -0500
+Started GET "/admin/dashboard" for 127.0.0.1 at 2026-03-23 09:23:13 -0500
+Processing by Admin::DashboardController#index as HTML
+  [1m[36mAdminUser Load (0.7ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."id" = 2 ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='index',application='Server',controller='dashboard'*/[0m
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/page/index.html.arb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/page/index.html.arb (Duration: 3.6ms | GC: 0.5ms)
+Completed 200 OK in 10ms (Views: 4.2ms | ActiveRecord: 0.7ms (1 query, 0 cached) | GC: 1.9ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:23:13 -0500
+Started GET "/admin/categories" for 127.0.0.1 at 2026-03-23 09:23:14 -0500
+Processing by Admin::CategoriesController#index as HTML
+  [1m[36mAdminUser Load (0.5ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."id" = 2 ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='index',application='Server',controller='categories'*/[0m
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/index.html.arb
+  [1m[36mCategory Load (0.4ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."id" desc LIMIT 30 OFFSET 0 /*action='index',application='Server',controller='categories'*/[0m
+  [1m[36mActiveStorage::Attachment Load (0.5ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 10 AND "active_storage_attachments"."record_type" = 'Category' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='categories'*/[0m
+  ↳ app/admin/categories.rb:28:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Blob Load (0.5ms)[0m  [1m[34mSELECT "active_storage_blobs".* FROM "active_storage_blobs" WHERE "active_storage_blobs"."id" = 47 LIMIT 1 /*action='index',application='Server',controller='categories'*/[0m
+  ↳ app/admin/categories.rb:29:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.3ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 9 AND "active_storage_attachments"."record_type" = 'Category' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='categories'*/[0m
+  ↳ app/admin/categories.rb:28:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Blob Load (0.5ms)[0m  [1m[34mSELECT "active_storage_blobs".* FROM "active_storage_blobs" WHERE "active_storage_blobs"."id" = 48 LIMIT 1 /*action='index',application='Server',controller='categories'*/[0m
+  ↳ app/admin/categories.rb:29:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.4ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 8 AND "active_storage_attachments"."record_type" = 'Category' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='categories'*/[0m
+  ↳ app/admin/categories.rb:28:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.2ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 7 AND "active_storage_attachments"."record_type" = 'Category' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='categories'*/[0m
+  ↳ app/admin/categories.rb:28:in `block (3 levels) in <top (required)>'
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/index.html.arb (Duration: 29.2ms | GC: 2.2ms)
+Completed 200 OK in 35ms (Views: 27.1ms | ActiveRecord: 3.3ms (8 queries, 0 cached) | GC: 3.9ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:23:14 -0500
+Started GET "/admin/categories/new" for 127.0.0.1 at 2026-03-23 09:23:16 -0500
+Processing by Admin::CategoriesController#new as HTML
+  [1m[36mAdminUser Load (0.7ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."id" = 2 ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='new',application='Server',controller='categories'*/[0m
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/new.html.arb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/new.html.arb (Duration: 11.6ms | GC: 0.0ms)
+Completed 200 OK in 19ms (Views: 13.1ms | ActiveRecord: 0.7ms (1 query, 0 cached) | GC: 0.6ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:23:16 -0500
+Started GET "/admin/categories" for 127.0.0.1 at 2026-03-23 09:23:20 -0500
+Processing by Admin::CategoriesController#index as HTML
+  [1m[36mAdminUser Load (0.8ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."id" = 2 ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='index',application='Server',controller='categories'*/[0m
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/index.html.arb
+  [1m[36mCategory Load (0.4ms)[0m  [1m[34mSELECT "categories".* FROM "categories" ORDER BY "categories"."id" desc LIMIT 30 OFFSET 0 /*action='index',application='Server',controller='categories'*/[0m
+  [1m[36mActiveStorage::Attachment Load (0.5ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 10 AND "active_storage_attachments"."record_type" = 'Category' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='categories'*/[0m
+  ↳ app/admin/categories.rb:28:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Blob Load (0.4ms)[0m  [1m[34mSELECT "active_storage_blobs".* FROM "active_storage_blobs" WHERE "active_storage_blobs"."id" = 47 LIMIT 1 /*action='index',application='Server',controller='categories'*/[0m
+  ↳ app/admin/categories.rb:29:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.3ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 9 AND "active_storage_attachments"."record_type" = 'Category' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='categories'*/[0m
+  ↳ app/admin/categories.rb:28:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Blob Load (0.2ms)[0m  [1m[34mSELECT "active_storage_blobs".* FROM "active_storage_blobs" WHERE "active_storage_blobs"."id" = 48 LIMIT 1 /*action='index',application='Server',controller='categories'*/[0m
+  ↳ app/admin/categories.rb:29:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.5ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 8 AND "active_storage_attachments"."record_type" = 'Category' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='categories'*/[0m
+  ↳ app/admin/categories.rb:28:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.4ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 7 AND "active_storage_attachments"."record_type" = 'Category' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='categories'*/[0m
+  ↳ app/admin/categories.rb:28:in `block (3 levels) in <top (required)>'
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/index.html.arb (Duration: 28.7ms | GC: 0.0ms)
+Completed 200 OK in 34ms (Views: 26.8ms | ActiveRecord: 3.5ms (8 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:23:20 -0500
+Started GET "/admin/dashboard" for 127.0.0.1 at 2026-03-23 09:23:21 -0500
+Processing by Admin::DashboardController#index as HTML
+  [1m[36mAdminUser Load (0.6ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."id" = 2 ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='index',application='Server',controller='dashboard'*/[0m
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/page/index.html.arb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/page/index.html.arb (Duration: 2.8ms | GC: 0.0ms)
+Completed 200 OK in 9ms (Views: 5.5ms | ActiveRecord: 0.6ms (1 query, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:23:21 -0500
+Started GET "/admin/users" for 127.0.0.1 at 2026-03-23 09:23:23 -0500
+Processing by Admin::UsersController#index as HTML
+  [1m[36mAdminUser Load (0.7ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."id" = 2 ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='index',application='Server',controller='users'*/[0m
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/index.html.arb
+  [1m[36mUser Load (3.6ms)[0m  [1m[34mSELECT "users".* FROM "users" ORDER BY "users"."id" desc LIMIT 30 OFFSET 0 /*action='index',application='Server',controller='users'*/[0m
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/index.html.arb (Duration: 17.9ms | GC: 0.0ms)
+Completed 200 OK in 28ms (Views: 15.1ms | ActiveRecord: 6.2ms (2 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:23:23 -0500
+Started GET "/admin/dashboard" for 127.0.0.1 at 2026-03-23 09:23:25 -0500
+Processing by Admin::DashboardController#index as HTML
+  [1m[36mAdminUser Load (0.6ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."id" = 2 ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='index',application='Server',controller='dashboard'*/[0m
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/page/index.html.arb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/page/index.html.arb (Duration: 3.7ms | GC: 0.4ms)
+Completed 200 OK in 6ms (Views: 4.1ms | ActiveRecord: 0.6ms (1 query, 0 cached) | GC: 0.4ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:23:25 -0500
+Started GET "/admin/admin_users" for 127.0.0.1 at 2026-03-23 09:23:26 -0500
+Processing by Admin::AdminUsersController#index as HTML
+  [1m[36mAdminUser Load (1.0ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."id" = 2 ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='index',application='Server',controller='admin_users'*/[0m
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/index.html.arb
+  [1m[36mAdminUser Load (0.4ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" ORDER BY "admin_users"."id" desc LIMIT 30 OFFSET 0 /*action='index',application='Server',controller='admin_users'*/[0m
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/index.html.arb (Duration: 21.2ms | GC: 2.0ms)
+Completed 200 OK in 30ms (Views: 21.8ms | ActiveRecord: 1.4ms (2 queries, 0 cached) | GC: 3.1ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:23:26 -0500
+Started GET "/admin/dashboard" for 127.0.0.1 at 2026-03-23 09:23:30 -0500
+Processing by Admin::DashboardController#index as HTML
+  [1m[36mAdminUser Load (1.0ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."id" = 2 ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='index',application='Server',controller='dashboard'*/[0m
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/page/index.html.arb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/page/index.html.arb (Duration: 8.5ms | GC: 0.0ms)
+Completed 200 OK in 14ms (Views: 9.3ms | ActiveRecord: 1.0ms (1 query, 0 cached) | GC: 0.7ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:23:30 -0500

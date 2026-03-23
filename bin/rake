@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
-require_relative "../config/boot"
-require "rake"
-Rake.application.run
+#!/usr/bin/env bash
+set -euo pipefail
+exec "$(dirname "$0")/../server/bin/rake" "$@"
