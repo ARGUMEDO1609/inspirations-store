@@ -7,29 +7,38 @@ class Api::V1::WebhooksController < ActionController::Base
     resource_id = params[:id] || params.dig(:data, :id)
     topic = params[:topic] || params[:type]
 
-    if topic == "payment" && resource_id.present?
-      begin
-        sdk = Mercadopago::SDK.new(ENV.fetch("MP_ACCESS_TOKEN", nil))
-        payment_response = sdk.payment.get(resource_id)
-        payment = payment_response[:response]
+    process_payment_notification(resource_id) if topic == 'payment' && resource_id.present?
 
-        if payment && payment["status"] == "approved"
-          order_id = payment["external_reference"]
-          order = Order.find_by(id: order_id)
-          order&.update(status: :paid, payment_status: "approved")
-        end
-      rescue => e
-        Rails.logger.error "Mercadopago webhook error: #{e.message}"
-      end
-    end
-
-    render json: { status: "ok" }, status: :ok
+    render json: { status: 'ok' }, status: :ok
   end
 
   private
 
+  def process_payment_notification(resource_id)
+    sdk = Mercadopago::SDK.new(ENV.fetch('MP_ACCESS_TOKEN', nil))
+    payment_response = sdk.payment.get(resource_id)
+    payment = payment_response[:response]
+    return unless payment
+
+    order = find_order_for_payment(payment)
+    return unless order
+
+    order.apply_payment_update!(
+      payment_id: payment['id']&.to_s,
+      payment_status: payment['status']
+    )
+  rescue => e
+    Rails.logger.error "Mercadopago webhook error: #{e.message}"
+  end
+
+  def find_order_for_payment(payment)
+    order_reference = payment['external_reference']
+    return Order.find_by(id: order_reference) if order_reference.present?
+
+    Order.find_by(payment_id: payment['id']&.to_s)
+  end
+
   def verify_mercadopago_request
-    # Add IP verification in production
     true
   end
 end

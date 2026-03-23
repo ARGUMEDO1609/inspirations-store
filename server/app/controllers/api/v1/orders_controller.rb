@@ -14,10 +14,11 @@ class Api::V1::OrdersController < Api::V1::ApiController
   def create
     @order = current_user.orders.new(order_params)
     @order.status = :pending
+    @order.payment_status = 'pending'
 
     cart_items = current_user.cart_items.includes(:product)
     if cart_items.empty?
-      render json: { error: "Cart is empty" }, status: :unprocessable_entity
+      render json: { error: 'Cart is empty' }, status: :unprocessable_entity
       return
     end
 

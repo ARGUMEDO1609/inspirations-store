@@ -1,4 +1,4 @@
-require "mercadopago"
+require 'mercadopago'
 
 class Api::V1::PaymentsController < Api::V1::ApiController
   before_action :authenticate_user!
@@ -6,34 +6,65 @@ class Api::V1::PaymentsController < Api::V1::ApiController
   def create_preference
     @order = current_user.orders.find(params[:id])
 
-    sdk = Mercadopago::SDK.new(ENV["MP_ACCESS_TOKEN"] || "TEST-9140410657904033-030213-9a0d8e8b8b8b8b8b8b8b8b8-12345678")
-
-    items = @order.order_items.map do |item|
-      {
-        title: item.product.title,
-        unit_price: item.unit_price.to_f,
-        quantity: item.quantity,
-        currency_id: "ARS"
-      }
+    if @order.order_items.empty?
+      render json: { error: 'Order has no items' }, status: :unprocessable_entity
+      return
     end
 
-    preference_data = {
-      items: items,
-      back_urls: {
-        success: "#{ENV['FRONTEND_URL']}/payment/success",
-        failure: "#{ENV['FRONTEND_URL']}/payment/failure",
-        pending: "#{ENV['FRONTEND_URL']}/payment/pending"
-      },
-      auto_return: "approved",
-      external_reference: @order.id.to_s,
-      notification_url: "#{ENV['BACKEND_URL']}/api/v1/webhooks/mercadopago"
-    }
+    unless @order.pending?
+      render json: { error: 'Order is not available for payment' }, status: :unprocessable_entity
+      return
+    end
+
+    sdk = Mercadopago::SDK.new(ENV['MP_ACCESS_TOKEN'] || 'TEST-9140410657904033-030213-9a0d8e8b8b8b8b8b8b8b8b8-12345678')
 
     preference_response = sdk.preference.create(preference_data)
     preference = preference_response[:response]
 
-    @order.update(payment_id: preference["id"])
+    if preference.blank? || preference['id'].blank? || preference['init_point'].blank?
+      render json: { error: 'Could not create payment preference' }, status: :unprocessable_entity
+      return
+    end
 
-    render json: { preference_id: preference["id"], checkout_url: preference["init_point"] }
+    @order.update!(payment_id: preference['id'])
+
+    render json: { preference_id: preference['id'], checkout_url: preference['init_point'] }
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Order not found' }, status: :not_found
+  end
+
+  private
+
+  def preference_data
+    {
+      items: serialized_items,
+      back_urls: {
+        success: "#{frontend_url}/payment/success",
+        failure: "#{frontend_url}/payment/failure",
+        pending: "#{frontend_url}/payment/pending"
+      },
+      auto_return: 'approved',
+      external_reference: @order.id.to_s,
+      notification_url: "#{backend_url}/api/v1/webhooks/mercadopago"
+    }
+  end
+
+  def serialized_items
+    @order.order_items.map do |item|
+      {
+        title: item.product.title,
+        unit_price: item.unit_price.to_f,
+        quantity: item.quantity,
+        currency_id: 'ARS'
+      }
+    end
+  end
+
+  def frontend_url
+    ENV['FRONTEND_URL'].presence || 'http://localhost:5173'
+  end
+
+  def backend_url
+    ENV['BACKEND_URL'].presence || request.base_url
   end
 end
