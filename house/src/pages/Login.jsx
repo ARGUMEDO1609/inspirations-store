@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import { useToast } from '../context/ToastContext';
+import { Link, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -19,15 +19,15 @@ const Login = () => {
       await login(email, password);
       toast({
         type: 'success',
-        title: 'Bienvenido',
-        message: 'Has iniciado sesión correctamente.'
+        title: 'Ingreso exitoso',
+        message: 'Tu sesión quedó activa.'
       });
       navigate('/');
     } catch (err) {
       toast({
         type: 'error',
-        title: 'Error de acceso',
-        message: 'Credenciales inválidas. Por favor intenta de nuevo.'
+        title: 'Acceso denegado',
+        message: 'Credenciales inválidas. Revisa tu correo y contraseña.'
       });
     } finally {
       setLoading(false);
@@ -35,51 +35,71 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-[75vh] items-center justify-center py-10 sm:min-h-[80vh] sm:py-20">
-      <div className="w-full max-w-md rounded-[28px] border border-slate-800 bg-slate-900/50 p-6 shadow-2xl backdrop-blur-3xl sm:rounded-[40px] sm:p-10 lg:p-12">
-        <div className="mb-8 text-center sm:mb-10">
-          <h2 className="mb-2 text-3xl font-black tracking-tighter text-white sm:text-4xl">Bienvenido de nuevo</h2>
-          <p className="text-sm font-medium text-slate-500 sm:text-base">Accede a tu colección privada.</p>
+    <div className="py-10 sm:py-12 lg:py-16">
+      <section className="mx-auto grid max-w-5xl overflow-hidden rounded-[2.25rem] border border-[var(--border-soft)] bg-[linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="hidden border-r border-[var(--border-soft)] bg-[radial-gradient(circle_at_top_left,rgba(215,161,74,0.18),transparent_40%),var(--bg-elevated)] p-10 lg:flex lg:flex-col lg:justify-between">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[var(--text-muted)]">Private Access</p>
+            <h1 className="mt-6 font-display text-5xl uppercase leading-[0.9] tracking-[0.08em] text-[var(--text-primary)]">
+              Vuelve a tu colección.
+            </h1>
+            <p className="mt-6 max-w-sm text-base leading-8 text-[var(--text-secondary)]">
+              Revisa pedidos, estados de pago y tu historial desde un espacio privado con la misma identidad visual de la tienda.
+            </p>
+          </div>
+          <p className="text-xs uppercase tracking-[0.28em] text-[var(--accent)]">Inspiration Members Area</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
-          <div className="space-y-2">
-            <label className="px-2 text-xs font-black uppercase tracking-widest text-slate-500">Email</label>
-            <input
-              type="email"
-              required
-              className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-5 py-4 text-white transition-all focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 sm:px-6"
-              placeholder="tu@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+        <div className="p-6 sm:p-8 lg:p-10 xl:p-12">
+          <div className="mb-8">
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[var(--text-muted)]">Login</p>
+            <h2 className="mt-4 text-3xl font-semibold uppercase tracking-[0.12em] text-[var(--text-primary)] sm:text-4xl">
+              Entrar a tu cuenta
+            </h2>
           </div>
 
-          <div className="space-y-2">
-            <label className="px-2 text-xs font-black uppercase tracking-widest text-slate-500">Contraseña</label>
-            <input
-              type="password"
-              required
-              className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-5 py-4 text-white transition-all focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 sm:px-6"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="mb-2 block text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">Correo</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@email.com"
+                className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-1)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]"
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex min-h-[60px] w-full items-center justify-center rounded-2xl bg-amber-600 py-4 text-base font-black uppercase tracking-tight text-white transition hover:bg-amber-500"
-          >
-            {loading ? <Loader2 className="animate-spin text-white" size={24} /> : 'Iniciar sesión'}
-          </button>
-        </form>
+            <div>
+              <label className="mb-2 block text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">Contraseña</label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-1)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]"
+              />
+            </div>
 
-        <p className="mt-6 text-center text-sm font-medium text-slate-500 sm:mt-8">
-          ¿No tienes cuenta? <Link to="/signup" className="ml-1 font-bold text-amber-500 hover:text-amber-400">Regístrate</Link>
-        </p>
-      </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="inline-flex min-h-[60px] w-full items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-60"
+            >
+              {loading ? <Loader2 className="animate-spin" size={18} /> : 'Iniciar sesión'}
+            </button>
+          </form>
+
+          <p className="mt-6 text-sm text-[var(--text-secondary)]">
+            ¿Aún no tienes cuenta?{' '}
+            <Link to="/signup" className="text-[var(--accent)] transition hover:text-[var(--accent-strong)]">
+              Crear acceso
+            </Link>
+          </p>
+        </div>
+      </section>
     </div>
   );
 };

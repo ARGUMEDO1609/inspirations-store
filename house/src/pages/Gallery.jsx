@@ -1,61 +1,89 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
-import { Loader2 } from 'lucide-react';
 import useActionCable from '../api/useActionCable';
 import { useToast } from '../context/ToastContext';
 
-const Hero = ({ filter, setFilter, sort, setSort, categories }) => (
-  <div className="group relative mb-16 w-full overflow-hidden rounded-[28px] shadow-[0_40px_100px_rgba(0,0,0,0.6)] sm:mb-24 sm:rounded-[40px] lg:mb-32 lg:rounded-[60px]">
-    <div className="relative min-h-[420px] sm:min-h-[520px] lg:h-[90vh] lg:min-h-[700px]">
-      <img
-        src="/portada.png"
-        alt="Inspiration Store Hero"
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[3000ms] group-hover:scale-105 lg:scale-105 lg:group-hover:scale-110"
-      />
-      <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-slate-950/95 via-slate-950/35 to-slate-950/10 p-5 sm:p-8 lg:p-16 xl:p-24">
-        <div className="rounded-[28px] border border-white/10 bg-white/5 p-3 shadow-3xl backdrop-blur-3xl sm:rounded-[32px] sm:p-5 lg:rounded-[40px] lg:p-6">
-          <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center md:justify-center md:gap-4">
+const Hero = ({ filter, setFilter, sort, setSort, categories, productCount }) => {
+  return (
+    <section className="relative overflow-hidden rounded-[2.25rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-10">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,161,74,0.22),transparent_35%),linear-gradient(135deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01))]" />
+      <div className="relative grid gap-8 lg:grid-cols-[1.3fr_0.9fr] lg:gap-10">
+        <div className="space-y-6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-soft)] bg-[var(--surface-2)] px-4 py-2 text-[10px] uppercase tracking-[0.32em] text-[var(--text-muted)]">
+            <Sparkles size={14} className="text-[var(--accent)]" />
+            Curated Storefront
+          </div>
+
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.34em] text-[var(--text-muted)]">Colección viva 2026</p>
+            <h1 className="mt-4 max-w-3xl font-display text-5xl uppercase leading-[0.88] tracking-[0.08em] text-[var(--text-primary)] sm:text-6xl lg:text-7xl xl:text-[6.4rem]">
+              Objetos con presencia editorial.
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--text-secondary)] sm:text-lg">
+              Inspiration Store presenta piezas con lenguaje de galería: volúmenes limpios, materiales visuales y una compra que se siente más curada que comercial.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
             <button
               onClick={() => {
                 setFilter('all');
                 setSort('recent');
               }}
-              className={`${filter === 'all' && sort !== 'popular' ? 'bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.4)]' : 'bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white'} rounded-[20px] px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 sm:px-8 lg:px-12 lg:py-4 lg:rounded-[24px]`}
+              className={`rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] transition ${filter === 'all' && sort !== 'popular' ? 'bg-[var(--accent)] text-[var(--ink)]' : 'border border-[var(--border-soft)] bg-[var(--surface-2)] text-[var(--text-primary)] hover:border-[var(--accent)]'}`}
             >
-              Todo
+              Todas las piezas
             </button>
-
-            <div className="relative w-full md:w-auto group/select">
+            <div className="relative min-w-[220px] flex-1 sm:flex-none">
               <select
                 onChange={(e) => setFilter(e.target.value)}
                 value={filter === 'all' ? 'all' : filter}
-                className={`${filter !== 'all' ? 'bg-amber-500 text-black shadow-[0_0_30px_rgba(245,158,11,0.4)]' : 'bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white'} w-full cursor-pointer appearance-none rounded-[20px] border-none px-5 py-3 pr-12 text-[11px] font-black uppercase tracking-[0.2em] outline-none transition-all duration-500 sm:px-8 lg:px-12 lg:py-4 lg:pr-16 lg:rounded-[24px] md:min-w-[220px]`}
+                className="w-full appearance-none rounded-full border border-[var(--border-soft)] bg-[var(--surface-2)] px-5 py-3 pr-12 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] outline-none transition hover:border-[var(--accent)]"
               >
-                <option value="all" disabled={filter !== 'all'}>Categorias</option>
+                <option value="all">Curaduría por categoría</option>
                 {categories.map((cat) => (
-                  <option key={cat.id} value={cat.attributes.name} className="bg-slate-950 text-white">
+                  <option key={cat.id} value={cat.attributes.name}>
                     {cat.attributes.name}
                   </option>
                 ))}
               </select>
-              <div className={`pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 transition duration-500 lg:right-6 ${filter !== 'all' ? 'text-black' : 'text-slate-500 group-hover/select:text-white'}`}>
-                ▼
-              </div>
+              <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">▼</span>
             </div>
-
             <button
               onClick={() => setSort('popular')}
-              className={`${sort === 'popular' ? 'bg-amber-500 text-black shadow-[0_0_30px_rgba(245,158,11,0.4)]' : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'} whitespace-nowrap rounded-[20px] px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 sm:px-8 lg:px-12 lg:py-4 lg:rounded-[24px]`}
+              className={`rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] transition ${sort === 'popular' ? 'bg-[var(--accent)] text-[var(--ink)]' : 'border border-[var(--border-soft)] bg-[var(--surface-2)] text-[var(--text-primary)] hover:border-[var(--accent)]'}`}
             >
-              Mas frecuentes
+              Más buscadas
             </button>
           </div>
         </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="rounded-[1.75rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.04)] p-5 sm:p-6">
+            <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-muted)]">Estado de la tienda</p>
+            <p className="mt-4 text-4xl font-semibold text-[var(--text-primary)]">{productCount}</p>
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">Piezas activas en la colección actual.</p>
+          </div>
+          <div className="flex flex-col justify-between rounded-[1.75rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-5 sm:p-6">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-muted)]">Dirección visual</p>
+              <h2 className="mt-4 text-2xl font-semibold uppercase tracking-[0.1em] text-[var(--text-primary)]">Boutique de colección</h2>
+              <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
+                Menos marketplace. Más selección de piezas con identidad propia.
+              </p>
+            </div>
+            <div className="mt-6 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-[var(--accent)]">
+              Explorar selección
+              <ArrowRight size={15} />
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-);
+    </section>
+  );
+};
 
 const Gallery = () => {
   const [products, setProducts] = useState([]);
@@ -115,15 +143,15 @@ const Gallery = () => {
       });
       toast({
         type: 'success',
-        title: 'Listo',
-        message: `${product.attributes.title} ha sido añadido al carrito.`
+        title: 'Pieza añadida',
+        message: `${product.attributes.title} fue enviada a tu selección.`
       });
     } catch (error) {
       console.error('Error adding to cart:', error);
       const errorMessage = error.response?.data?.error || 'Debes iniciar sesión para añadir productos al carrito.';
       toast({
         type: 'error',
-        title: 'Atención',
+        title: 'Acción no disponible',
         message: errorMessage
       });
     } finally {
@@ -134,22 +162,23 @@ const Gallery = () => {
   if (loading && products.length === 0) {
     return (
       <div className="flex items-center justify-center py-32 sm:py-40">
-        <Loader2 className="h-12 w-12 animate-spin text-amber-500" />
+        <Loader2 className="h-12 w-12 animate-spin text-[var(--accent)]" />
       </div>
     );
   }
 
   return (
-    <div className="py-10 sm:py-14 lg:py-20">
+    <div className="space-y-10 py-8 sm:space-y-12 sm:py-10 lg:space-y-14 lg:py-14">
       <Hero
         filter={filter}
         setFilter={setFilter}
         sort={sort}
         setSort={setSort}
         categories={categories}
+        productCount={products.length}
       />
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 xl:grid-cols-3 xl:gap-12">
+      <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {products.map((item) => (
           <ProductCard
             key={item.id}
@@ -158,7 +187,7 @@ const Gallery = () => {
             onAddToCart={() => handleAddToCart(item)}
           />
         ))}
-      </div>
+      </section>
     </div>
   );
 };

@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import api from '../api/axios';
-import { Trash2, Plus, Minus, CreditCard, Loader2, ShoppingBag, MapPin, ArrowLeft } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft, CreditCard, Loader2, MapPin, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
+import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -46,7 +46,7 @@ const Cart = () => {
       const errorMessage = error.response?.data?.error || 'No se pudo actualizar la cantidad.';
       toast({
         type: 'error',
-        title: 'Límite alcanzado',
+        title: 'Cantidad no válida',
         message: errorMessage
       });
     } finally {
@@ -60,8 +60,8 @@ const Cart = () => {
       await api.delete(`/cart_items/${id}`);
       toast({
         type: 'info',
-        title: 'Eliminado',
-        message: 'El producto ha sido removido de tu selección.'
+        title: 'Pieza removida',
+        message: 'La pieza fue retirada de tu selección.'
       });
       await fetchCart();
     } catch (error) {
@@ -76,7 +76,7 @@ const Cart = () => {
       toast({
         type: 'error',
         title: 'Dirección requerida',
-        message: 'Por favor ingresa una dirección de envío.'
+        message: 'Ingresa una dirección de envío antes de continuar.'
       });
       return;
     }
@@ -87,7 +87,6 @@ const Cart = () => {
         order: { shipping_address: shippingAddress }
       });
       const orderId = orderResponse.data.id;
-
       const paymentResponse = await api.get(`/orders/${orderId}/pay`);
       window.location.href = paymentResponse.data.checkout_url;
     } catch (error) {
@@ -95,7 +94,7 @@ const Cart = () => {
       const errorMessage = error.response?.data?.error || 'No pudimos iniciar la transacción con Mercado Pago.';
       toast({
         type: 'error',
-        title: 'Error de pago',
+        title: 'Pago no iniciado',
         message: errorMessage
       });
     } finally {
@@ -106,7 +105,7 @@ const Cart = () => {
   if (loading && cart.items.length === 0) {
     return (
       <div className="flex items-center justify-center py-32 sm:py-40">
-        <Loader2 className="h-12 w-12 animate-spin text-amber-500" />
+        <Loader2 className="h-12 w-12 animate-spin text-[var(--accent)]" />
       </div>
     );
   }
@@ -114,148 +113,127 @@ const Cart = () => {
   if (cart.items.length === 0) {
     return (
       <div className="py-24 text-center sm:py-32 lg:py-40">
-        <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full border border-slate-800 bg-slate-900 sm:mb-10 sm:h-32 sm:w-32">
-          <ShoppingBag className="text-slate-800" size={40} />
+        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[var(--surface-1)] text-[var(--text-muted)]">
+          <ShoppingBag size={36} />
         </div>
-        <h2 className="mb-4 text-3xl font-black tracking-tighter text-white sm:mb-6 sm:text-4xl lg:text-5xl">Tu bolsa está vacía.</h2>
-        <p className="mb-8 text-base font-medium text-slate-500 sm:mb-12 sm:text-xl">Aún no has curado piezas para tu colección.</p>
-        <Link to="/" className="inline-block rounded-2xl bg-white px-8 py-4 text-sm font-black uppercase tracking-widest text-slate-950 transition-all duration-500 hover:bg-amber-500 sm:px-12 sm:py-5">
-          Explorar galería
+        <h2 className="mt-8 text-3xl font-semibold uppercase tracking-[0.12em] text-[var(--text-primary)] sm:text-4xl">
+          Tu selección está vacía.
+        </h2>
+        <p className="mx-auto mt-4 max-w-xl text-base leading-8 text-[var(--text-secondary)]">
+          Cuando añadas piezas desde la colección, aparecerán aquí listas para pasar al checkout.
+        </p>
+        <Link to="/" className="mt-8 inline-flex rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)]">
+          Volver a la tienda
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-5 py-10 duration-700 sm:py-14 lg:py-20">
-      <div className="mb-10 flex flex-col gap-4 sm:mb-12 lg:mb-16 lg:flex-row lg:items-end lg:justify-between">
-        <h1 className="text-4xl font-black tracking-tighter text-white sm:text-5xl lg:text-6xl">
-          {isCheckingOut ? 'Finalizar adquisición' : 'Tu selección'}
-        </h1>
+    <div className="space-y-8 py-8 sm:space-y-10 sm:py-10 lg:space-y-12 lg:py-14">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.34em] text-[var(--text-muted)]">Private Selection</p>
+          <h1 className="mt-4 font-display text-5xl uppercase tracking-[0.08em] text-[var(--text-primary)] sm:text-6xl">
+            {isCheckingOut ? 'Checkout' : 'Tu selección'}
+          </h1>
+        </div>
         {isCheckingOut && (
-          <button
-            onClick={() => setIsCheckingOut(false)}
-            className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-slate-500 transition hover:text-white"
-          >
-            <ArrowLeft size={16} /> Volver al carrito
+          <button onClick={() => setIsCheckingOut(false)} className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-[var(--text-muted)] transition hover:text-[var(--accent)]">
+            <ArrowLeft size={15} /> Volver al carrito
           </button>
         )}
       </div>
 
-      <div className="flex flex-col gap-8 lg:flex-row lg:gap-12 xl:gap-20">
-        <div className="min-w-0 flex-1 space-y-6 sm:space-y-8">
+      <div className="grid gap-8 xl:grid-cols-[1fr_360px]">
+        <div className="space-y-5">
           {!isCheckingOut ? (
             cart.items.map((item) => (
-              <div key={item.id} className={`rounded-[28px] border border-slate-800 bg-slate-900/50 p-5 transition-all duration-500 hover:border-amber-500/30 sm:rounded-[36px] sm:p-6 lg:rounded-[40px] lg:p-8 ${processingId === item.id ? 'opacity-50' : ''}`}>
-                <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-center sm:gap-6 lg:gap-8">
-                    <div className="h-24 w-24 overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 sm:h-28 sm:w-28 lg:h-32 lg:w-32">
-                      <img src={item.product.image_url || 'https://via.placeholder.com/200'} alt={item.product.title} className="h-full w-full object-cover opacity-80" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="mb-2 text-xl font-black leading-tight tracking-tighter text-white sm:text-2xl">{item.product.title}</h3>
-                      <div className="mb-4 text-sm font-black text-amber-500">${item.product.price} / pieza</div>
+              <article key={item.id} className={`overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] transition ${processingId === item.id ? 'opacity-60' : ''}`}>
+                <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[auto_1fr_auto] lg:items-center">
+                  <div className="h-24 w-24 overflow-hidden rounded-[1.5rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)] sm:h-28 sm:w-28">
+                    <img src={item.product.image_url || 'https://via.placeholder.com/200'} alt={item.product.title} className="h-full w-full object-cover" />
+                  </div>
 
-                      <div className="flex w-fit items-center gap-4 rounded-2xl bg-slate-950 px-4 py-2 ring-1 ring-slate-800 sm:gap-6">
-                        <button disabled={processingId === item.id} onClick={() => updateQuantity(item.id, item.quantity - 1)} className="text-slate-500 transition hover:text-white disabled:opacity-30">
-                          <Minus size={18} />
-                        </button>
-                        <span className="w-8 text-center font-black text-white">{item.quantity}</span>
-                        <button disabled={processingId === item.id} onClick={() => updateQuantity(item.id, item.quantity + 1)} className="text-slate-500 transition hover:text-white disabled:opacity-30">
-                          <Plus size={18} />
-                        </button>
-                      </div>
+                  <div className="min-w-0">
+                    <h3 className="text-2xl font-semibold uppercase tracking-[0.08em] text-[var(--text-primary)]">
+                      {item.product.title}
+                    </h3>
+                    <p className="mt-2 text-sm text-[var(--text-secondary)]">${item.product.price} por pieza</p>
+                    <div className="mt-5 inline-flex items-center gap-4 rounded-full border border-[var(--border-soft)] bg-[var(--surface-1)] px-4 py-2">
+                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={processingId === item.id} className="text-[var(--text-muted)] transition hover:text-[var(--accent)] disabled:opacity-40">
+                        <Minus size={16} />
+                      </button>
+                      <span className="min-w-8 text-center text-sm text-[var(--text-primary)]">{item.quantity}</span>
+                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)} disabled={processingId === item.id} className="text-[var(--text-muted)] transition hover:text-[var(--accent)] disabled:opacity-40">
+                        <Plus size={16} />
+                      </button>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-4 sm:gap-8 lg:w-auto lg:flex-col lg:items-end">
-                    <span className="text-2xl font-black leading-none text-white sm:text-3xl">${(item.product.price * item.quantity).toFixed(2)}</span>
-                    <button
-                      disabled={processingId === item.id}
-                      onClick={() => removeItem(item.id)}
-                      className="rounded-2xl border border-slate-800 bg-slate-950 p-3 text-rose-500/50 transition-all duration-300 hover:bg-rose-500/5 hover:text-rose-500 disabled:opacity-30 sm:p-4"
-                    >
-                      {processingId === item.id ? <Loader2 size={20} className="animate-spin" /> : <Trash2 size={20} />}
+                  <div className="flex items-center justify-between gap-4 lg:flex-col lg:items-end">
+                    <p className="text-2xl font-semibold text-[var(--accent)]">${(item.product.price * item.quantity).toFixed(2)}</p>
+                    <button onClick={() => removeItem(item.id)} disabled={processingId === item.id} className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[var(--surface-1)] text-[var(--danger)] transition hover:border-[var(--danger)] disabled:opacity-40">
+                      {processingId === item.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                     </button>
                   </div>
                 </div>
-              </div>
+              </article>
             ))
           ) : (
-            <div className="space-y-8 rounded-[28px] border border-slate-800 bg-slate-900/50 p-6 sm:rounded-[40px] sm:p-8 lg:rounded-[50px] lg:p-12">
-              <div>
-                <h3 className="mb-6 flex items-center gap-3 text-xl font-black uppercase tracking-tight text-white sm:mb-8 sm:text-2xl">
-                  <MapPin className="text-amber-500" /> Datos de entrega
-                </h3>
-                <div className="space-y-4">
-                  <label className="px-2 text-xs font-black uppercase tracking-widest text-slate-500">Dirección de envío completa</label>
-                  <textarea
-                    value={shippingAddress}
-                    onChange={(e) => setShippingAddress(e.target.value)}
-                    rows="4"
-                    className="w-full resize-none rounded-3xl border border-slate-800 bg-slate-950 px-5 py-4 text-white transition-all focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 sm:px-8 sm:py-5"
-                    placeholder="Calle, número, ciudad, CP..."
-                  />
-                  <p className="text-[10px] italic text-slate-500">Usaremos esta dirección para el envío asegurado.</p>
-                </div>
+            <section className="overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-6 sm:p-8">
+              <div className="mb-6 flex items-center gap-3 text-[var(--text-primary)]">
+                <MapPin size={18} className="text-[var(--accent)]" />
+                <h2 className="text-xl font-semibold uppercase tracking-[0.1em]">Datos de entrega</h2>
               </div>
+              <label className="mb-2 block text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">Dirección completa</label>
+              <textarea
+                value={shippingAddress}
+                onChange={(e) => setShippingAddress(e.target.value)}
+                rows="5"
+                className="w-full rounded-[1.6rem] border border-[var(--border-soft)] bg-[var(--surface-1)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]"
+                placeholder="Calle, número, ciudad, referencia..."
+              />
 
-              <div className="border-t border-slate-800 pt-6 sm:pt-8">
-                <h3 className="mb-5 text-lg font-black uppercase tracking-tight text-white sm:mb-6 sm:text-xl">Resumen de objetos</h3>
-                <div className="space-y-4">
+              <div className="mt-8 border-t border-[var(--border-soft)] pt-6">
+                <h3 className="text-sm uppercase tracking-[0.22em] text-[var(--text-muted)]">Resumen del pedido</h3>
+                <div className="mt-4 space-y-4">
                   {cart.items.map((item) => (
-                    <div key={item.id} className="flex items-start justify-between gap-4 text-sm font-medium">
-                      <span className="text-slate-400">{item.product.title} x {item.quantity}</span>
-                      <span className="shrink-0 text-white">${(item.product.price * item.quantity).toFixed(2)}</span>
+                    <div key={item.id} className="flex items-start justify-between gap-4 text-sm text-[var(--text-secondary)]">
+                      <span>{item.product.title} x {item.quantity}</span>
+                      <span className="shrink-0 text-[var(--text-primary)]">${(item.product.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
               </div>
-            </div>
+            </section>
           )}
         </div>
 
-        <div className="w-full lg:w-[360px] xl:w-[400px]">
-          <div className="relative overflow-hidden rounded-[28px] border-2 border-slate-800 bg-slate-900 p-6 shadow-2xl sm:rounded-[40px] sm:p-8 lg:sticky lg:top-32 lg:rounded-[50px] lg:p-10 xl:p-12">
-            <div className="absolute -right-20 -top-20 h-60 w-60 bg-amber-500/5 blur-[100px]"></div>
+        <aside className="h-fit overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[radial-gradient(circle_at_top_right,rgba(215,161,74,0.18),transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-6 sm:p-8">
+          <p className="text-[10px] uppercase tracking-[0.34em] text-[var(--text-muted)]">Summary</p>
+          <h2 className="mt-4 text-3xl font-semibold uppercase tracking-[0.1em] text-[var(--text-primary)]">Resumen</h2>
 
-            <h2 className="mb-8 text-2xl font-black leading-none tracking-tighter text-white sm:mb-10 sm:text-3xl">Resumen de inversión</h2>
-
-            <div className="mb-10 space-y-5 sm:mb-12 sm:space-y-6">
-              <div className="flex justify-between text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">
-                <span>Subtotal</span>
-                <span className="text-slate-200">${cart.total.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between border-b border-slate-800 pb-5 text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 sm:pb-6">
-                <span>Envío</span>
-                <span className="text-emerald-500">Gratis</span>
-              </div>
-              <div className="flex items-end justify-between gap-4 pt-4 sm:pt-6">
-                <span className="text-2xl font-black tracking-tighter text-white sm:text-3xl">Total</span>
-                <span className="text-2xl font-black text-amber-500 sm:text-3xl">${cart.total.toFixed(2)}</span>
-              </div>
+          <div className="mt-8 space-y-5 text-sm text-[var(--text-secondary)]">
+            <div className="flex items-center justify-between">
+              <span>Subtotal</span>
+              <span className="text-[var(--text-primary)]">${cart.total.toFixed(2)}</span>
             </div>
-
-            <button
-              onClick={() => (isCheckingOut ? handleCheckout() : setIsCheckingOut(true))}
-              disabled={loading}
-              className="group flex min-h-[64px] w-full items-center justify-center gap-3 rounded-3xl bg-amber-600 px-5 py-4 text-base font-black text-white transition-all duration-500 hover:bg-amber-500 disabled:opacity-50 sm:text-lg"
-            >
-              {loading ? (
-                <Loader2 size={24} className="animate-spin" />
-              ) : (
-                <>
-                  <CreditCard size={22} className="transition-transform group-hover:rotate-12" />
-                  {isCheckingOut ? 'Confirmar y pagar' : 'Proceder al checkout'}
-                </>
-              )}
-            </button>
-
-            <p className="mt-6 text-center text-[10px] font-black uppercase tracking-widest text-slate-700 sm:mt-8">
-              Transacción protegida por cifrado SSL 256
-            </p>
+            <div className="flex items-center justify-between border-b border-[var(--border-soft)] pb-5">
+              <span>Envío</span>
+              <span className="text-[var(--success)]">Gratis</span>
+            </div>
+            <div className="flex items-end justify-between">
+              <span className="text-lg uppercase tracking-[0.14em] text-[var(--text-primary)]">Total</span>
+              <span className="text-3xl font-semibold text-[var(--accent)]">${cart.total.toFixed(2)}</span>
+            </div>
           </div>
-        </div>
+
+          <button onClick={() => (isCheckingOut ? handleCheckout() : setIsCheckingOut(true))} disabled={loading} className="mt-8 inline-flex min-h-[60px] w-full items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-60">
+            {loading ? <Loader2 className="animate-spin" size={18} /> : <CreditCard size={18} />}
+            {isCheckingOut ? 'Confirmar y pagar' : 'Ir al checkout'}
+          </button>
+        </aside>
       </div>
     </div>
   );

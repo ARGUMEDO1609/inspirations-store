@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import { useToast } from '../context/ToastContext';
+import { Link, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -28,20 +28,21 @@ const Signup = () => {
       });
       return;
     }
+
     setLoading(true);
     try {
       await signup(formData);
       toast({
         type: 'success',
-        title: 'Bienvenido',
-        message: 'Tu cuenta ha sido creada con éxito.'
+        title: 'Cuenta creada',
+        message: 'Tu espacio en Inspiration ya está listo.'
       });
       navigate('/');
     } catch (err) {
       toast({
         type: 'error',
-        title: 'Error de registro',
-        message: 'Hubo un problema al crear tu cuenta. Intenta con otro email.'
+        title: 'Registro no completado',
+        message: 'No pudimos crear tu cuenta. Intenta con otro correo.'
       });
     } finally {
       setLoading(false);
@@ -56,58 +57,62 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex min-h-[80vh] items-center justify-center py-10 sm:min-h-[90vh] sm:py-20">
-      <div className="w-full max-w-4xl rounded-[28px] border border-slate-800 bg-slate-900/50 p-6 shadow-2xl backdrop-blur-3xl sm:rounded-[40px] sm:p-8 lg:rounded-[50px] lg:p-12">
-        <div className="mb-8 text-center sm:mb-10 lg:mb-12">
-          <h2 className="mb-2 text-3xl font-black tracking-tighter text-white sm:text-4xl">Comienza tu viaje</h2>
-          <p className="text-sm font-medium text-slate-500 sm:text-base">Únete a la comunidad de coleccionistas de Inspiration.</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:gap-8">
-          <div className="space-y-5 sm:space-y-6">
-            <div className="space-y-2">
-              <label className="px-2 text-xs font-black uppercase tracking-widest text-slate-500">Nombre completo</label>
-              <input name="name" type="text" required value={formData.name} onChange={handleChange} className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 sm:px-6" placeholder="Juan Pérez" />
-            </div>
-            <div className="space-y-2">
-              <label className="px-2 text-xs font-black uppercase tracking-widest text-slate-500">Email</label>
-              <input name="email" type="email" required value={formData.email} onChange={handleChange} className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 sm:px-6" placeholder="juan@email.com" />
-            </div>
-            <div className="space-y-2">
-              <label className="px-2 text-xs font-black uppercase tracking-widest text-slate-500">Contraseña</label>
-              <input name="password" type="password" required value={formData.password} onChange={handleChange} className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 sm:px-6" placeholder="••••••••" />
-            </div>
-          </div>
-
-          <div className="space-y-5 sm:space-y-6">
-            <div className="space-y-2">
-              <label className="px-2 text-xs font-black uppercase tracking-widest text-slate-500">Teléfono</label>
-              <input name="phone" type="text" value={formData.phone} onChange={handleChange} className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 sm:px-6" placeholder="+57 300..." />
-            </div>
-            <div className="space-y-2">
-              <label className="px-2 text-xs font-black uppercase tracking-widest text-slate-500">Dirección de envío</label>
-              <input name="address" type="text" value={formData.address} onChange={handleChange} className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 sm:px-6" placeholder="Av. Principal 123..." />
-            </div>
-            <div className="space-y-2">
-              <label className="px-2 text-xs font-black uppercase tracking-widest text-slate-500">Confirmar contraseña</label>
-              <input name="password_confirmation" type="password" required value={formData.password_confirmation} onChange={handleChange} className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 sm:px-6" placeholder="••••••••" />
-            </div>
-          </div>
-
-          <div className="pt-2 text-center md:col-span-2 md:pt-4 lg:pt-6">
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex min-h-[64px] w-full items-center justify-center rounded-2xl bg-slate-100 px-5 py-4 text-sm font-black uppercase tracking-tight text-slate-950 transition duration-500 hover:bg-amber-500 sm:text-base lg:min-h-[72px]"
-            >
-              {loading ? <Loader2 className="animate-spin text-slate-950" size={28} /> : 'Crear colección de usuario'}
-            </button>
-            <p className="mt-6 text-center text-sm font-medium text-slate-500 sm:mt-8">
-              ¿Ya eres miembro? <Link to="/login" className="ml-1 font-bold text-amber-500 hover:text-amber-400">Inicia sesión</Link>
+    <div className="py-10 sm:py-12 lg:py-16">
+      <section className="mx-auto max-w-6xl overflow-hidden rounded-[2.25rem] border border-[var(--border-soft)] bg-[linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))]">
+        <div className="grid gap-0 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="border-b border-[var(--border-soft)] bg-[radial-gradient(circle_at_top_left,rgba(215,161,74,0.18),transparent_42%),var(--bg-elevated)] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10 xl:p-12">
+            <p className="text-[10px] uppercase tracking-[0.34em] text-[var(--text-muted)]">Member Creation</p>
+            <h1 className="mt-5 font-display text-5xl uppercase leading-[0.9] tracking-[0.08em] text-[var(--text-primary)] sm:text-6xl">
+              Crea tu acceso privado.
+            </h1>
+            <p className="mt-6 max-w-sm text-base leading-8 text-[var(--text-secondary)]">
+              Guarda tus direcciones, sigue pedidos y convierte la tienda en una experiencia más personal.
             </p>
           </div>
-        </form>
-      </div>
+
+          <div className="p-6 sm:p-8 lg:p-10 xl:p-12">
+            <form onSubmit={handleSubmit} className="grid gap-5 md:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">Nombre</label>
+                <input name="name" type="text" required value={formData.name} onChange={handleChange} placeholder="Juan Pérez" className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-1)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]" />
+              </div>
+              <div>
+                <label className="mb-2 block text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">Correo</label>
+                <input name="email" type="email" required value={formData.email} onChange={handleChange} placeholder="juan@email.com" className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-1)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]" />
+              </div>
+              <div>
+                <label className="mb-2 block text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">Teléfono</label>
+                <input name="phone" type="text" value={formData.phone} onChange={handleChange} placeholder="+57 300..." className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-1)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]" />
+              </div>
+              <div>
+                <label className="mb-2 block text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">Dirección</label>
+                <input name="address" type="text" value={formData.address} onChange={handleChange} placeholder="Av. Principal 123..." className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-1)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]" />
+              </div>
+              <div>
+                <label className="mb-2 block text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">Contraseña</label>
+                <input name="password" type="password" required value={formData.password} onChange={handleChange} placeholder="••••••••" className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-1)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]" />
+              </div>
+              <div>
+                <label className="mb-2 block text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">Confirmar contraseña</label>
+                <input name="password_confirmation" type="password" required value={formData.password_confirmation} onChange={handleChange} placeholder="••••••••" className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-1)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]" />
+              </div>
+
+              <div className="md:col-span-2">
+                <button type="submit" disabled={loading} className="inline-flex min-h-[60px] w-full items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-60">
+                  {loading ? <Loader2 className="animate-spin" size={18} /> : 'Crear cuenta'}
+                </button>
+              </div>
+            </form>
+
+            <p className="mt-6 text-sm text-[var(--text-secondary)]">
+              ¿Ya tienes acceso?{' '}
+              <Link to="/login" className="text-[var(--accent)] transition hover:text-[var(--accent-strong)]">
+                Entrar ahora
+              </Link>
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

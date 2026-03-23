@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import { Loader2, Mail, MapPin, Phone, Save, Shield, User } from 'lucide-react';
+import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { User, Mail, MapPin, Phone, Shield, Save, Loader2 } from 'lucide-react';
-import api from '../api/axios';
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -30,7 +30,7 @@ const Profile = () => {
       toast({
         type: 'success',
         title: 'Perfil actualizado',
-        message: 'Tus datos han sido guardados correctamente.'
+        message: 'Tus datos quedaron guardados.'
       });
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'No se pudo actualizar el perfil.';
@@ -45,90 +45,69 @@ const Profile = () => {
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-5 py-10 duration-700 sm:py-14 lg:py-20">
-      <div className="mb-10 flex flex-col gap-4 sm:mb-12 lg:mb-16 lg:flex-row lg:items-end lg:justify-between">
+    <div className="space-y-8 py-8 sm:space-y-10 sm:py-10 lg:space-y-12 lg:py-14">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="mb-3 text-4xl font-black tracking-tighter text-white sm:text-5xl lg:text-6xl">Tu perfil</h1>
-          <p className="text-base font-medium text-slate-500 sm:text-xl">Gestiona tu identidad en Inspiration Store.</p>
+          <p className="text-[10px] uppercase tracking-[0.34em] text-[var(--text-muted)]">Member Profile</p>
+          <h1 className="mt-4 font-display text-5xl uppercase tracking-[0.08em] text-[var(--text-primary)] sm:text-6xl">
+            Tu perfil
+          </h1>
         </div>
-        <div className="flex w-fit items-center gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 sm:px-6">
-          <Shield className="text-amber-500" size={20} />
-          <span className="text-xs font-black uppercase tracking-widest text-amber-500">Cuenta protegida</span>
+        <div className="inline-flex w-fit items-center gap-3 rounded-full border border-[var(--border-soft)] bg-[var(--surface-2)] px-5 py-3 text-[11px] uppercase tracking-[0.22em] text-[var(--text-secondary)]">
+          <Shield size={15} className="text-[var(--accent)]" />
+          Cuenta protegida
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:gap-10 xl:gap-12">
-        <div className="space-y-6 sm:space-y-8 lg:col-span-1">
-          <div className="relative overflow-hidden rounded-[28px] border border-slate-800 bg-slate-900 p-6 text-center sm:rounded-[40px] sm:p-10 lg:rounded-[50px] lg:p-12">
-            <div className="absolute -left-20 -top-20 h-40 w-40 bg-amber-500/5 blur-[80px]"></div>
-            <div className="relative mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full border-4 border-slate-800 bg-slate-950 text-amber-500 shadow-2xl sm:mb-8 sm:h-32 sm:w-32">
-              <User size={54} strokeWidth={1.5} />
-              <div className="absolute bottom-0 right-0 h-7 w-7 rounded-full border-4 border-slate-900 bg-emerald-500 animate-pulse"></div>
+      <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
+        <section className="overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[radial-gradient(circle_at_top_left,rgba(215,161,74,0.18),transparent_35%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-6 sm:p-8">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[var(--surface-1)] text-[var(--accent)]">
+            <User size={42} />
+          </div>
+          <h2 className="mt-6 text-3xl font-semibold uppercase tracking-[0.1em] text-[var(--text-primary)]">
+            {user?.name}
+          </h2>
+          <p className="mt-3 break-all text-sm text-[var(--text-secondary)]">{user?.email}</p>
+          <p className="mt-8 text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)]">
+            Miembro desde {new Date().getFullYear()}
+          </p>
+        </section>
+
+        <form onSubmit={handleSubmit} className="overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-6 sm:p-8 lg:p-10">
+          <div className="grid gap-5 md:grid-cols-2">
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">
+                <User size={12} className="text-[var(--accent)]" /> Nombre
+              </label>
+              <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-1)] px-5 py-4 text-[var(--text-primary)] outline-none transition focus:border-[var(--accent)]" />
             </div>
-            <h2 className="mb-2 break-words text-2xl font-black tracking-tighter text-white sm:text-3xl">{user?.name}</h2>
-            <p className="mb-6 break-all text-sm text-slate-500 sm:mb-8">{user?.email}</p>
-            <div className="border-t border-slate-800 pt-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-600 sm:pt-8">
-              Miembro desde {new Date().getFullYear()}
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">
+                <Mail size={12} className="text-[var(--accent)]" /> Correo
+              </label>
+              <input type="email" value={formData.email} readOnly className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.03)] px-5 py-4 text-[var(--text-muted)]" />
+            </div>
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">
+                <Phone size={12} className="text-[var(--accent)]" /> Teléfono
+              </label>
+              <input type="text" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-1)] px-5 py-4 text-[var(--text-primary)] outline-none transition focus:border-[var(--accent)]" />
+            </div>
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">
+                <MapPin size={12} className="text-[var(--accent)]" /> Dirección
+              </label>
+              <input type="text" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[var(--surface-1)] px-5 py-4 text-[var(--text-primary)] outline-none transition focus:border-[var(--accent)]" />
             </div>
           </div>
 
-          <div className="rounded-[28px] border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-xl sm:rounded-[40px] sm:p-8">
-            <h3 className="mb-4 text-xs font-black uppercase tracking-[0.2em] text-white">Estadísticas</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Colecciones</span>
-                <span className="text-xl font-black text-white">04</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Reseñas</span>
-                <span className="text-xl font-black text-white">12</span>
-              </div>
-            </div>
+          <div className="mt-8 flex justify-end border-t border-[var(--border-soft)] pt-6">
+            <button type="submit" disabled={loading} className="inline-flex min-h-[56px] items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-60">
+              {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+              Guardar cambios
+            </button>
           </div>
-        </div>
-
-        <div className="lg:col-span-2">
-          <form onSubmit={handleSubmit} className="relative space-y-8 overflow-hidden rounded-[28px] border border-slate-800 bg-slate-900 p-6 shadow-2xl sm:rounded-[40px] sm:p-8 lg:rounded-[50px] lg:p-12">
-            <div className="absolute -bottom-20 -right-20 h-60 w-60 bg-amber-500/5 blur-[100px]"></div>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 lg:gap-10">
-              <div className="space-y-3 sm:space-y-4">
-                <label className="flex items-center gap-3 px-2 text-xs font-black uppercase tracking-widest text-slate-500">
-                  <User size={14} className="text-amber-500" /> Nombre completo
-                </label>
-                <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full rounded-3xl border border-slate-800 bg-slate-950 px-5 py-4 text-white transition-all focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 sm:px-8 sm:py-5" />
-              </div>
-
-              <div className="space-y-3 sm:space-y-4">
-                <label className="flex items-center gap-3 px-2 text-xs font-black uppercase tracking-widest text-slate-500">
-                  <Mail size={14} className="text-amber-500" /> Email
-                </label>
-                <input type="email" value={formData.email} readOnly className="w-full rounded-3xl border border-slate-800 bg-slate-900/50 px-5 py-4 text-slate-500 sm:px-8 sm:py-5" />
-              </div>
-
-              <div className="space-y-3 sm:space-y-4">
-                <label className="flex items-center gap-3 px-2 text-xs font-black uppercase tracking-widest text-slate-500">
-                  <Phone size={14} className="text-amber-500" /> Teléfono
-                </label>
-                <input type="text" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full rounded-3xl border border-slate-800 bg-slate-950 px-5 py-4 text-white transition-all focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 sm:px-8 sm:py-5" />
-              </div>
-
-              <div className="space-y-3 sm:space-y-4">
-                <label className="flex items-center gap-3 px-2 text-xs font-black uppercase tracking-widest text-slate-500">
-                  <MapPin size={14} className="text-amber-500" /> Dirección principal
-                </label>
-                <input type="text" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="w-full rounded-3xl border border-slate-800 bg-slate-950 px-5 py-4 text-white transition-all focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 sm:px-8 sm:py-5" />
-              </div>
-            </div>
-
-            <div className="flex justify-stretch border-t border-slate-800 pt-6 sm:justify-end sm:pt-8">
-              <button type="submit" disabled={loading} className="flex w-full items-center justify-center gap-3 rounded-2xl bg-amber-600 px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-white transition-all duration-300 hover:bg-amber-500 disabled:opacity-50 sm:w-auto sm:px-10 sm:py-5">
-                {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                Guardar cambios
-              </button>
-            </div>
-          </form>
-        </div>
+        </form>
       </div>
     </div>
   );
