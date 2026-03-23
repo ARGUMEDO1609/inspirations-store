@@ -27,19 +27,43 @@ ActiveAdmin.register Order do
     link_to 'Marcar como completado', mark_as_completed_admin_order_path(resource), method: :put
   end
 
-  index do
+  index title: 'Pedidos' do
     selectable_column
-    id_column
-    column :user
-    column :status do |order|
+    column('Pedido') do |order|
+      div do
+        strong link_to "##{order.id.to_s.rjust(6, '0')}", admin_order_path(order)
+      end
+      div order.created_at.strftime('%d/%m/%Y %H:%M'), style: 'color:#6b7280; font-size:12px; margin-top:4px;'
+    end
+
+    column('Cliente') do |order|
+      div do
+        strong(order.user&.name || 'Sin nombre')
+      end
+      div(order.user&.email || 'Sin correo', style: 'color:#6b7280; font-size:12px; margin-top:4px;')
+    end
+
+    column('Estado') do |order|
       status_tag order.status
     end
-    column :payment_status
-    column :total
-    column :shipping_address do |order|
-      truncate(order.shipping_address, length: 40)
+
+    column('Pago') do |order|
+      payment_label = order.payment_status.presence || 'sin confirmar'
+      status_tag payment_label, class: payment_label.in?(%w[approved paid]) ? 'ok' : (payment_label.in?(%w[rejected cancelled failed]) ? 'error' : 'warning')
     end
-    column :created_at
+
+    column('Total') do |order|
+      strong number_to_currency(order.total)
+    end
+
+    column('Entrega') do |order|
+      truncate(order.display_shipping_address, length: 54)
+    end
+
+    column('Items') do |order|
+      order.order_items.sum(:quantity)
+    end
+
     actions defaults: true do |order|
       if order.paid?
         item 'Enviar', mark_as_shipped_admin_order_path(order), method: :put, class: 'member_link'
@@ -52,10 +76,11 @@ ActiveAdmin.register Order do
   filter :user
   filter :status, as: :select, collection: Order.statuses.keys
   filter :payment_status
+  filter :total
   filter :created_at
 
   form do |f|
-    f.inputs do
+    f.inputs 'Datos principales' do
       f.input :user, input_html: { disabled: true }
       f.input :status, as: :select, collection: Order.statuses.keys
       f.input :payment_status
@@ -65,26 +90,39 @@ ActiveAdmin.register Order do
     f.actions
   end
 
-  show do
-    attributes_table do
-      row :id
-      row :user
-      row :status do |order|
-        status_tag order.status
+  show title: proc { |order| "Pedido ##{order.id.to_s.rjust(6, '0')}" } do
+    columns do
+      column do
+        panel 'Resumen del pedido' do
+          attributes_table_for order do
+            row('Cliente') { |record| record.user&.name || record.user&.email }
+            row('Correo') { |record| record.user&.email }
+            row('Estado') { |record| status_tag(record.status) }
+            row('Pago') { |record| record.payment_status.presence || 'sin confirmar' }
+            row('ID de pago', &:payment_id)
+            row('Total') { |record| number_to_currency(record.total) }
+            row('Creado') { |record| l(record.created_at, format: :long) }
+            row('Actualizado') { |record| l(record.updated_at, format: :long) }
+          end
+        end
       end
-      row :payment_status
-      row :payment_id
-      row :total
-      row :shipping_address
-      row :created_at
-      row :updated_at
+
+      column do
+        panel 'Entrega y operación' do
+          attributes_table_for order do
+            row('Dirección') { |record| simple_format(record.display_shipping_address) }
+            row('Cantidad de items') { |record| record.order_items.sum(:quantity) }
+            row('Reserva actual') { |record| record.pending? ? 'Reservada' : 'Procesada' }
+          end
+        end
+      end
     end
 
     panel 'Items del pedido' do
       table_for order.order_items.includes(:product) do
-        column :product
-        column :quantity
-        column :unit_price
+        column('Producto') { |item| link_to(item.product.title, admin_product_path(item.product)) }
+        column('Cantidad', &:quantity)
+        column('Precio unitario') { |item| number_to_currency(item.unit_price) }
         column('Subtotal') { |item| number_to_currency(item.unit_price * item.quantity) }
       end
     end

@@ -193,6 +193,8 @@ Objetivo: hacer que el admin sirva para operar la tienda, no solo para CRUD bás
 - [x] Permitir actualización rápida de estado de pedidos desde admin
 - [x] Mostrar mejor estado, pago y dirección del pedido
 - [ ] Añadir filtros más potentes para pedidos y usuarios
+- [x] Rediseñar los formularios de productos y categorías para guiarlos mejor
+- [x] Enriquecer las vistas de reviews y notas con contexto operativo
 - [ ] Revisar necesidades reales de operación diaria
 
 ### Fase 5 - Preparar proyecto para producción
