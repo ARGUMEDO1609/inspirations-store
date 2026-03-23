@@ -49,40 +49,73 @@ const Navbar = () => {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="bg-slate-950 border-b border-slate-900 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-        <Link to="/" className="text-3xl font-black tracking-tighter bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600 bg-clip-text text-transparent group hover:scale-105 transition duration-500">
-          INSPIRATION
-        </Link>
+    <nav className="sticky top-0 z-50 border-b border-slate-900 bg-slate-950/95 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-6 lg:py-5">
+        <div className="flex items-center justify-between gap-4">
+          <Link
+            to="/"
+            className="text-2xl font-black tracking-tighter text-transparent transition duration-500 hover:scale-[1.02] sm:text-3xl bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600 bg-clip-text"
+          >
+            INSPIRATION
+          </Link>
 
-        <div className="flex items-center gap-8">
-          <Link to="/cart" className="relative group p-2 text-slate-400 hover:text-amber-500 transition duration-300">
+          <Link
+            to="/cart"
+            className="relative rounded-full p-2 text-slate-400 transition duration-300 hover:text-amber-500 lg:hidden"
+            aria-label="Ver carrito"
+          >
+            <ShoppingCart size={22} />
+          </Link>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 lg:justify-end">
+          <Link
+            to="/cart"
+            className="relative hidden rounded-full p-2 text-slate-400 transition duration-300 hover:text-amber-500 lg:inline-flex"
+            aria-label="Ver carrito"
+          >
             <ShoppingCart size={24} />
           </Link>
 
-          <div className="h-6 w-px bg-slate-900 mx-2 hidden sm:block"></div>
+          <div className="hidden h-6 w-px bg-slate-900 lg:block"></div>
 
           {user ? (
-            <div className="flex items-center gap-6">
-              <Link to="/orders" className="text-slate-400 hover:text-amber-500 font-bold text-sm tracking-widest uppercase">
+            <div className="flex w-full flex-wrap items-center gap-3 sm:gap-4 lg:w-auto lg:justify-end lg:gap-5">
+              <Link
+                to="/orders"
+                className="rounded-full px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400 transition duration-300 hover:bg-slate-900 hover:text-amber-500 sm:text-xs"
+              >
                 Pedidos
               </Link>
-              <Link to="/profile" className="text-slate-400 hover:text-white flex items-center gap-3 font-bold text-sm tracking-widest uppercase">
-                <div className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-amber-500">
+              <Link
+                to="/profile"
+                className="flex min-w-0 items-center gap-3 rounded-full px-3 py-2 text-slate-400 transition duration-300 hover:bg-slate-900 hover:text-white"
+              >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-800 bg-slate-900 text-amber-500">
                   <User size={16} />
                 </div>
-                <span className="hidden lg:inline">{user.name}</span>
+                <span className="truncate text-[11px] font-bold uppercase tracking-[0.18em] sm:text-xs">{user.name}</span>
               </Link>
-              <button onClick={logout} className="text-slate-500 hover:text-rose-500 transition p-2 hover:scale-110 duration-300">
+              <button
+                onClick={logout}
+                className="rounded-full p-2 text-slate-500 transition duration-300 hover:scale-105 hover:text-rose-500"
+                aria-label="Cerrar sesión"
+              >
                 <LogOut size={20} />
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-4">
-              <Link to="/login" className="text-slate-400 hover:text-white font-black text-xs uppercase tracking-widest px-4 py-2 hover:bg-slate-900 rounded-full transition duration-300">
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-end lg:w-auto">
+              <Link
+                to="/login"
+                className="rounded-full px-4 py-3 text-center text-[11px] font-black uppercase tracking-[0.18em] text-slate-400 transition duration-300 hover:bg-slate-900 hover:text-white sm:px-5 sm:py-2.5"
+              >
                 Entrar
               </Link>
-              <Link to="/signup" className="bg-white text-slate-950 px-6 py-2.5 rounded-full font-black text-xs uppercase tracking-widest hover:bg-amber-500 hover:shadow-[0_0_30px_rgba(245,158,11,0.3)] transition transition-all duration-500">
+              <Link
+                to="/signup"
+                className="rounded-full bg-white px-5 py-3 text-center text-[11px] font-black uppercase tracking-[0.18em] text-slate-950 transition-all duration-500 hover:bg-amber-500 hover:shadow-[0_0_30px_rgba(245,158,11,0.3)] sm:px-6 sm:py-2.5"
+              >
                 Registrarse
               </Link>
             </div>
@@ -98,8 +131,8 @@ const App = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <Loader2 className="animate-spin text-amber-500 w-12 h-12" />
+      <div className="flex min-h-screen items-center justify-center bg-slate-950">
+        <Loader2 className="h-12 w-12 animate-spin text-amber-500" />
       </div>
     );
   }
@@ -109,7 +142,7 @@ const App = () => {
       <NotificationListener>
         <div className="min-h-screen bg-slate-950 text-slate-200 selection:bg-amber-500/30 selection:text-amber-200">
           <Navbar />
-          <main className="max-w-7xl mx-auto px-4 pb-40">
+          <main className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8 lg:pb-40">
             <Routes>
               <Route path="/" element={<Gallery />} />
               <Route path="/product/:slug" element={<ProductDetail />} />
@@ -124,16 +157,16 @@ const App = () => {
             </Routes>
           </main>
 
-          <footer className="border-t border-slate-900 bg-slate-950 py-20 mt-40">
-            <div className="max-w-7xl mx-auto px-4 flex flex-col items-center">
-              <span className="text-3xl font-black text-slate-800 tracking-tighter mb-8">INSPIRATION</span>
-              <div className="flex gap-12 text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-12">
-                <a href="#" className="hover:text-amber-500 transition">Colección</a>
-                <a href="#" className="hover:text-amber-500 transition">Estudio</a>
-                <a href="#" className="hover:text-amber-500 transition">Privacidad</a>
-                <a href="#" className="hover:text-amber-500 transition">Legal</a>
+          <footer className="mt-24 border-t border-slate-900 bg-slate-950 py-14 sm:mt-32 sm:py-20">
+            <div className="mx-auto flex max-w-7xl flex-col items-center px-4 text-center sm:px-6 lg:px-8">
+              <span className="mb-6 text-2xl font-black tracking-tighter text-slate-800 sm:mb-8 sm:text-3xl">INSPIRATION</span>
+              <div className="mb-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 sm:text-xs">
+                <a href="#" className="transition hover:text-amber-500">Colección</a>
+                <a href="#" className="transition hover:text-amber-500">Estudio</a>
+                <a href="#" className="transition hover:text-amber-500">Privacidad</a>
+                <a href="#" className="transition hover:text-amber-500">Legal</a>
               </div>
-              <p className="text-slate-700 text-[10px] font-bold tracking-widest uppercase border-t border-slate-900 pt-12">
+              <p className="border-t border-slate-900 pt-8 text-center text-[10px] font-bold uppercase tracking-widest text-slate-700 sm:pt-12">
                 &copy; 2024 Inspiration Group SA. Protegido bajo cifrado militar.
               </p>
             </div>
