@@ -1,110 +1,191 @@
-# Inspiration Store - Proyecto
+# Inspiration Store - Estado del Proyecto
 
-## Estructura del Proyecto
+## Resumen
 
-```
+`Inspiration Store` es un monorepo con:
+
+- `house/`: frontend en React + Vite + Tailwind.
+- `server/`: backend API en Rails 8 + PostgreSQL + JWT + ActiveAdmin + Action Cable.
+- `legacy/root_rails_app/`: copia archivada de la antigua app Rails raíz.
+
+El flujo principal del proyecto hoy está concentrado en `house/` y `server/`.
+
+## Estructura Actual
+
+```text
 inspiration-store/
-├── server/    # Backend Rails API
-│   ├── app/
-│   │   ├── controllers/api/v1/  # Controladores API
-│   │   ├── models/              # Modelos (User, Product, Order, CartItem, Category)
-│   │   ├── admin/               # ActiveAdmin
-│   │   └── serializers/
-│   └── config/routes.rb
-│
-└── house/     # Frontend React + Vite + Tailwind
-    ├── src/
-    │   ├── pages/   # Gallery, Cart, Login, Signup
-    │   ├── components/  # ProductCard
-    │   ├── context/    # AuthContext
-    │   └── api/        # axios config
-    └── index.html
+├── house/                  # Frontend React
+├── server/                 # Backend Rails API
+├── bin/dev                 # Arranque conjunto
+├── bin/setup               # Setup del proyecto activo
+├── bin/ci                  # CI local del proyecto activo
+├── docs/                   # Documentación técnica
+└── legacy/root_rails_app/  # App Rails heredada archivada
 ```
 
 ## Stack Tecnológico
 
-- **Backend**: Rails 8, JWT, Devise, ActiveAdmin, PostgreSQL
-- **Frontend**: React 18, Vite, Tailwind CSS, React Router
+### Frontend
 
----
+- React
+- Vite
+- Tailwind CSS
+- React Router
+- Axios
+- Action Cable client
+- Mercado Pago SDK React
 
-# Tareas
+### Backend
 
-## ✅ Bugs Corregidos
+- Ruby on Rails 8
+- PostgreSQL
+- Devise
+- JWT
+- Pundit
+- ActiveAdmin
+- Action Cable
+- Active Storage
+- Mercado Pago SDK
+- RSpec + FactoryBot
 
-- [x] **Fix: Hardcoded URLs en AuthContext** - Las URLs de API están hardcodeadas como `http://localhost:3000` en lugar de usar variables de entorno
-- [x] **Fix: Interceptor de axios incompleto** - No maneja errores 401 para hacer logout automático
-- [x] **Fix: No hay manejo de stock** - Al comprar no se descuenta el stock del producto
-- [x] **Fix: WebhooksController** - Heredaba de ApplicationController incorrectamente, no manejaba errores
-- [x] **Arquitectura Polimórfica Completa** - Implementado polimorfismo en `Reviews`, `Addresses` (para Usuarios/Pedidos) y `Notes` (para Auditoría interna).
-- [x] **Fix: Root path intercepting Rails routes** - El catch-all `*path` bloqueaba el acceso a imágenes de ActiveStorage (204 No Content)
-- [x] **Fix: Rails Server PID lock** - El archivo `server.pid` impedía el arranque del servidor tras un cierre no limpio
-- [x] **Fix: ActiveStorage Image Loading** - Uso de `rails_storage_proxy_url` y configuración de host `127.0.0.1` para resolver problemas de CORS/Redirección en WSL
-- [x] **Fix: Category slug** - Slug se regeneraba en cada validación
-- [x] **Fix: Login/Register no funcionaba** - El SessionsController usaba `warden.authenticate!` que no funcionaba con JWT manual. Corregido usando `User.find_for_database_authentication` y autenticación JWT manual.
-- [x] **Fix: ApiController callbacks** - Los controladores heredaban `before_action :authenticate_user!` pero el método no estaba registrado correctamente. Cada controlador ahora define su propio método de autenticación.
+## Funcionalidades Implementadas
 
-## 🟡 Mejoras
+### Catálogo y navegación
 
-- [x] **Añadir página de perfil de usuario** - Implementada página `/profile` con edición de datos.
-- [x] **Sistema de filtrado por categorías** - Implementado sistema de Todo, Categorías dinámicas y Más Populares.
-- [x] **Validación de cantidad en cart** - El backend ahora verifica stock disponible y bloquea excedentes.
-- [x] **Mejora UX: Toast notifications** - Reemplazar alerts por toasts
-- [x] **Loading states en acciones** - Botones con feedback de carga y estados de procesamiento.
-- [x] **Sistema de autenticación JWT** - Implementación completa de login, registro, logout con JWT tokens.
+- [x] Listado de productos
+- [x] Filtro por categorías
+- [x] Vista de detalle de producto
+- [x] Navegación principal de tienda
 
-## 🟢 Nuevas Funcionalidades
+### Autenticación y usuario
 
-- [x] **Real-time Updates (Backend)** - ActionCable configurado para transmitir cambios en Productos y Categorías.
-- [x] **Real-time Updates (Frontend)** - Integrado `useActionCable` en React para actualizar la galería instantáneamente.
-- [x] **Dashboard de usuario** - Implementada página `/orders` con historial de adquisiciones.
-- [x] **Detalle de producto** - Página individual para cada producto
-- [x] **Formulario de checkout** - Flujo de dos pasos en el carrito con confirmación de dirección.
-- [x] **Sistema de autenticación JWT** - Login, registro, logout funcionando correctamente con tokens JWT.
-- [x] **Revocación de tokens** - Los tokens JWT se revocan al hacer logout (almacenados en JwtDenylist).
-- [ ] **Sistema de categorías** - Filtros y organización de productos
-- [ ] **Panel de admin mejorado** - Gestión de pedidos y productos
+- [x] Registro de usuario
+- [x] Login con JWT
+- [x] Logout con revocación de token
+- [x] Carga del usuario autenticado
+- [x] Perfil de usuario con edición básica
 
-## 🟠 Testing (RSpec)
+### Carrito y pedidos
 
-### Tests Creados
+- [x] Agregar productos al carrito
+- [x] Editar cantidades
+- [x] Eliminar productos del carrito
+- [x] Validación de stock al comprar
+- [x] Creación de pedidos desde el carrito
+- [x] Historial de pedidos
 
-- **Modelos**: User, Category, Product, Order, CartItem (36 tests)
-- **Controladores API**: Products, Categories, CartItems, Orders (19 tests)
+### Pagos
 
-### Ejecutar Tests
+- [x] Integración con Mercado Pago
+- [x] Creación de preferencia de pago
+- [x] Redirección al checkout externo
+- [x] Webhook para notificaciones de pago
+
+### Tiempo real
+
+- [x] Notificaciones de cambios de productos
+- [x] Notificaciones de actualización de pedidos
+- [x] Integración frontend con Action Cable
+
+### Administración
+
+- [x] ActiveAdmin configurado
+- [x] Gestión administrativa de productos
+- [x] Gestión administrativa de categorías
+- [x] Gestión administrativa de usuarios
+- [x] Gestión administrativa de reviews, notes y addresses
+
+### Arquitectura y mantenimiento
+
+- [x] Reorganización del repo como monorepo claro
+- [x] Archivado de la app Rails antigua en `legacy/root_rails_app/`
+- [x] Scripts raíz alineados con `server/` y `house/`
+- [x] CI alineada con la estructura activa
+- [x] Dependabot alineado con la estructura activa
+- [x] Documentación base del repo actualizada
+
+## Correcciones Ya Realizadas
+
+- [x] URLs hardcodeadas del frontend corregidas
+- [x] Mejoras en autenticación JWT
+- [x] Corrección de login y registro
+- [x] Validación de stock en carrito y pedido
+- [x] Descuento de stock al generar pedidos
+- [x] Correcciones en `WebhooksController`
+- [x] Correcciones en carga de imágenes con Active Storage
+- [x] Corrección de slugs de categorías
+- [x] Mejoras de UX con toasts y loading states
+- [x] Corrección de estructura del proyecto para evitar ambigüedad entre apps Rails
+
+## Estado de Testing
+
+### Backend
+
+- Hay specs de modelos y requests dentro de `server/spec/`.
+- El proyecto tiene cobertura al menos sobre:
+  - usuarios
+  - categorías
+  - productos
+  - carrito
+  - pedidos
+
+### Ejecutar checks
+
+Desde la raíz:
 
 ```bash
-cd server
-bundle exec rspec                          # Todos los tests
-bundle exec rspec spec/models               # Solo modelos
-bundle exec rspec spec/requests            # Solo controladores
+bin/ci
 ```
 
----
+Checks manuales útiles:
 
-## Notas
+```bash
+cd server && bundle exec rspec
+cd house && npm run lint
+cd house && npm run build
+```
 
-- La API usa JWT para autenticación
-- MercadoPago integrado para pagos
-- ActiveAdmin para gestión interna
-- **55 tests passing** ✅
+## Pendientes Recomendados
 
-## Archivos Modificados (Último Commit)
+### Alta prioridad
 
-### Controladores API Corregidos:
-- `app/controllers/api/v1/sessions_controller.rb` - Corregido login con autenticación JWT manual
-- `app/controllers/api/v1/registrations_controller.rb` - Corregido registro para devolver JSON
-- `app/controllers/api/v1/api_controller.rb` - Base controller sin before_action global
-- `app/controllers/api/v1/users_controller.rb` - Con autenticación requerida
-- `app/controllers/api/v1/products_controller.rb` - Sin autenticación para lectura
-- `app/controllers/api/v1/categories_controller.rb` - Sin autenticación para lectura
-- `app/controllers/api/v1/cart_items_controller.rb` - Con autenticación requerida
-- `app/controllers/api/v1/orders_controller.rb` - Con autenticación requerida
-- `app/controllers/api/v1/payments_controller.rb` - Con autenticación requerida
+- [ ] Verificar flujo completo de pago de punta a punta en entorno local
+- [ ] Revisar manejo de errores del checkout y estados de pago
+- [ ] Confirmar cobertura de tests para webhooks y autenticación
+- [ ] Revisar permisos y políticas de admin sobre pedidos
 
-### Modelos:
-- `app/models/user.rb` - Agregados métodos `find_for_jwt_authentication` y `find_for_jwt_authentication_from_token`
+### Media prioridad
 
-### Configuración:
-- `config/initializers/devise.rb` - Configuración JWT (ya existente)
+- [ ] Mejorar gestión administrativa de pedidos
+- [ ] Mejorar panel admin para operaciones diarias
+- [ ] Añadir documentación de variables de entorno
+- [ ] Documentar proceso de despliegue futuro
+- [ ] Refinar estados y mensajes del frontend en fallos de red
+
+### Baja prioridad
+
+- [ ] Limpiar logs y archivos temporales heredados si ya no aportan valor
+- [ ] Revisar si `legacy/root_rails_app/` debe mantenerse o eliminarse en el futuro
+- [ ] Añadir documentación funcional para portafolio o demo
+
+## Estado Actual de Organización
+
+### Activo
+
+- `house/`
+- `server/`
+- `bin/`
+- `docs/`
+
+### Archivado
+
+- `legacy/root_rails_app/`
+
+## Regla Operativa
+
+A partir de ahora:
+
+- el frontend se trabaja en `house/`;
+- el backend se trabaja en `server/`;
+- la raíz se usa como punto de entrada del monorepo;
+- la app en `legacy/root_rails_app/` no debe tratarse como parte activa del proyecto.
