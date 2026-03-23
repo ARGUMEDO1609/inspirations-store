@@ -70,21 +70,59 @@ ActiveAdmin.register Product do
   filter :created_at
 
   form html: { multipart: true } do |f|
-    f.inputs 'Información base' do
-      f.input :category
-      f.input :title
-      f.input :description
-      f.input :price
-      f.input :stock
-      f.input :slug
+    f.semantic_errors(*f.object.errors.attribute_names)
+
+    f.inputs 'Curaduría base' do
+      para 'Define la pieza principal del catálogo con un nombre claro y una categoría correcta.', style: 'margin:0 0 12px; color:#6b7280;'
+      f.input :category, hint: 'La categoría afecta organización, navegación y filtros del storefront.'
+      f.input :title, hint: 'Usa un título corto, memorable y consistente con el tono de la tienda.'
+      f.input :slug, hint: 'Puedes dejarlo listo para URLs limpias y fáciles de compartir.'
     end
 
-    f.inputs 'Imagen' do
-      f.input :image, as: :file, label: 'Subir nueva imagen', hint: f.object.image.attached? ?
-        image_tag(rails_storage_proxy_url(f.object.image, only_path: true), style: 'width:140px; border-radius:16px;') :
-        content_tag(:span, 'Sin imagen cargada.')
+    f.inputs 'Narrativa y operación' do
+      para 'Aquí defines lo que verá el cliente y lo que necesita el equipo para operar.', style: 'margin:0 0 12px; color:#6b7280;'
+      f.input :description, as: :text, input_html: { rows: 6 }, hint: 'Describe materiales, carácter visual o propósito de la pieza.'
+      f.input :price, hint: 'El valor se refleja directo en catálogo, detalle y checkout.'
+      f.input :stock, hint: 'Mantén el stock real para que las reservas de pedido sean confiables.'
     end
-    f.actions
+
+    f.inputs 'Imagen y presencia visual' do
+      f.input :image,
+              as: :file,
+              label: 'Subir imagen principal',
+              hint: f.object.image.attached? ?
+                image_tag(rails_storage_proxy_url(f.object.image, only_path: true), style: 'width:180px; border-radius:18px; border:1px solid #e5e7eb;') :
+                content_tag(:span, 'Todavía no hay imagen cargada para esta pieza.')
+    end
+
+    f.actions do
+      f.action :submit, label: f.object.new_record? ? 'Crear producto' : 'Guardar cambios'
+      f.cancel_link admin_products_path
+    end
+  end
+
+  sidebar 'Guía de producto', only: %i[new edit] do
+    div style: 'display:grid; gap:14px;' do
+      div do
+        strong 'Antes de guardar'
+      end
+      ul style: 'padding-left:18px; margin:0; line-height:1.8; color:#4b5563;' do
+        li 'Verifica que el título no duplique otra pieza.'
+        li 'Confirma stock y precio antes de publicar.'
+        li 'Sube una imagen con buena proporción y foco claro.'
+      end
+    end
+  end
+
+  sidebar 'Vista rápida', only: %i[edit] do
+    if resource.persisted?
+      attributes_table_for resource do
+        row('Slug', &:slug)
+        row('Stock', &:stock)
+        row('Pedidos asociados') { |record| record.order_items.count }
+        row('Reseñas') { |record| record.reviews.count }
+      end
+    end
   end
 
   show title: proc { |product| product.title } do
