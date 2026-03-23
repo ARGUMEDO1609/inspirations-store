@@ -1,41 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { CheckCircle2, Clock3, XCircle, ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Clock3, Loader2, XCircle } from 'lucide-react';
 import api from '../api/axios';
 
 const STATUS_CONFIG = {
   success: {
     icon: CheckCircle2,
     title: 'Pago aprobado',
-    message: 'Tu pago fue aprobado. Estamos actualizando el estado de tu pedido.',
-    accent: 'text-emerald-400',
-    ring: 'border-emerald-500/30',
-    bg: 'bg-emerald-500/10'
+    message: 'Tu pago fue aprobado y el pedido se está actualizando.',
+    accent: 'text-[var(--success)]',
+    surface: 'bg-[rgba(104,194,142,0.1)] border-[rgba(104,194,142,0.25)]'
   },
   pending: {
     icon: Clock3,
     title: 'Pago pendiente',
-    message: 'Tu pago quedó pendiente de confirmación. Te avisaremos cuando cambie de estado.',
-    accent: 'text-amber-400',
-    ring: 'border-amber-500/30',
-    bg: 'bg-amber-500/10'
+    message: 'Mercado Pago aún no termina la confirmación final.',
+    accent: 'text-[var(--accent)]',
+    surface: 'bg-[rgba(215,161,74,0.1)] border-[rgba(215,161,74,0.25)]'
   },
   failure: {
     icon: XCircle,
     title: 'Pago no completado',
-    message: 'No pudimos confirmar tu pago. Puedes revisar tu pedido o volver a intentarlo.',
-    accent: 'text-rose-400',
-    ring: 'border-rose-500/30',
-    bg: 'bg-rose-500/10'
+    message: 'No pudimos confirmar el pago. Puedes revisar el pedido e intentarlo de nuevo.',
+    accent: 'text-[var(--danger)]',
+    surface: 'bg-[rgba(221,125,116,0.1)] border-[rgba(221,125,116,0.25)]'
   }
-};
-
-const PAYMENT_STATUS_LABELS = {
-  approved: 'approved',
-  pending: 'pending',
-  in_process: 'in_process',
-  cancelled: 'cancelled',
-  rejected: 'rejected'
 };
 
 const ORDER_STATUS_LABELS = {
@@ -75,63 +64,66 @@ const PaymentResult = ({ variant }) => {
 
   const config = STATUS_CONFIG[variant] || STATUS_CONFIG.pending;
   const Icon = config.icon;
-  const reportedStatus = status || variant;
-  const resolvedOrderStatus = order?.status ? ORDER_STATUS_LABELS[order.status] || order.status : null;
-  const resolvedPaymentStatus = order?.payment_status ? PAYMENT_STATUS_LABELS[order.payment_status] || order.payment_status : reportedStatus;
+  const resolvedOrderStatus = order?.status ? ORDER_STATUS_LABELS[order.status] || order.status : 'Pendiente de actualización';
+  const resolvedPaymentStatus = order?.payment_status || status || variant;
 
   return (
-    <div className="animate-in fade-in py-10 duration-700 sm:py-16 lg:py-24">
-      <div className={`mx-auto max-w-3xl rounded-[28px] border p-6 shadow-2xl backdrop-blur-3xl sm:rounded-[40px] sm:p-10 lg:p-14 ${config.ring} ${config.bg}`}>
-        <div className={`mb-6 flex h-16 w-16 items-center justify-center rounded-full border sm:mb-8 sm:h-20 sm:w-20 ${config.bg} ${config.ring}`}>
-          <Icon className={config.accent} size={34} />
-        </div>
-
-        <h1 className="mb-4 text-3xl font-black tracking-tighter text-white sm:mb-6 sm:text-5xl lg:text-6xl">
-          {config.title}
-        </h1>
-
-        <p className="mb-8 max-w-2xl text-base leading-7 text-slate-300 sm:mb-10 sm:text-lg sm:leading-8">
-          {config.message}
-        </p>
-
-        {loadingOrder && (
-          <div className="mb-8 flex items-start gap-3 text-slate-300">
-            <Loader2 className="mt-0.5 text-amber-400 animate-spin" size={18} />
-            <span className="text-sm font-medium">Consultando estado actualizado del pedido...</span>
-          </div>
-        )}
-
-        <div className="mb-10 grid gap-4 md:grid-cols-2 sm:mb-12">
-          <div className="rounded-3xl border border-slate-800 bg-slate-950/70 p-5 sm:p-6">
-            <div className="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Referencia del pedido</div>
-            <div className="break-all font-mono text-base text-white sm:text-lg">{externalReference || 'No disponible aún'}</div>
-          </div>
-          <div className="rounded-3xl border border-slate-800 bg-slate-950/70 p-5 sm:p-6">
-            <div className="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Estado de pago</div>
-            <div className="break-all font-mono text-base text-white sm:text-lg">{resolvedPaymentStatus}</div>
-          </div>
-          <div className="rounded-3xl border border-slate-800 bg-slate-950/70 p-5 md:col-span-2 sm:p-6">
-            <div className="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Estado del pedido</div>
-            <div className="break-all font-mono text-base text-white sm:text-lg">{resolvedOrderStatus || 'Pendiente de actualización'}</div>
-          </div>
-          {paymentId && (
-            <div className="rounded-3xl border border-slate-800 bg-slate-950/70 p-5 md:col-span-2 sm:p-6">
-              <div className="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Pago</div>
-              <div className="break-all font-mono text-base text-white sm:text-lg">{paymentId}</div>
+    <div className="py-10 sm:py-12 lg:py-16">
+      <section className={`mx-auto max-w-4xl overflow-hidden rounded-[2.25rem] border ${config.surface}`}>
+        <div className="grid gap-0 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="border-b border-[var(--border-soft)] bg-[var(--bg-elevated)] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10 xl:p-12">
+            <div className={`inline-flex h-16 w-16 items-center justify-center rounded-full border border-[var(--border-soft)] ${config.surface}`}>
+              <Icon size={30} className={config.accent} />
             </div>
-          )}
-        </div>
+            <h1 className="mt-6 text-3xl font-semibold uppercase tracking-[0.12em] text-[var(--text-primary)] sm:text-4xl">
+              {config.title}
+            </h1>
+            <p className="mt-4 text-base leading-8 text-[var(--text-secondary)]">
+              {config.message}
+            </p>
+          </div>
 
-        <div className="flex flex-col gap-4 sm:flex-row">
-          <Link to="/orders" className="inline-flex items-center justify-center gap-3 rounded-2xl bg-white px-6 py-4 text-center text-sm font-black uppercase tracking-widest text-slate-950 transition-all duration-500 hover:bg-amber-500 sm:px-8">
-            Ver mis pedidos
-            <ArrowRight size={18} />
-          </Link>
-          <Link to="/" className="inline-flex items-center justify-center gap-3 rounded-2xl border border-slate-700 px-6 py-4 text-center text-sm font-black uppercase tracking-widest text-slate-200 transition-all duration-500 hover:border-amber-500 hover:text-amber-400 sm:px-8">
-            Volver a la tienda
-          </Link>
+          <div className="p-6 sm:p-8 lg:p-10 xl:p-12">
+            {loadingOrder && (
+              <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-[var(--border-soft)] bg-[var(--surface-1)] px-4 py-3 text-sm text-[var(--text-secondary)]">
+                <Loader2 size={16} className="animate-spin text-[var(--accent)]" />
+                Consultando estado actualizado...
+              </div>
+            )}
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-[1.5rem] border border-[var(--border-soft)] bg-[var(--surface-1)] p-5">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)]">Pedido</p>
+                <p className="mt-3 break-all text-lg text-[var(--text-primary)]">{externalReference || 'No disponible'}</p>
+              </div>
+              <div className="rounded-[1.5rem] border border-[var(--border-soft)] bg-[var(--surface-1)] p-5">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)]">Pago</p>
+                <p className="mt-3 break-all text-lg text-[var(--text-primary)]">{resolvedPaymentStatus}</p>
+              </div>
+              <div className="rounded-[1.5rem] border border-[var(--border-soft)] bg-[var(--surface-1)] p-5 sm:col-span-2">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)]">Estado del pedido</p>
+                <p className="mt-3 break-all text-lg text-[var(--text-primary)]">{resolvedOrderStatus}</p>
+              </div>
+              {paymentId && (
+                <div className="rounded-[1.5rem] border border-[var(--border-soft)] bg-[var(--surface-1)] p-5 sm:col-span-2">
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)]">Referencia de pago</p>
+                  <p className="mt-3 break-all text-sm text-[var(--text-secondary)]">{paymentId}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+              <Link to="/orders" className="inline-flex items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)]">
+                Ver pedidos
+                <ArrowRight size={16} />
+              </Link>
+              <Link to="/" className="inline-flex items-center justify-center gap-3 rounded-full border border-[var(--border-soft)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]">
+                Volver a la tienda
+              </Link>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };
