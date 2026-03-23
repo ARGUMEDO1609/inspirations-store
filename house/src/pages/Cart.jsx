@@ -113,16 +113,19 @@ const Cart = () => {
   if (cart.items.length === 0) {
     return (
       <div className="py-24 text-center sm:py-32 lg:py-40">
-        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[var(--surface-1)] text-[var(--text-muted)]">
+        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.34)] text-[var(--text-muted)]">
           <ShoppingBag size={36} />
         </div>
-        <h2 className="mt-8 text-3xl font-semibold uppercase tracking-[0.12em] text-[var(--text-primary)] sm:text-4xl">
+        <h2 className="mt-8 font-display text-4xl leading-none text-[var(--text-primary)] sm:text-5xl">
           Tu selección está vacía.
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-base leading-8 text-[var(--text-secondary)]">
           Cuando añadas piezas desde la colección, aparecerán aquí listas para pasar al checkout.
         </p>
-        <Link to="/" className="mt-8 inline-flex rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)]">
+        <Link
+          to="/"
+          className="mt-8 inline-flex rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)]"
+        >
           Volver a la tienda
         </Link>
       </div>
@@ -133,38 +136,45 @@ const Cart = () => {
     <div className="space-y-8 py-8 sm:space-y-10 sm:py-10 lg:space-y-12 lg:py-14">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.34em] text-[var(--text-muted)]">Private Selection</p>
-          <h1 className="mt-4 font-display text-5xl uppercase tracking-[0.08em] text-[var(--text-primary)] sm:text-6xl">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-[var(--text-muted)]">Selección privada</p>
+          <h1 className="mt-4 font-display text-5xl leading-none text-[var(--text-primary)] sm:text-6xl">
             {isCheckingOut ? 'Checkout' : 'Tu selección'}
           </h1>
         </div>
         {isCheckingOut && (
-          <button onClick={() => setIsCheckingOut(false)} className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-[var(--text-muted)] transition hover:text-[var(--accent)]">
+          <button
+            onClick={() => setIsCheckingOut(false)}
+            className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)] transition hover:text-[var(--accent)]"
+          >
             <ArrowLeft size={15} /> Volver al carrito
           </button>
         )}
       </div>
 
-      <div className="grid gap-8 xl:grid-cols-[1fr_360px]">
+      <div className="grid gap-8 xl:grid-cols-[1fr_380px]">
         <div className="space-y-5">
           {!isCheckingOut ? (
-            cart.items.map((item) => (
-              <article key={item.id} className={`overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] transition ${processingId === item.id ? 'opacity-60' : ''}`}>
+            cart.items.map((item, index) => (
+              <article
+                key={item.id}
+                className={`glass-panel animate-fade-up overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.74),rgba(255,248,236,0.52))] transition ${processingId === item.id ? 'opacity-60' : ''}`}
+                style={{ animationDelay: `${index * 70}ms` }}
+              >
                 <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[auto_1fr_auto] lg:items-center">
-                  <div className="h-24 w-24 overflow-hidden rounded-[1.5rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)] sm:h-28 sm:w-28">
+                  <div className="h-24 w-24 overflow-hidden rounded-[1.55rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)] sm:h-28 sm:w-28">
                     <img src={item.product.image_url || 'https://via.placeholder.com/200'} alt={item.product.title} className="h-full w-full object-cover" />
                   </div>
 
                   <div className="min-w-0">
-                    <h3 className="text-2xl font-semibold uppercase tracking-[0.08em] text-[var(--text-primary)]">
+                    <h3 className="font-display text-[2rem] leading-none text-[var(--text-primary)] sm:text-[2.2rem]">
                       {item.product.title}
                     </h3>
                     <p className="mt-2 text-sm text-[var(--text-secondary)]">${item.product.price} por pieza</p>
-                    <div className="mt-5 inline-flex items-center gap-4 rounded-full border border-[var(--border-soft)] bg-[var(--surface-1)] px-4 py-2">
+                    <div className="mt-5 inline-flex items-center gap-4 rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-4 py-2">
                       <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={processingId === item.id} className="text-[var(--text-muted)] transition hover:text-[var(--accent)] disabled:opacity-40">
                         <Minus size={16} />
                       </button>
-                      <span className="min-w-8 text-center text-sm text-[var(--text-primary)]">{item.quantity}</span>
+                      <span className="min-w-8 text-center text-sm font-semibold text-[var(--text-primary)]">{item.quantity}</span>
                       <button onClick={() => updateQuantity(item.id, item.quantity + 1)} disabled={processingId === item.id} className="text-[var(--text-muted)] transition hover:text-[var(--accent)] disabled:opacity-40">
                         <Plus size={16} />
                       </button>
@@ -172,8 +182,8 @@ const Cart = () => {
                   </div>
 
                   <div className="flex items-center justify-between gap-4 lg:flex-col lg:items-end">
-                    <p className="text-2xl font-semibold text-[var(--accent)]">${(item.product.price * item.quantity).toFixed(2)}</p>
-                    <button onClick={() => removeItem(item.id)} disabled={processingId === item.id} className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[var(--surface-1)] text-[var(--danger)] transition hover:border-[var(--danger)] disabled:opacity-40">
+                    <p className="font-display text-4xl leading-none text-[var(--text-primary)]">${(item.product.price * item.quantity).toFixed(2)}</p>
+                    <button onClick={() => removeItem(item.id)} disabled={processingId === item.id} className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] text-[var(--danger)] transition hover:border-[var(--danger)] disabled:opacity-40">
                       {processingId === item.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                     </button>
                   </div>
@@ -181,27 +191,27 @@ const Cart = () => {
               </article>
             ))
           ) : (
-            <section className="overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-6 sm:p-8">
+            <section className="glass-panel animate-fade-up overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.74),rgba(255,248,236,0.52))] p-6 sm:p-8">
               <div className="mb-6 flex items-center gap-3 text-[var(--text-primary)]">
                 <MapPin size={18} className="text-[var(--accent)]" />
-                <h2 className="text-xl font-semibold uppercase tracking-[0.1em]">Datos de entrega</h2>
+                <h2 className="font-display text-3xl leading-none text-[var(--text-primary)]">Datos de entrega</h2>
               </div>
-              <label className="mb-2 block text-[10px] uppercase tracking-[0.28em] text-[var(--text-muted)]">Dirección completa</label>
+              <label className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">Dirección completa</label>
               <textarea
                 value={shippingAddress}
                 onChange={(e) => setShippingAddress(e.target.value)}
                 rows="5"
-                className="w-full rounded-[1.6rem] border border-[var(--border-soft)] bg-[var(--surface-1)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]"
+                className="w-full rounded-[1.6rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]"
                 placeholder="Calle, número, ciudad, referencia..."
               />
 
               <div className="mt-8 border-t border-[var(--border-soft)] pt-6">
-                <h3 className="text-sm uppercase tracking-[0.22em] text-[var(--text-muted)]">Resumen del pedido</h3>
+                <h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)]">Resumen del pedido</h3>
                 <div className="mt-4 space-y-4">
                   {cart.items.map((item) => (
                     <div key={item.id} className="flex items-start justify-between gap-4 text-sm text-[var(--text-secondary)]">
                       <span>{item.product.title} x {item.quantity}</span>
-                      <span className="shrink-0 text-[var(--text-primary)]">${(item.product.price * item.quantity).toFixed(2)}</span>
+                      <span className="shrink-0 font-semibold text-[var(--text-primary)]">${(item.product.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
@@ -210,22 +220,22 @@ const Cart = () => {
           )}
         </div>
 
-        <aside className="h-fit overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[radial-gradient(circle_at_top_right,rgba(215,161,74,0.18),transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-6 sm:p-8">
-          <p className="text-[10px] uppercase tracking-[0.34em] text-[var(--text-muted)]">Summary</p>
-          <h2 className="mt-4 text-3xl font-semibold uppercase tracking-[0.1em] text-[var(--text-primary)]">Resumen</h2>
+        <aside className="glass-panel animate-fade-up-delay h-fit overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[radial-gradient(circle_at_top_right,rgba(215,161,74,0.18),transparent_32%),linear-gradient(180deg,rgba(255,250,244,0.78),rgba(255,248,236,0.58))] p-6 sm:p-8">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-[var(--text-muted)]">Resumen</p>
+          <h2 className="mt-4 font-display text-4xl leading-none text-[var(--text-primary)]">Totales</h2>
 
           <div className="mt-8 space-y-5 text-sm text-[var(--text-secondary)]">
             <div className="flex items-center justify-between">
               <span>Subtotal</span>
-              <span className="text-[var(--text-primary)]">${cart.total.toFixed(2)}</span>
+              <span className="font-semibold text-[var(--text-primary)]">${cart.total.toFixed(2)}</span>
             </div>
             <div className="flex items-center justify-between border-b border-[var(--border-soft)] pb-5">
               <span>Envío</span>
               <span className="text-[var(--success)]">Gratis</span>
             </div>
             <div className="flex items-end justify-between">
-              <span className="text-lg uppercase tracking-[0.14em] text-[var(--text-primary)]">Total</span>
-              <span className="text-3xl font-semibold text-[var(--accent)]">${cart.total.toFixed(2)}</span>
+              <span className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)]">Total</span>
+              <span className="font-display text-5xl leading-none text-[var(--text-primary)]">${cart.total.toFixed(2)}</span>
             </div>
           </div>
 
