@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import { ShoppingCart, User, LogOut, Loader2 } from 'lucide-react';
 import Login from './pages/Login';
@@ -17,29 +17,36 @@ const NotificationListener = ({ children }) => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  useActionCable('StoreChannel', {
-    PRODUCT_CHANGE: (data) => {
-      if (data.action === 'create') {
-        toast({
-          title: 'Nueva pieza',
-          message: `Llegó ${data.product.attributes.title} a la colección.`,
-          type: 'info'
-        });
+  useActionCable('StoreChannel', useMemo(
+    () => ({
+      PRODUCT_CHANGE: (data) => {
+        if (data.action === 'create') {
+          toast({
+            title: 'Nueva pieza',
+            message: `Llegó ${data.product.attributes.title} a la colección.`,
+            type: 'info'
+          });
+        }
       }
-    }
-  });
+    }),
+    [toast]
+  ));
 
-  if (user) {
-    useActionCable({ channel: 'OrderChannel' }, {
+  const orderHandlers = useMemo(
+    () => ({
       ORDER_STATUS_UPDATE: (data) => {
+        if (!user) return;
         toast({
           title: 'Pedido actualizado',
           message: `Tu pedido #${data.order_id} ahora está ${data.status.toUpperCase()}.`,
           type: data.status === 'paid' ? 'success' : data.status === 'cancelled' ? 'error' : 'info'
         });
       }
-    });
-  }
+    }),
+    [toast, user]
+  );
+
+  useActionCable({ channel: 'OrderChannel' }, orderHandlers);
 
   return children;
 };

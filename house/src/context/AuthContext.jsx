@@ -47,14 +47,13 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await api.delete('/logout');
+      await api.delete('/logout', { baseURL: `${API_URL}/api/v1` });
     } catch (error) {
       // Ignore logout errors
     }
     localStorage.removeItem('token');
     setUser(null);
   };
-
   const signup = async (userData) => {
     const response = await api.post('/signup', {
       user: userData
