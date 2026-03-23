@@ -50029,3 +50029,63 @@ Completed 200 OK in 14ms (Views: 9.3ms | ActiveRecord: 1.0ms (1 query, 0 cached)
 
 
 Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:23:30 -0500
+Started GET "/admin/dashboard" for 127.0.0.1 at 2026-03-23 09:30:07 -0500
+Processing by Admin::DashboardController#index as HTML
+  [1m[36mAdminUser Load (16.6ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."id" = 2 ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='index',application='Server',controller='dashboard'*/[0m
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/page/index.html.arb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/page/index.html.arb (Duration: 5.4ms | GC: 0.8ms)
+Completed 200 OK in 28ms (Views: 6.9ms | ActiveRecord: 24.2ms (1 query, 0 cached) | GC: 1.3ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:30:07 -0500
+Started GET "/admin/products" for 127.0.0.1 at 2026-03-23 09:30:12 -0500
+Processing by Admin::ProductsController#index as HTML
+  [1m[36mAdminUser Load (1.0ms)[0m  [1m[34mSELECT "admin_users".* FROM "admin_users" WHERE "admin_users"."id" = 2 ORDER BY "admin_users"."id" ASC LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/index.html.arb
+  [1m[36mProduct Load (0.8ms)[0m  [1m[34mSELECT "products".* FROM "products" ORDER BY "products"."id" desc LIMIT 30 OFFSET 0 /*action='index',application='Server',controller='products'*/[0m
+  [1m[36mCategory Load (0.7ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 10 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mCACHE Category Load (0.0ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 10 LIMIT 1[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mCategory Load (1.0ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 7 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mCategory Load (0.5ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 9 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mCategory Load (0.6ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 8 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mCACHE Category Load (0.0ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 7 LIMIT 1[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mCACHE Category Load (0.0ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 7 LIMIT 1[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mCACHE Category Load (0.0ms)[0m  [1m[34mSELECT "categories".* FROM "categories" WHERE "categories"."id" = 9 LIMIT 1[0m
+  ↳ app/admin/products.rb:25:in `block (2 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (1.0ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 18 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Blob Load (0.6ms)[0m  [1m[34mSELECT "active_storage_blobs".* FROM "active_storage_blobs" WHERE "active_storage_blobs"."id" = 86 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:28:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.3ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 17 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Blob Load (0.2ms)[0m  [1m[34mSELECT "active_storage_blobs".* FROM "active_storage_blobs" WHERE "active_storage_blobs"."id" = 85 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:28:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.6ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 16 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Blob Load (0.5ms)[0m  [1m[34mSELECT "active_storage_blobs".* FROM "active_storage_blobs" WHERE "active_storage_blobs"."id" = 84 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:28:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.4ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 15 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Blob Load (0.8ms)[0m  [1m[34mSELECT "active_storage_blobs".* FROM "active_storage_blobs" WHERE "active_storage_blobs"."id" = 82 LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:28:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.4ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 14 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.4ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 13 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.5ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 12 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mActiveStorage::Attachment Load (0.5ms)[0m  [1m[34mSELECT "active_storage_attachments".* FROM "active_storage_attachments" WHERE "active_storage_attachments"."record_id" = 11 AND "active_storage_attachments"."record_type" = 'Product' AND "active_storage_attachments"."name" = 'image' LIMIT 1 /*action='index',application='Server',controller='products'*/[0m
+  ↳ app/admin/products.rb:27:in `block (3 levels) in <top (required)>'
+  [1m[36mCategory Load (0.6ms)[0m  [1m[34mSELECT "categories".* FROM "categories" /*action='index',application='Server',controller='products'*/[0m
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/activeadmin-3.4.0/app/views/active_admin/resource/index.html.arb (Duration: 92.0ms | GC: 18.8ms)
+Completed 200 OK in 102ms (Views: 82.5ms | ActiveRecord: 12.9ms (23 queries, 4 cached) | GC: 18.8ms)
+
+
+Started GET "/favicon.ico" for 127.0.0.1 at 2026-03-23 09:30:13 -0500
