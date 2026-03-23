@@ -1,4 +1,4 @@
-# Inspiration Store - Estado del Proyecto
+# Inspiration Store - Estado y Plan del Proyecto
 
 ## Resumen
 
@@ -117,6 +117,92 @@ inspiration-store/
 - [x] Mejoras de UX con toasts y loading states
 - [x] Corrección de estructura del proyecto para evitar ambigüedad entre apps Rails
 
+## Plan de Mejora por Fases
+
+### Fase 1 - Cerrar el flujo de compra
+
+Objetivo: asegurar que el proceso de compra funcione completo y de forma confiable.
+
+- [ ] Probar creación de pedido desde carrito con datos reales
+- [ ] Verificar redirección correcta a Mercado Pago
+- [ ] Implementar o validar pantallas de retorno: éxito, fallo y pendiente
+- [ ] Confirmar que el webhook actualiza el pedido correctamente
+- [ ] Definir estados finales del pedido (`pending`, `paid`, `failed`, `cancelled`)
+- [ ] Reflejar esos estados tanto en frontend como en admin
+
+### Fase 2 - Fortalecer backend y reglas de negocio
+
+Objetivo: reducir errores lógicos y dejar el backend más robusto.
+
+- [ ] Estandarizar respuestas JSON de error y éxito
+- [ ] Centralizar manejo de errores del API
+- [ ] Revisar validaciones de modelos clave
+- [ ] Revisar policies de Pundit para usuarios y admin
+- [ ] Confirmar protección de endpoints sensibles
+- [ ] Revisar consistencia del flujo de stock, pedido y pago
+
+### Fase 3 - Mejorar testing
+
+Objetivo: cubrir lo que hoy sería más costoso romper.
+
+- [ ] Añadir tests de autenticación JWT
+- [ ] Añadir tests de requests para pagos
+- [ ] Añadir tests de webhook de Mercado Pago
+- [ ] Añadir tests de policies/autorización
+- [ ] Confirmar cobertura mínima de pedido, carrito y transición de estados
+- [ ] Ejecutar `bin/ci` como rutina estable antes de commits importantes
+
+### Fase 4 - Mejorar panel administrativo
+
+Objetivo: hacer que el admin sirva para operar la tienda, no solo para CRUD básico.
+
+- [ ] Añadir mejor gestión de pedidos en ActiveAdmin
+- [ ] Permitir actualización de estado de pedidos desde admin
+- [ ] Mostrar mejor stock, pagos y estado de entrega
+- [ ] Añadir filtros útiles para usuarios, pedidos y productos
+- [ ] Revisar necesidades reales de operación diaria
+
+### Fase 5 - Preparar proyecto para producción
+
+Objetivo: dejar el sistema listo para desplegar sin improvisación.
+
+- [ ] Crear documentación de variables de entorno
+- [ ] Añadir `.env.example` o equivalente documentado
+- [ ] Documentar configuración de frontend y backend
+- [ ] Definir estrategia de despliegue de `server/`
+- [ ] Definir build y publicación de `house/`
+- [ ] Revisar secretos, logs y archivos temporales antes de publicar
+
+### Fase 6 - Pulir experiencia de usuario
+
+Objetivo: que el proyecto se sienta más terminado y confiable.
+
+- [ ] Mejorar mensajes de error de red
+- [ ] Mejorar estados vacíos y loaders
+- [ ] Pulir experiencia del checkout
+- [ ] Mejorar feedback visual del estado del pedido
+- [ ] Añadir páginas o vistas de confirmación de pago más claras
+
+### Fase 7 - Presentación y portafolio
+
+Objetivo: que el proyecto también comunique bien su valor.
+
+- [ ] Mejorar README para presentación pública
+- [ ] Documentar arquitectura general del sistema
+- [ ] Añadir screenshots o demo visual
+- [ ] Resumir funcionalidades clave para portafolio
+- [ ] Explicar decisiones técnicas importantes del proyecto
+
+## Orden Recomendado de Trabajo
+
+1. Fase 1 - Cerrar flujo de compra
+2. Fase 2 - Fortalecer backend
+3. Fase 3 - Mejorar testing
+4. Fase 4 - Mejorar panel administrativo
+5. Fase 5 - Preparar producción
+6. Fase 6 - Pulir UX
+7. Fase 7 - Presentación y portafolio
+
 ## Estado de Testing
 
 ### Backend
@@ -144,29 +230,6 @@ cd server && bundle exec rspec
 cd house && npm run lint
 cd house && npm run build
 ```
-
-## Pendientes Recomendados
-
-### Alta prioridad
-
-- [ ] Verificar flujo completo de pago de punta a punta en entorno local
-- [ ] Revisar manejo de errores del checkout y estados de pago
-- [ ] Confirmar cobertura de tests para webhooks y autenticación
-- [ ] Revisar permisos y políticas de admin sobre pedidos
-
-### Media prioridad
-
-- [ ] Mejorar gestión administrativa de pedidos
-- [ ] Mejorar panel admin para operaciones diarias
-- [ ] Añadir documentación de variables de entorno
-- [ ] Documentar proceso de despliegue futuro
-- [ ] Refinar estados y mensajes del frontend en fallos de red
-
-### Baja prioridad
-
-- [ ] Limpiar logs y archivos temporales heredados si ya no aportan valor
-- [ ] Revisar si `legacy/root_rails_app/` debe mantenerse o eliminarse en el futuro
-- [ ] Añadir documentación funcional para portafolio o demo
 
 ## Estado Actual de Organización
 
