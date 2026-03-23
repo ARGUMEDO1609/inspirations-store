@@ -1,19 +1,20 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 :root {
-  --bg-primary: #0a0a0a;
-  --bg-elevated: #111111;
-  --surface-1: rgba(255, 255, 255, 0.04);
-  --surface-2: rgba(255, 255, 255, 0.06);
-  --surface-3: rgba(255, 248, 236, 0.08);
-  --border-soft: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.14);
-  --text-primary: #f5efe4;
-  --text-secondary: #d9d0c2;
-  --text-muted: #938a7a;
+  --bg-primary: #f3eadf;
+  --bg-elevated: #f7efe5;
+  --surface-1: rgba(255, 255, 255, 0.55);
+  --surface-2: rgba(255, 255, 255, 0.72);
+  --surface-3: rgba(255, 255, 255, 0.88);
+  --border-soft: rgba(116, 88, 54, 0.16);
+  --border-strong: rgba(116, 88, 54, 0.22);
+  --text-primary: #2f2418;
+  --text-secondary: #5f4b36;
+  --text-muted: #8c745c;
   --accent: #d7a14a;
   --accent-strong: #e0b264;
-  --ink: #1a140a;
+  --ink: #fffaf4;
   --success: #68c28e;
   --danger: #dd7d74;
   --glow: rgba(215, 161, 74, 0.18);
@@ -27,9 +28,12 @@ body {
   margin: 0;
   min-width: 320px;
   overflow-x: hidden;
-  background: var(--bg-primary);
+  background: linear-gradient(180deg, #fbf5ee, #f1e7db);
   color: var(--text-primary);
-  font-family: "IBM Plex Sans", "Inter", system-ui, sans-serif;
+  font-family: "Manrope", "IBM Plex Sans", system-ui, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
@@ -58,5 +62,60 @@ a {
 }
 
 .font-display {
-  font-family: "Bebas Neue", "Oswald", "Arial Narrow", sans-serif;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.glass-panel {
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.hover-lift {
+  transition: transform 240ms ease, box-shadow 280ms ease, border-color 240ms ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.animate-fade-up {
+  animation: fadeUp 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-up-delay {
+  animation: fadeUp 880ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both;
+}
+
+.animate-fade-up-slow {
+  animation: fadeUp 1020ms cubic-bezier(0.22, 1, 0.36, 1) 220ms both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

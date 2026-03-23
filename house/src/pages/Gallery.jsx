@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
 import useActionCable from '../api/useActionCable';
@@ -7,76 +7,70 @@ import { useToast } from '../context/ToastContext';
 
 const Hero = ({ filter, setFilter, sort, setSort, categories, productCount }) => {
   return (
-    <section className="relative overflow-hidden rounded-[2.25rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)] px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-10">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,161,74,0.22),transparent_35%),linear-gradient(135deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01))]" />
-      <div className="relative grid gap-8 lg:grid-cols-[1.3fr_0.9fr] lg:gap-10">
-        <div className="space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-soft)] bg-[var(--surface-2)] px-4 py-2 text-[10px] uppercase tracking-[0.32em] text-[var(--text-muted)]">
-            <Sparkles size={14} className="text-[var(--accent)]" />
-            Curated Storefront
-          </div>
+    <section className="relative min-h-[560px] overflow-hidden rounded-[2.25rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)] sm:min-h-[640px] lg:min-h-[720px]">
+      <img
+        src="/portada.png"
+        alt="Portada de Inspiration Store"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,250,244,0.04),rgba(41,29,20,0.18)_42%,rgba(41,29,20,0.34))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,161,74,0.18),transparent_38%)]" />
 
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.34em] text-[var(--text-muted)]">Colección viva 2026</p>
-            <h1 className="mt-4 max-w-3xl font-display text-5xl uppercase leading-[0.88] tracking-[0.08em] text-[var(--text-primary)] sm:text-6xl lg:text-7xl xl:text-[6.4rem]">
-              Objetos con presencia editorial.
-            </h1>
-            <p className="mt-5 max-w-2xl text-base leading-8 text-[var(--text-secondary)] sm:text-lg">
-              Inspiration Store presenta piezas con lenguaje de galería: volúmenes limpios, materiales visuales y una compra que se siente más curada que comercial.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-            <button
-              onClick={() => {
-                setFilter('all');
-                setSort('recent');
-              }}
-              className={`rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] transition ${filter === 'all' && sort !== 'popular' ? 'bg-[var(--accent)] text-[var(--ink)]' : 'border border-[var(--border-soft)] bg-[var(--surface-2)] text-[var(--text-primary)] hover:border-[var(--accent)]'}`}
-            >
-              Todas las piezas
-            </button>
-            <div className="relative min-w-[220px] flex-1 sm:flex-none">
-              <select
-                onChange={(e) => setFilter(e.target.value)}
-                value={filter === 'all' ? 'all' : filter}
-                className="w-full appearance-none rounded-full border border-[var(--border-soft)] bg-[var(--surface-2)] px-5 py-3 pr-12 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] outline-none transition hover:border-[var(--accent)]"
+      <div className="relative flex min-h-[560px] flex-col justify-end p-4 sm:min-h-[640px] sm:p-6 lg:min-h-[720px] lg:p-8 xl:p-10">
+        <div className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr] xl:items-end">
+          <div className="glass-panel animate-fade-up rounded-[1.7rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-4 sm:p-5 lg:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <button
+                onClick={() => {
+                  setFilter('all');
+                  setSort('recent');
+                }}
+                className={`rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] transition ${filter === 'all' && sort !== 'popular' ? 'bg-[var(--accent)] text-[var(--ink)] shadow-[0_14px_30px_rgba(215,161,74,0.2)]' : 'border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] text-[var(--text-primary)] hover:border-[var(--accent)]'}`}
               >
-                <option value="all">Curaduría por categoría</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.attributes.name}>
-                    {cat.attributes.name}
-                  </option>
-                ))}
-              </select>
-              <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">▼</span>
+                Todas las piezas
+              </button>
+              <div className="relative min-w-[220px] flex-1 sm:flex-none">
+                <select
+                  onChange={(e) => setFilter(e.target.value)}
+                  value={filter === 'all' ? 'all' : filter}
+                  className="w-full appearance-none rounded-full border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] px-5 py-3 pr-12 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] outline-none transition hover:border-[var(--accent)]"
+                >
+                  <option value="all">Curaduría por categoría</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.attributes.name} className="text-black">
+                      {cat.attributes.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]">▼</span>
+              </div>
+              <button
+                onClick={() => setSort('popular')}
+                className={`rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] transition ${sort === 'popular' ? 'bg-[var(--accent)] text-[var(--ink)] shadow-[0_14px_30px_rgba(215,161,74,0.2)]' : 'border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] text-[var(--text-primary)] hover:border-[var(--accent)]'}`}
+              >
+                Más buscadas
+              </button>
             </div>
-            <button
-              onClick={() => setSort('popular')}
-              className={`rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] transition ${sort === 'popular' ? 'bg-[var(--accent)] text-[var(--ink)]' : 'border border-[var(--border-soft)] bg-[var(--surface-2)] text-[var(--text-primary)] hover:border-[var(--accent)]'}`}
-            >
-              Más buscadas
-            </button>
           </div>
-        </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <div className="rounded-[1.75rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.04)] p-5 sm:p-6">
-            <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-muted)]">Estado de la tienda</p>
-            <p className="mt-4 text-4xl font-semibold text-[var(--text-primary)]">{productCount}</p>
-            <p className="mt-2 text-sm text-[var(--text-secondary)]">Piezas activas en la colección actual.</p>
-          </div>
-          <div className="flex flex-col justify-between rounded-[1.75rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))] p-5 sm:p-6">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-muted)]">Dirección visual</p>
-              <h2 className="mt-4 text-2xl font-semibold uppercase tracking-[0.1em] text-[var(--text-primary)]">Boutique de colección</h2>
-              <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
-                Menos marketplace. Más selección de piezas con identidad propia.
-              </p>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+            <div className="glass-panel animate-fade-up-delay rounded-[1.65rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-5">
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-secondary)]">Estado de la tienda</p>
+              <p className="mt-3 font-display text-5xl leading-none text-[var(--text-primary)]">{productCount}</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">Piezas activas en la colección actual.</p>
             </div>
-            <div className="mt-6 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-[var(--accent)]">
-              Explorar selección
-              <ArrowRight size={15} />
+            <div className="glass-panel animate-fade-up-slow flex flex-col justify-between rounded-[1.65rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-5">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-secondary)]">Dirección visual</p>
+                <h2 className="mt-3 font-display text-[2.2rem] leading-none text-[var(--text-primary)]">Boutique de colección</h2>
+                <p className="mt-3 max-w-sm text-sm leading-7 text-[var(--text-primary)] text-balance">
+                  Menos marketplace. Más selección de piezas con carácter propio.
+                </p>
+              </div>
+              <div className="mt-6 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-[var(--accent)]">
+                Explorar selección
+                <ArrowRight size={15} />
+              </div>
             </div>
           </div>
         </div>

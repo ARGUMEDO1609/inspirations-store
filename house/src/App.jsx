@@ -48,12 +48,12 @@ const Navbar = () => {
   const { user, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--border-strong)] bg-[rgba(10,10,10,0.82)] backdrop-blur-2xl">
+    <header className="sticky top-0 z-50 border-b border-[var(--border-strong)] bg-[rgba(251,245,238,0.74)] backdrop-blur-2xl">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
         <div className="flex items-center justify-between gap-4">
-          <Link to="/" className="flex flex-col leading-none">
-            <span className="font-display text-2xl uppercase tracking-[0.28em] text-[var(--text-primary)] sm:text-3xl">Inspiration</span>
-            <span className="mt-1 text-[10px] uppercase tracking-[0.4em] text-[var(--text-muted)]">Curated Objects Store</span>
+          <Link to="/" className="flex flex-col leading-none transition hover:opacity-85">
+            <span className="font-display text-[2rem] tracking-[0.18em] text-[var(--text-primary)] sm:text-[2.35rem]">Inspiration</span>
+            <span className="mt-1 text-[10px] uppercase tracking-[0.42em] text-[var(--text-muted)]">Store</span>
           </Link>
 
           <Link
@@ -66,7 +66,7 @@ const Navbar = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 sm:gap-4 lg:justify-end">
-          <nav className="order-2 flex w-full flex-wrap items-center gap-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[var(--text-muted)] sm:gap-3 lg:order-1 lg:w-auto">
+          <nav className="order-2 flex w-full flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)] sm:gap-3 lg:order-1 lg:w-auto">
             <Link to="/" className="rounded-full px-4 py-2 transition hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]">
               Colección
             </Link>
@@ -97,7 +97,7 @@ const Navbar = () => {
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--surface-3)] text-[var(--accent)]">
                     <User size={15} />
                   </div>
-                  <span className="max-w-[10rem] truncate text-xs font-medium uppercase tracking-[0.18em] text-[var(--text-primary)]">{user.name}</span>
+                  <span className="max-w-[10rem] truncate text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-primary)]">{user.name}</span>
                 </div>
                 <button
                   onClick={logout}
@@ -132,11 +132,11 @@ const Navbar = () => {
 
 const Footer = () => (
   <footer className="mt-24 border-t border-[var(--border-strong)] bg-[var(--bg-elevated)] py-14 sm:mt-32 sm:py-20">
-    <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1.4fr_1fr_1fr] lg:px-8">
+    <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1.35fr_1fr_1fr] lg:px-8">
       <div>
         <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--text-muted)]">Inspiration Store</p>
-        <h2 className="mt-3 max-w-md font-display text-3xl uppercase tracking-[0.18em] text-[var(--text-primary)] sm:text-4xl">
-          Objetos que se sienten editados, no listados.
+        <h2 className="mt-3 max-w-md font-display text-4xl leading-none tracking-[0.04em] text-[var(--text-primary)] sm:text-5xl">
+          Una tienda con ritmo más curado que masivo.
         </h2>
       </div>
       <div>
@@ -173,7 +173,7 @@ const App = () => {
   return (
     <ToastProvider>
       <NotificationListener>
-        <div className="min-h-screen bg-[radial-gradient(circle_at_top,var(--glow),transparent_38%),var(--bg-primary)] text-[var(--text-primary)] selection:bg-[var(--accent)]/30 selection:text-[var(--text-primary)]">
+        <div className="min-h-screen bg-[radial-gradient(circle_at_top,var(--glow),transparent_38%),linear-gradient(180deg,#fbf5ee,#f1e7db)] text-[var(--text-primary)] selection:bg-[var(--accent)]/30 selection:text-[var(--text-primary)]">
           <Navbar />
           <main className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8 lg:pb-32">
             <Routes>
