@@ -1,24 +1,38 @@
-# README
+# Inspiration Store
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Repositorio principal de `Inspiration Store`.
 
-Things you may want to cover:
+## Estructura activa
 
-* Ruby version
+- `house/`: frontend en React + Vite + Tailwind.
+- `server/`: backend API en Rails 8 + PostgreSQL + JWT + ActiveAdmin + Action Cable.
+- `bin/dev`: arranque conjunto de frontend y backend.
 
-* System dependencies
+## Cómo correr el proyecto en desarrollo
 
-* Configuration
+Desde la raíz:
 
-* Database creation
+```bash
+bin/dev
+```
 
-* Database initialization
+## Scripts útiles en la raíz
 
-* How to run the test suite
+- `bin/setup`: prepara `server/` y `house/`.
+- `bin/ci`: corre checks del backend y del frontend.
+- `bin/rails`: delega al backend real en `server/`.
 
-* Services (job queues, cache servers, search engines, etc.)
+## Estructura heredada
 
-* Deployment instructions
+La app Rails antigua de la raíz ya no vive en la raíz del repositorio. Fue archivada en:
 
-* ...
+- `legacy/root_rails_app/`
+
+Esa copia se conserva solo por compatibilidad y referencia histórica.
+
+## Resumen
+
+El flujo activo del proyecto está en:
+
+- `house/`
+- `server/`

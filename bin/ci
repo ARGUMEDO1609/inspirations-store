@@ -1,6 +1,21 @@
-#!/usr/bin/env ruby
-require_relative "../config/boot"
-require "active_support/continuous_integration"
+#!/usr/bin/env bash
+set -euo pipefail
 
-CI = ActiveSupport::ContinuousIntegration
-require_relative "../config/ci.rb"
+printf '== Backend CI (server/) ==\n'
+(
+  cd server
+  bin/ci
+)
+
+printf '\n== Frontend lint (house/) ==\n'
+(
+  cd house
+  npm ci
+  npm run lint
+)
+
+printf '\n== Frontend build (house/) ==\n'
+(
+  cd house
+  npm run build
+)

@@ -1,0 +1,71 @@
+Started GET "/" for 127.0.0.1 at 2026-03-02 08:21:04 -0500
+  [1m[36mActiveRecord::SchemaMigration Load (7.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='InspirationStore'*/[0m
+Processing by Rails::WelcomeController#index as HTML
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb (Duration: 1.1ms | GC: 0.0ms)
+Completed 200 OK in 29ms (Views: 7.6ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2026-03-02 08:35:32 -0500
+Processing by Rails::WelcomeController#index as HTML
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb (Duration: 0.7ms | GC: 0.0ms)
+Completed 200 OK in 3ms (Views: 2.2ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2026-03-02 08:35:33 -0500
+Processing by Rails::WelcomeController#index as HTML
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb (Duration: 0.4ms | GC: 0.0ms)
+Completed 200 OK in 4ms (Views: 3.2ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2026-03-02 08:35:33 -0500
+Processing by Rails::WelcomeController#index as HTML
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb (Duration: 0.1ms | GC: 0.0ms)
+Completed 200 OK in 1ms (Views: 0.8ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2026-03-02 08:35:33 -0500
+Processing by Rails::WelcomeController#index as HTML
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb (Duration: 0.1ms | GC: 0.0ms)
+Completed 200 OK in 2ms (Views: 1.2ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2026-03-02 08:35:33 -0500
+Processing by Rails::WelcomeController#index as HTML
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb (Duration: 0.2ms | GC: 0.0ms)
+Completed 200 OK in 2ms (Views: 1.4ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2026-03-02 08:35:34 -0500
+Processing by Rails::WelcomeController#index as HTML
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb (Duration: 0.7ms | GC: 0.0ms)
+Completed 200 OK in 7ms (Views: 5.6ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2026-03-02 08:47:39 -0500
+Processing by Rails::WelcomeController#index as HTML
+  Rendering /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb
+  Rendered /home/argumedo/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/railties-8.1.2/lib/rails/templates/rails/welcome/index.html.erb (Duration: 0.5ms | GC: 0.0ms)
+Completed 200 OK in 11ms (Views: 4.4ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+  [1m[35mSQL (0.1ms)[0m  [1m[35mSET search_path TO public /*application='InspirationStore'*/[0m
+  [1m[35m (35.4ms)[0m  [1m[35mCREATE DATABASE "inspiration_store_development" ENCODING = 'unicode' /*application='InspirationStore'*/[0m
+  [1m[35mSQL (0.1ms)[0m  [1m[35mSET search_path TO public /*application='InspirationStore'*/[0m
+  [1m[35m (8.9ms)[0m  [1m[35mCREATE DATABASE "inspiration_store_test" ENCODING = 'unicode' /*application='InspirationStore'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[34mSELECT pg_try_advisory_lock(1668500360526820275) /*application='InspirationStore'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.6ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='InspirationStore'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (5.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='InspirationStore'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_advisory_unlock(1668500360526820275) /*application='InspirationStore'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='InspirationStore'*/[0m
+  [1m[35mSQL (0.1ms)[0m  [1m[35mSET search_path TO public /*application='InspirationStore'*/[0m
+  [1m[35mSQL (0.1ms)[0m  [1m[35mSET search_path TO "$user", public /*application='InspirationStore'*/[0m
+  [1m[35mSQL (0.1ms)[0m  [1m[35mSET search_path TO public /*application='InspirationStore'*/[0m
+  [1m[35mSQL (0.1ms)[0m  [1m[35mSET search_path TO "$user", public /*application='InspirationStore'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='InspirationStore'*/[0m
