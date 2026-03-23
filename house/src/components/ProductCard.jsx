@@ -4,7 +4,7 @@ import { ShoppingCart, ArrowUpRight, Loader2 } from 'lucide-react';
 
 const ProductCard = ({ product, onAddToCart, isProcessing }) => {
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] transition duration-500 hover:border-[var(--accent)]/60 hover:shadow-[0_30px_70px_rgba(0,0,0,0.35)]">
+    <article className="glass-panel hover-lift animate-fade-up group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.72),rgba(255,248,236,0.52))] transition duration-500 hover:border-[var(--accent)]/60 hover:shadow-[0_24px_50px_rgba(38,24,12,0.14)]">
       <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-[var(--glow)] blur-3xl transition duration-700 group-hover:scale-125" />
 
       <div className="relative aspect-[4/4.8] overflow-hidden border-b border-[var(--border-soft)] bg-[var(--bg-elevated)]">
@@ -13,15 +13,15 @@ const ProductCard = ({ product, onAddToCart, isProcessing }) => {
           alt={product.title}
           className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
         />
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(10,10,10,0.92)] to-transparent p-5 sm:p-6">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(46,31,19,0.78)] via-[rgba(46,31,19,0.22)] to-transparent p-5 sm:p-6">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-muted)]">Selected Object</p>
-              <h3 className="mt-2 text-2xl font-semibold uppercase tracking-[0.08em] text-[var(--text-primary)] sm:text-[1.9rem]">
+              <p className="text-[10px] uppercase tracking-[0.32em] text-[#f1dfc7]">Pieza curada</p>
+              <h3 className="mt-2 font-display text-[2rem] leading-none text-[#fff7eb] sm:text-[2.3rem]">
                 {product.title}
               </h3>
             </div>
-            <span className="rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.06)] px-3 py-2 text-sm font-medium text-[var(--accent)] sm:text-base">
+            <span className="rounded-full border border-[rgba(255,248,236,0.24)] bg-[rgba(255,248,236,0.18)] px-3 py-2 text-sm font-semibold text-[#fff7eb] sm:text-base">
               ${product.price}
             </span>
           </div>
@@ -44,7 +44,7 @@ const ProductCard = ({ product, onAddToCart, isProcessing }) => {
         <div className="mt-6 grid grid-cols-2 gap-3">
           <Link
             to={`/product/${product.slug}`}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--border-soft)] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
           >
             Ver pieza
             <ArrowUpRight size={15} />
