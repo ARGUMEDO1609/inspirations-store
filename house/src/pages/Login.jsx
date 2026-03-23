@@ -19,7 +19,7 @@ const Login = () => {
       await login(email, password);
       toast({
         type: 'success',
-        title: '¡Bienvenido!',
+        title: 'Bienvenido',
         message: 'Has iniciado sesión correctamente.'
       });
       navigate('/');
@@ -35,20 +35,20 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-20 px-4">
-      <div className="w-full max-w-md bg-slate-900/50 backdrop-blur-3xl border border-slate-800 p-12 rounded-[40px] shadow-2xl">
-        <div className="text-center mb-10">
-          <h2 className="text-4xl font-black text-white italic tracking-tighter mb-2">Bienvenido de Nuevo</h2>
-          <p className="text-slate-500 font-medium">Accede a tu colección privada.</p>
+    <div className="flex min-h-[75vh] items-center justify-center py-10 sm:min-h-[80vh] sm:py-20">
+      <div className="w-full max-w-md rounded-[28px] border border-slate-800 bg-slate-900/50 p-6 shadow-2xl backdrop-blur-3xl sm:rounded-[40px] sm:p-10 lg:p-12">
+        <div className="mb-8 text-center sm:mb-10">
+          <h2 className="mb-2 text-3xl font-black tracking-tighter text-white sm:text-4xl">Bienvenido de nuevo</h2>
+          <p className="text-sm font-medium text-slate-500 sm:text-base">Accede a tu colección privada.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
           <div className="space-y-2">
-            <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-2">Email</label>
-            <input 
-              type="email" 
+            <label className="px-2 text-xs font-black uppercase tracking-widest text-slate-500">Email</label>
+            <input
+              type="email"
               required
-              className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all font-medium"
+              className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-5 py-4 text-white transition-all focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 sm:px-6"
               placeholder="tu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -56,28 +56,28 @@ const Login = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-2">Contraseña</label>
-            <input 
-              type="password" 
+            <label className="px-2 text-xs font-black uppercase tracking-widest text-slate-500">Contraseña</label>
+            <input
+              type="password"
               required
-              className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all font-medium"
+              className="w-full rounded-2xl border border-slate-800 bg-slate-950 px-5 py-4 text-white transition-all focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 sm:px-6"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
-          <button 
+          <button
             type="submit"
             disabled={loading}
-            className="w-full bg-amber-600 hover:bg-amber-500 text-white font-black py-5 rounded-2xl transition duration-300 shadow-xl shadow-amber-900/20 text-lg uppercase tracking-tight flex items-center justify-center min-h-[64px]"
+            className="flex min-h-[60px] w-full items-center justify-center rounded-2xl bg-amber-600 py-4 text-base font-black uppercase tracking-tight text-white transition hover:bg-amber-500"
           >
-            {loading ? <Loader2 className="animate-spin text-white" size={24} /> : "Iniciar Sesión"}
+            {loading ? <Loader2 className="animate-spin text-white" size={24} /> : 'Iniciar sesión'}
           </button>
         </form>
 
-        <p className="mt-8 text-center text-slate-500 font-medium text-sm">
-          ¿No tienes cuenta? <Link to="/signup" className="text-amber-500 hover:text-amber-400 font-bold ml-1">Regístrate</Link>
+        <p className="mt-6 text-center text-sm font-medium text-slate-500 sm:mt-8">
+          ¿No tienes cuenta? <Link to="/signup" className="ml-1 font-bold text-amber-500 hover:text-amber-400">Regístrate</Link>
         </p>
       </div>
     </div>

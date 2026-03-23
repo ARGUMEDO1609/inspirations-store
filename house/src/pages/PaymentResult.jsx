@@ -76,64 +76,58 @@ const PaymentResult = ({ variant }) => {
   const config = STATUS_CONFIG[variant] || STATUS_CONFIG.pending;
   const Icon = config.icon;
   const reportedStatus = status || variant;
-  const resolvedOrderStatus = order?.status ? (ORDER_STATUS_LABELS[order.status] || order.status) : null;
-  const resolvedPaymentStatus = order?.payment_status ? (PAYMENT_STATUS_LABELS[order.payment_status] || order.payment_status) : reportedStatus;
+  const resolvedOrderStatus = order?.status ? ORDER_STATUS_LABELS[order.status] || order.status : null;
+  const resolvedPaymentStatus = order?.payment_status ? PAYMENT_STATUS_LABELS[order.payment_status] || order.payment_status : reportedStatus;
 
   return (
-    <div className="py-24 animate-in fade-in duration-700">
-      <div className={`max-w-3xl mx-auto rounded-[40px] border ${config.ring} ${config.bg} p-10 md:p-14 shadow-2xl backdrop-blur-3xl`}>
-        <div className={`w-20 h-20 rounded-full ${config.bg} border ${config.ring} flex items-center justify-center mb-8`}>
-          <Icon className={config.accent} size={38} />
+    <div className="animate-in fade-in py-10 duration-700 sm:py-16 lg:py-24">
+      <div className={`mx-auto max-w-3xl rounded-[28px] border p-6 shadow-2xl backdrop-blur-3xl sm:rounded-[40px] sm:p-10 lg:p-14 ${config.ring} ${config.bg}`}>
+        <div className={`mb-6 flex h-16 w-16 items-center justify-center rounded-full border sm:mb-8 sm:h-20 sm:w-20 ${config.bg} ${config.ring}`}>
+          <Icon className={config.accent} size={34} />
         </div>
 
-        <h1 className="text-5xl md:text-6xl font-black text-white italic tracking-tighter mb-6">
+        <h1 className="mb-4 text-3xl font-black tracking-tighter text-white sm:mb-6 sm:text-5xl lg:text-6xl">
           {config.title}
         </h1>
 
-        <p className="text-slate-300 text-lg leading-8 max-w-2xl mb-10">
+        <p className="mb-8 max-w-2xl text-base leading-7 text-slate-300 sm:mb-10 sm:text-lg sm:leading-8">
           {config.message}
         </p>
 
         {loadingOrder && (
-          <div className="flex items-center gap-3 text-slate-300 mb-8">
-            <Loader2 className="animate-spin text-amber-400" size={18} />
+          <div className="mb-8 flex items-start gap-3 text-slate-300">
+            <Loader2 className="mt-0.5 text-amber-400 animate-spin" size={18} />
             <span className="text-sm font-medium">Consultando estado actualizado del pedido...</span>
           </div>
         )}
 
-        <div className="grid gap-4 md:grid-cols-2 mb-12">
-          <div className="rounded-3xl border border-slate-800 bg-slate-950/70 p-6">
-            <div className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 mb-2">Referencia del pedido</div>
-            <div className="text-white font-mono text-lg">{externalReference || 'No disponible aún'}</div>
+        <div className="mb-10 grid gap-4 md:grid-cols-2 sm:mb-12">
+          <div className="rounded-3xl border border-slate-800 bg-slate-950/70 p-5 sm:p-6">
+            <div className="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Referencia del pedido</div>
+            <div className="break-all font-mono text-base text-white sm:text-lg">{externalReference || 'No disponible aún'}</div>
           </div>
-          <div className="rounded-3xl border border-slate-800 bg-slate-950/70 p-6">
-            <div className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 mb-2">Estado de pago</div>
-            <div className="text-white font-mono text-lg">{resolvedPaymentStatus}</div>
+          <div className="rounded-3xl border border-slate-800 bg-slate-950/70 p-5 sm:p-6">
+            <div className="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Estado de pago</div>
+            <div className="break-all font-mono text-base text-white sm:text-lg">{resolvedPaymentStatus}</div>
           </div>
-          <div className="rounded-3xl border border-slate-800 bg-slate-950/70 p-6 md:col-span-2">
-            <div className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 mb-2">Estado del pedido</div>
-            <div className="text-white font-mono text-lg">{resolvedOrderStatus || 'Pendiente de actualización'}</div>
+          <div className="rounded-3xl border border-slate-800 bg-slate-950/70 p-5 md:col-span-2 sm:p-6">
+            <div className="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Estado del pedido</div>
+            <div className="break-all font-mono text-base text-white sm:text-lg">{resolvedOrderStatus || 'Pendiente de actualización'}</div>
           </div>
           {paymentId && (
-            <div className="rounded-3xl border border-slate-800 bg-slate-950/70 p-6 md:col-span-2">
-              <div className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 mb-2">Pago</div>
-              <div className="text-white font-mono text-lg break-all">{paymentId}</div>
+            <div className="rounded-3xl border border-slate-800 bg-slate-950/70 p-5 md:col-span-2 sm:p-6">
+              <div className="mb-2 text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">Pago</div>
+              <div className="break-all font-mono text-base text-white sm:text-lg">{paymentId}</div>
             </div>
           )}
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Link
-            to="/orders"
-            className="inline-flex items-center justify-center gap-3 bg-white text-slate-950 px-8 py-4 rounded-2xl font-black uppercase text-sm tracking-widest hover:bg-amber-500 transition-all duration-500"
-          >
+        <div className="flex flex-col gap-4 sm:flex-row">
+          <Link to="/orders" className="inline-flex items-center justify-center gap-3 rounded-2xl bg-white px-6 py-4 text-center text-sm font-black uppercase tracking-widest text-slate-950 transition-all duration-500 hover:bg-amber-500 sm:px-8">
             Ver mis pedidos
             <ArrowRight size={18} />
           </Link>
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center gap-3 border border-slate-700 text-slate-200 px-8 py-4 rounded-2xl font-black uppercase text-sm tracking-widest hover:border-amber-500 hover:text-amber-400 transition-all duration-500"
-          >
+          <Link to="/" className="inline-flex items-center justify-center gap-3 rounded-2xl border border-slate-700 px-6 py-4 text-center text-sm font-black uppercase tracking-widest text-slate-200 transition-all duration-500 hover:border-amber-500 hover:text-amber-400 sm:px-8">
             Volver a la tienda
           </Link>
         </div>
