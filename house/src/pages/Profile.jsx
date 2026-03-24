@@ -26,7 +26,7 @@ const Profile = () => {
           phone: formData.phone
         }
       });
-      updateUser(response.data.data);
+      updateUser(response.data.data?.attributes || response.data.data);
       toast({
         type: 'success',
         title: 'Perfil actualizado',

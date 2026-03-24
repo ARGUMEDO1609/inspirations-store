@@ -1,10 +1,17 @@
 require 'rails_helper'
+require 'jwt'
+require 'securerandom'
 
 RSpec.describe Api::V1::CartItemsController, type: :controller do
   let(:user) { create(:user) }
   let(:product) { create(:product) }
+  let(:jwt_secret) { ENV['DEVISE_JWT_SECRET_KEY'] || 'temporary_secret_for_development_1234567890' }
+  let(:token_payload) { { sub: user.id, jti: SecureRandom.uuid } }
+  let(:token) { JWT.encode(token_payload, jwt_secret, 'HS256') }
 
-  before { sign_in user }
+  before do
+    request.headers['Authorization'] = "Bearer #{token}"
+  end
 
   describe 'GET #index' do
     it 'returns cart items for current user' do

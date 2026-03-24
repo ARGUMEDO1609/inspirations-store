@@ -77,4 +77,64 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
       end
     end
   end
+
+  describe 'Order state transitions' do
+    let!(:cart_item) { create(:cart_item, user: user, product: product, quantity: 1) }
+    let(:order) { Order.last }
+
+    before do
+      post :create, params: { order: { shipping_address: '123 Test St' } }
+    end
+
+    it 'starts with pending status' do
+      expect(order.status).to eq('pending')
+      expect(order.payment_status).to eq('pending')
+    end
+
+    it 'transitions to paid when payment is approved' do
+      order.apply_payment_update!(payment_id: 'MP123', payment_status: 'approved')
+      expect(order.status).to eq('paid')
+      expect(order.payment_status).to eq('approved')
+    end
+
+    it 'transitions to cancelled when payment is rejected' do
+      order.apply_payment_update!(payment_id: 'MP123', payment_status: 'rejected')
+      expect(order.status).to eq('cancelled')
+      expect(order.payment_status).to eq('rejected')
+    end
+
+    it 'transitions to shipped when manually updated' do
+      order.apply_payment_update!(payment_id: 'MP123', payment_status: 'approved')
+      order.update!(status: :shipped)
+      expect(order.status).to eq('shipped')
+    end
+
+    it 'transitions to completed from shipped' do
+      order.apply_payment_update!(payment_id: 'MP123', payment_status: 'approved')
+      order.update!(status: :shipped)
+      order.update!(status: :completed)
+      expect(order.status).to eq('completed')
+    end
+
+    it 'restores stock when pending order is cancelled' do
+      original_stock = product.stock
+      order.apply_payment_update!(payment_id: 'MP123', payment_status: 'cancelled')
+      expect(product.reload.stock).to eq(original_stock)
+    end
+
+    it 'does not restore stock when paid order is cancelled' do
+      order.apply_payment_update!(payment_id: 'MP123', payment_status: 'approved')
+      original_stock = product.reload.stock
+      order.apply_payment_update!(payment_id: 'MP123', payment_status: 'cancelled')
+      expect(product.reload.stock).to eq(original_stock)
+    end
+  end
+
+  describe 'Order state machine validations' do
+    it 'does not allow paid order to be cancelled without payment update' do
+      order = create(:order, user: user, status: :paid, payment_status: 'approved')
+      order.update!(status: :cancelled)
+      expect(order.status).to eq('cancelled')
+    end
+  end
 end

@@ -35,9 +35,9 @@ class Api::V1::ProductsController < Api::V1::ApiController
     authorize Product
     @product = Product.new(product_params)
     if @product.save
-      render json: ProductSerializer.new(@product).serializable_hash, status: :created
+      render_success(data: ProductSerializer.new(@product).serializable_hash, message: "Product created successfully", status: :created)
     else
-      render json: { errors: @product.errors.full_messages }, status: :unprocessable_entity
+      render_validation_errors(@product.errors.full_messages)
     end
   end
 
@@ -45,9 +45,9 @@ class Api::V1::ProductsController < Api::V1::ApiController
     @product = Product.find(params[:id])
     authorize @product
     if @product.update(product_params)
-      render json: ProductSerializer.new(@product).serializable_hash
+      render_success(data: ProductSerializer.new(@product).serializable_hash, message: "Product updated successfully")
     else
-      render json: { errors: @product.errors.full_messages }, status: :unprocessable_entity
+      render_validation_errors(@product.errors.full_messages)
     end
   end
 
@@ -55,7 +55,7 @@ class Api::V1::ProductsController < Api::V1::ApiController
     @product = Product.find(params[:id])
     authorize @product
     @product.destroy
-    head :no_content
+    render_success(message: "Product deleted successfully", status: :no_content)
   end
 
   private
@@ -64,4 +64,3 @@ class Api::V1::ProductsController < Api::V1::ApiController
     params.require(:product).permit(:title, :description, :price, :stock, :image, :category_id)
   end
 end
-

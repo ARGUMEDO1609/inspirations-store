@@ -5,6 +5,8 @@ import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 
+const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%23f5f0e8' width='200' height='200'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='16' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E%3C/text%3E%3C/svg%3E";
+
 const Cart = () => {
   const { user } = useAuth();
   const [cart, setCart] = useState({ items: [], total: 0 });
@@ -13,6 +15,7 @@ const Cart = () => {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [shippingAddress, setShippingAddress] = useState('');
   const { toast } = useToast();
+  const safeTotal = Number(cart.total ?? 0);
 
   useEffect(() => {
     if (user && user.address) {
@@ -23,7 +26,8 @@ const Cart = () => {
   const fetchCart = useCallback(async () => {
     try {
       const response = await api.get('/cart_items');
-      setCart(response.data);
+      const cartData = response.data.data;
+      setCart(cartData || { items: [], total: 0 });
     } catch (error) {
       console.error('Error fetching cart:', error);
     } finally {
@@ -86,9 +90,9 @@ const Cart = () => {
       const orderResponse = await api.post('/orders', {
         order: { shipping_address: shippingAddress }
       });
-      const orderId = orderResponse.data.id;
+      const orderId = orderResponse.data.data.id;
       const paymentResponse = await api.get(`/orders/${orderId}/pay`);
-      window.location.href = paymentResponse.data.checkout_url;
+      window.location.href = paymentResponse.data.data.checkout_url;
     } catch (error) {
       console.error('Error initiating checkout:', error);
       const errorMessage = error.response?.data?.error || 'No pudimos iniciar la transacción con Mercado Pago.';
@@ -162,7 +166,7 @@ const Cart = () => {
               >
                 <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[auto_1fr_auto] lg:items-center">
                   <div className="h-24 w-24 overflow-hidden rounded-[1.55rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)] sm:h-28 sm:w-28">
-                    <img src={item.product.image_url || 'https://via.placeholder.com/200'} alt={item.product.title} className="h-full w-full object-cover" />
+                    <img src={item.product.image_url || PLACEHOLDER} alt={item.product.title} className="h-full w-full object-cover" />
                   </div>
 
                   <div className="min-w-0">
@@ -227,7 +231,7 @@ const Cart = () => {
           <div className="mt-8 space-y-5 text-sm text-[var(--text-secondary)]">
             <div className="flex items-center justify-between">
               <span>Subtotal</span>
-              <span className="font-semibold text-[var(--text-primary)]">${cart.total.toFixed(2)}</span>
+              <span className="font-semibold text-[var(--text-primary)]">${safeTotal.toFixed(2)}</span>
             </div>
             <div className="flex items-center justify-between border-b border-[var(--border-soft)] pb-5">
               <span>Envío</span>
@@ -235,7 +239,7 @@ const Cart = () => {
             </div>
             <div className="flex items-end justify-between">
               <span className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)]">Total</span>
-              <span className="font-display text-5xl leading-none text-[var(--text-primary)]">${cart.total.toFixed(2)}</span>
+              <span className="font-display text-5xl leading-none text-[var(--text-primary)]">${safeTotal.toFixed(2)}</span>
             </div>
           </div>
 

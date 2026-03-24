@@ -1,4 +1,6 @@
 class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
+  include ApiResponses
+
   respond_to :json
   skip_forgery_protection only: [ :create ]
 
@@ -8,14 +10,15 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     if resource.save
       sign_in(resource)
 
-      render json: {
-        status: { code: 200, message: "Signed up successfully." },
-        data: UserSerializer.new(resource).serializable_hash[:data][:attributes]
-      }, status: :ok
+      render_success(
+        data: UserSerializer.new(resource).serializable_hash[:data][:attributes],
+        message: "Signed up successfully"
+      )
     else
-      render json: {
-        status: { message: "User couldn't be created successfully. #{resource.errors.full_messages.to_sentence}" }
-      }, status: :unprocessable_entity
+      render_error(
+        "User could not be created",
+        details: resource.errors.full_messages
+      )
     end
   end
 

@@ -3,28 +3,28 @@ class Api::V1::OrdersController < Api::V1::ApiController
 
   def index
     @orders = current_user.orders.order(created_at: :desc)
-    render json: @orders.as_json(include: :order_items)
+    render_success(data: @orders.as_json(include: :order_items))
   end
 
   def show
     @order = current_user.orders.find(params[:id])
-    render json: @order.as_json(include: { order_items: { include: :product } })
+    render_success(data: @order.as_json(include: { order_items: { include: :product } }))
   end
 
   def create
     @order = current_user.orders.new(order_params)
     @order.status = :pending
-    @order.payment_status = 'pending'
+    @order.payment_status = "pending"
 
     cart_items = current_user.cart_items.includes(:product)
     if cart_items.empty?
-      render json: { error: 'Cart is empty' }, status: :unprocessable_entity
+      render_error("Cart is empty")
       return
     end
 
     cart_items.each do |item|
       if item.product.stock < item.quantity
-        render json: { error: "Insufficient stock for #{item.product.title}" }, status: :unprocessable_entity
+        render_error("Insufficient stock for #{item.product.title}")
         return
       end
     end
@@ -41,9 +41,9 @@ class Api::V1::OrdersController < Api::V1::ApiController
         item.product.decrement!(:stock, item.quantity)
       end
       cart_items.destroy_all
-      render json: @order, status: :created
+      render_success(data: @order, message: "Order created successfully", status: :created)
     else
-      render json: { errors: @order.errors.full_messages }, status: :unprocessable_entity
+      render_validation_errors(@order.errors.full_messages)
     end
   end
 
@@ -51,9 +51,9 @@ class Api::V1::OrdersController < Api::V1::ApiController
     authorize Order
     @order = Order.find(params[:id])
     if @order.update(order_params)
-      render json: @order
+      render_success(data: @order, message: "Order updated successfully")
     else
-      render json: { errors: @order.errors.full_messages }, status: :unprocessable_entity
+      render_validation_errors(@order.errors.full_messages)
     end
   end
 

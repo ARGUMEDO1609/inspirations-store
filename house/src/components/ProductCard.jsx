@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, ArrowUpRight, Loader2 } from 'lucide-react';
 
+const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'%3E%3Crect fill='%23f5f0e8' width='600' height='600'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='24' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3EImagen no disponible%3C/text%3E%3C/svg%3E";
+
 const ProductCard = ({ product, onAddToCart, isProcessing }) => {
   return (
     <article className="glass-panel hover-lift animate-fade-up group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.72),rgba(255,248,236,0.52))] transition duration-500 hover:border-[var(--accent)]/60 hover:shadow-[0_24px_50px_rgba(38,24,12,0.14)]">
@@ -9,7 +11,7 @@ const ProductCard = ({ product, onAddToCart, isProcessing }) => {
 
       <div className="relative aspect-[4/4.8] overflow-hidden border-b border-[var(--border-soft)] bg-[var(--bg-elevated)]">
         <img
-          src={product.image_url || 'https://via.placeholder.com/600'}
+          src={product.image_url || PLACEHOLDER}
           alt={product.title}
           className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
         />

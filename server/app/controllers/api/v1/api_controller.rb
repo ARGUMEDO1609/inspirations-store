@@ -1,11 +1,22 @@
 class Api::V1::ApiController < ActionController::API
   include Pundit::Authorization
+  include ApiResponses
+
+  before_action :set_active_storage_url_options
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   private
 
   def authenticate_user!
+    return if current_user.present?
+
+    warden_user = request&.env && request.env["warden"]&.user
+    if warden_user.present?
+      @current_user = warden_user
+      return
+    end
+
     token = extract_token_from_header
 
     if token.present?
@@ -16,7 +27,7 @@ class Api::V1::ApiController < ActionController::API
       end
     end
 
-    render json: { error: "Unauthorized" }, status: :unauthorized
+    render_unauthorized
   end
 
   def extract_token_from_header
@@ -27,10 +38,22 @@ class Api::V1::ApiController < ActionController::API
   end
 
   def current_user
-    @current_user
+    return @current_user if @current_user.present?
+
+    @current_user = request&.env && request.env["warden"]&.user
   end
 
   def user_not_authorized
-    render json: { error: "You are not authorized to perform this action." }, status: :forbidden
+    render_forbidden
+  end
+
+  def set_active_storage_url_options
+    return unless defined?(ActiveStorage::Current)
+
+    ActiveStorage::Current.url_options = {
+      protocol: request.protocol,
+      host: request.host,
+      port: request.port
+    }
   end
 end

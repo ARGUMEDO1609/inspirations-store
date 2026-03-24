@@ -1,4 +1,6 @@
 class Api::V1::Users::SessionsController < Devise::SessionsController
+  include ApiResponses
+
   respond_to :json
   skip_forgery_protection only: [ :create, :destroy ]
 
@@ -9,12 +11,12 @@ class Api::V1::Users::SessionsController < Devise::SessionsController
       sign_in(resource_name, resource)
       yield resource if block_given?
 
-      render json: {
-        status: { code: 200, message: "Logged in successfully." },
-        data: UserSerializer.new(resource).serializable_hash[:data][:attributes]
-      }, status: :ok
+      render_success(
+        data: UserSerializer.new(resource).serializable_hash[:data][:attributes],
+        message: "Logged in successfully"
+      )
     else
-      render json: { error: "Email o contraseña inválidos" }, status: :unauthorized
+      render_unauthorized("Invalid email or password")
     end
   end
 
@@ -22,15 +24,9 @@ class Api::V1::Users::SessionsController < Devise::SessionsController
     signed_out = (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
 
     if signed_out
-      render json: {
-        status: 200,
-        message: "Logged out successfully."
-      }, status: :ok
+      render_success(message: "Logged out successfully")
     else
-      render json: {
-        status: 401,
-        message: "Couldn't find an active session."
-      }, status: :unauthorized
+      render_unauthorized("No active session found")
     end
   end
 
