@@ -21,7 +21,8 @@ export const AuthProvider = ({ children }) => {
   const checkUser = async () => {
     try {
       const response = await api.get('/current_user');
-      setUser(response.data.data || response.data.user);
+      const userData = response.data.data;
+      setUser(userData?.attributes || userData || response.data);
     } catch (error) {
       localStorage.removeItem('token');
     } finally {
@@ -34,8 +35,8 @@ export const AuthProvider = ({ children }) => {
       user: { email, password }
     });
     const token = response.headers.authorization;
-    const userData = response.data.data || response.data.user;
-    
+    const userData = response.data.data?.attributes || response.data.data || response.data;
+
     if (!userData) {
       throw new Error('No se recibieron datos del usuario del servidor.');
     }
@@ -59,7 +60,7 @@ export const AuthProvider = ({ children }) => {
       user: userData
     });
     const token = response.headers.authorization;
-    const userResponse = response.data.data || response.data.user;
+    const userResponse = response.data.data?.attributes || response.data.data || response.data;
 
     if (!userResponse) {
       throw new Error('No se recibieron datos del registro del servidor.');

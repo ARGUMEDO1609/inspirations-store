@@ -3,21 +3,21 @@ class Api::V1::CategoriesController < Api::V1::ApiController
 
   def index
     @categories = Category.all
-    render json: CategorySerializer.new(@categories).serializable_hash
+    render_success(data: CategorySerializer.new(@categories).serializable_hash)
   end
 
   def show
     @category = Category.find(params[:id])
-    render json: CategorySerializer.new(@category).serializable_hash
+    render_success(data: CategorySerializer.new(@category).serializable_hash)
   end
 
   def create
     authorize Category
     @category = Category.new(category_params)
     if @category.save
-      render json: CategorySerializer.new(@category).serializable_hash, status: :created
+      render_success(data: CategorySerializer.new(@category).serializable_hash, message: "Category created successfully", status: :created)
     else
-      render json: { errors: @category.errors.full_messages }, status: :unprocessable_entity
+      render_validation_errors(@category.errors.full_messages)
     end
   end
 
@@ -25,9 +25,9 @@ class Api::V1::CategoriesController < Api::V1::ApiController
     @category = Category.find(params[:id])
     authorize @category
     if @category.update(category_params)
-      render json: CategorySerializer.new(@category).serializable_hash
+      render_success(data: CategorySerializer.new(@category).serializable_hash, message: "Category updated successfully")
     else
-      render json: { errors: @category.errors.full_messages }, status: :unprocessable_entity
+      render_validation_errors(@category.errors.full_messages)
     end
   end
 
@@ -37,4 +37,3 @@ class Api::V1::CategoriesController < Api::V1::ApiController
     params.require(:category).permit(:name, :slug, :description, :image)
   end
 end
-

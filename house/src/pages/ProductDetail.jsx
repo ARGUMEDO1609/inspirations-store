@@ -4,6 +4,8 @@ import { ArrowLeft, Globe, Loader2, ShieldCheck, ShoppingCart, Zap } from 'lucid
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 
+const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800' viewBox='0 0 800 800'%3E%3Crect fill='%23f5f0e8' width='800' height='800'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='32' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3EImagen no disponible%3C/text%3E%3C/svg%3E";
+
 const assuranceItems = [
   {
     icon: ShieldCheck,
@@ -34,7 +36,8 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       try {
         const response = await api.get('/products');
-        const allProducts = response.data.data;
+        const productsData = response.data.data;
+        const allProducts = Array.isArray(productsData) ? productsData : productsData?.data || [];
         const found = allProducts.find((p) => p.attributes.slug === slug);
         if (found) {
           setProduct({ ...found.attributes, id: found.id });
@@ -111,7 +114,7 @@ const ProductDetail = () => {
         <div className="glass-panel animate-fade-up relative overflow-hidden rounded-[2.35rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,161,74,0.22),transparent_28%)]" />
           <img
-            src={product.image_url || 'https://via.placeholder.com/800'}
+            src={product.image_url || PLACEHOLDER}
             alt={product.title}
             className="relative aspect-[4/4.7] w-full object-cover"
           />

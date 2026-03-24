@@ -3,10 +3,10 @@ class Api::V1::CartItemsController < Api::V1::ApiController
 
   def index
     @cart_items = current_user.cart_items.includes(:product)
-    render json: {
+    render_success(data: {
       items: @cart_items.as_json(include: :product),
       total: @cart_items.sum { |item| item.product.price * item.quantity }
-    }
+    })
   end
 
   def create
@@ -15,29 +15,29 @@ class Api::V1::CartItemsController < Api::V1::ApiController
     @cart_item.quantity = params[:quantity].to_i unless @cart_item.persisted?
 
     if @cart_item.save
-      render json: @cart_item, status: :created
+      render_success(data: @cart_item, message: "Item added to cart", status: :created)
     else
-      render json: { error: @cart_item.errors.full_messages.first }, status: :unprocessable_entity
+      render_error(@cart_item.errors.full_messages.first)
     end
   end
 
   def update
     @cart_item = current_user.cart_items.find(params[:id])
     if @cart_item.update(quantity: params[:quantity])
-      render json: @cart_item
+      render_success(data: @cart_item, message: "Cart updated successfully")
     else
-      render json: { errors: @cart_item.errors.full_messages }, status: :unprocessable_entity
+      render_validation_errors(@cart_item.errors.full_messages)
     end
   end
 
   def destroy
     @cart_item = current_user.cart_items.find(params[:id])
     @cart_item.destroy
-    head :no_content
+    render_success(message: "Item removed from cart", status: :no_content)
   end
 
   def clear
     current_user.cart_items.destroy_all
-    head :no_content
+    render_success(message: "Cart cleared", status: :no_content)
   end
 end

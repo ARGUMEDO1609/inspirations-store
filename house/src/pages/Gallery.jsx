@@ -105,7 +105,8 @@ const Gallery = () => {
   const fetchCategories = async () => {
     try {
       const response = await api.get('/categories');
-      setCategories(response.data.data);
+      const categoriesData = response.data.data;
+      setCategories(Array.isArray(categoriesData) ? categoriesData : categoriesData?.data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -120,7 +121,8 @@ const Gallery = () => {
           sort: sort
         }
       });
-      setProducts(response.data.data);
+      const productsData = response.data.data;
+      setProducts(Array.isArray(productsData) ? productsData : productsData?.data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {

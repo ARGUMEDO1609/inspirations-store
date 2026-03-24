@@ -169,8 +169,8 @@ Objetivo: reducir errores lógicos y dejar el backend más robusto.
 - [x] Revisar policies de `Order` y `Product`
 - [x] Confirmar protección de endpoints sensibles con JWT
 - [x] Cerrar reglas principales del polimorfismo y normalización de direcciones
-- [ ] Estandarizar respuestas JSON de error y éxito
-- [ ] Centralizar manejo de errores del API
+- [x] Estandarizar respuestas JSON de error y éxito
+- [x] Centralizar manejo de errores del API
 - [ ] Revisar validaciones de modelos restantes
 
 ### Fase 3 - Mejorar testing
@@ -182,7 +182,7 @@ Objetivo: cubrir lo que hoy sería más costoso romper.
 - [x] Añadir tests de webhook de Mercado Pago
 - [x] Añadir tests de policies/autorización
 - [x] Añadir tests de polimorfismo y normalización de direcciones
-- [ ] Confirmar cobertura mínima de transición completa de estados de pedido
+- [x] Confirmar cobertura mínima de transición completa de estados de pedido
 - [ ] Ejecutar `bin/ci` como rutina estable antes de commits importantes
 
 ### Fase 4 - Mejorar panel administrativo
@@ -192,7 +192,7 @@ Objetivo: hacer que el admin sirva para operar la tienda, no solo para CRUD bás
 - [x] Añadir gestión de pedidos en ActiveAdmin
 - [x] Permitir actualización rápida de estado de pedidos desde admin
 - [x] Mostrar mejor estado, pago y dirección del pedido
-- [ ] Añadir filtros más potentes para pedidos y usuarios
+- [x] Añadir filtros más potentes para pedidos y usuarios
 - [x] Rediseñar los formularios de productos y categorías para guiarlos mejor
 - [x] Enriquecer las vistas de reviews y notas con contexto operativo
 - [ ] Revisar necesidades reales de operación diaria
@@ -201,9 +201,9 @@ Objetivo: hacer que el admin sirva para operar la tienda, no solo para CRUD bás
 
 Objetivo: dejar el sistema listo para desplegar sin improvisación.
 
-- [ ] Crear documentación de variables de entorno
-- [ ] Añadir `.env.example` o equivalente documentado
-- [ ] Documentar configuración de frontend y backend
+- [x] Crear documentación de variables de entorno
+- [x] Añadir `.env.example` o equivalente documentado
+- [x] Documentar configuración de frontend y backend
 - [ ] Definir estrategia de despliegue de `server/`
 - [ ] Definir build y publicación de `house/`
 - [ ] Revisar secretos, logs y archivos temporales antes de publicar
