@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowRight, CheckCircle2, Clock3, Loader2, XCircle } from 'lucide-react';
 import api from '../api/axios';
+import useApiError from '../hooks/useApiError';
 
 const STATUS_CONFIG = {
   success: {
@@ -46,6 +47,7 @@ const PaymentResult = ({ variant }) => {
   const status = params.get('status') || params.get('collection_status');
   const [order, setOrder] = useState(null);
   const [loadingOrder, setLoadingOrder] = useState(false);
+  const { handleError } = useApiError();
 
   useEffect(() => {
     if (!externalReference) return;
@@ -57,13 +59,14 @@ const PaymentResult = ({ variant }) => {
         setOrder(response.data.data || response.data);
       } catch (error) {
         console.error('Error fetching order after payment:', error);
+        handleError(error, 'Error cargando pedido');
       } finally {
         setLoadingOrder(false);
       }
     };
 
     fetchOrder();
-  }, [externalReference]);
+  }, [externalReference, handleError]);
 
   const config = STATUS_CONFIG[variant] || STATUS_CONFIG.pending;
   const Icon = config.icon;

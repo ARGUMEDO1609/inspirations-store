@@ -171,7 +171,7 @@ Objetivo: reducir errores lógicos y dejar el backend más robusto.
 - [x] Cerrar reglas principales del polimorfismo y normalización de direcciones
 - [x] Estandarizar respuestas JSON de error y éxito
 - [x] Centralizar manejo de errores del API
-- [ ] Revisar validaciones de modelos restantes
+- [x] Revisar validaciones de modelos restantes
 
 ### Fase 3 - Mejorar testing
 
@@ -204,17 +204,17 @@ Objetivo: dejar el sistema listo para desplegar sin improvisación.
 - [x] Crear documentación de variables de entorno
 - [x] Añadir `.env.example` o equivalente documentado
 - [x] Documentar configuración de frontend y backend
-- [ ] Definir estrategia de despliegue de `server/`
-- [ ] Definir build y publicación de `house/`
-- [ ] Revisar secretos, logs y archivos temporales antes de publicar
+- [x] Definir estrategia de despliegue de `server/`
+- [x] Definir build y publicación de `house/`
+- [x] Revisar secretos, logs y archivos temporales antes de publicar
 
 ### Fase 6 - Pulir experiencia de usuario
 
 Objetivo: que el proyecto se sienta más terminado y confiable.
 
 - [x] Mejorar feedback del retorno de pago
-- [ ] Mejorar mensajes de error de red de forma global
-- [ ] Mejorar estados vacíos y loaders restantes
+- [x] Mejorar mensajes de error de red de forma global
+- [x] Mejorar estados vacíos y loaders restantes
 - [ ] Pulir experiencia del checkout
 - [ ] Mejorar feedback visual del estado del pedido
 
@@ -222,8 +222,8 @@ Objetivo: que el proyecto se sienta más terminado y confiable.
 
 Objetivo: que el proyecto también comunique bien su valor.
 
-- [ ] Mejorar README para presentación pública
-- [ ] Documentar arquitectura general del sistema
+- [x] Mejorar README para presentación pública
+- [x] Documentar arquitectura general del sistema
 - [ ] Añadir screenshots o demo visual
 - [ ] Resumir funcionalidades clave para portafolio
 - [ ] Explicar decisiones técnicas importantes del proyecto

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
-import { ShoppingCart, User, LogOut, Loader2 } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Loader2, X } from 'lucide-react';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Gallery from './pages/Gallery';
@@ -9,8 +9,19 @@ import ProductDetail from './pages/ProductDetail';
 import Profile from './pages/Profile';
 import Orders from './pages/Orders';
 import PaymentResult from './pages/PaymentResult';
-import { useAuth } from './context/AuthContext';
-import { ToastProvider, useToast } from './context/ToastContext';
+import { useAuth } from './context/useAuth';
+import { ToastProvider } from './context/ToastContext';
+import { useToast } from './context/useToast';
+import { NetworkStatusProvider } from './context/NetworkStatusContext';
+import useNetworkStatus from './context/useNetworkStatus';
+import {
+  CartNotificationList,
+  CartNotificationProvider
+} from './context/CartNotificationContext';
+import {
+  CartCountProvider,
+  useCartCount
+} from './context/CartCountContext';
 import useActionCable from './api/useActionCable';
 
 const NotificationListener = ({ children }) => {
@@ -51,6 +62,53 @@ const NotificationListener = ({ children }) => {
   return children;
 };
 
+const NetworkBanner = () => {
+  const { isOnline, globalError, clearError } = useNetworkStatus();
+  const offlineMessage = 'Sin conexión. Verifica tu red para continuar.';
+
+  if (isOnline && !globalError) {
+    return null;
+  }
+
+  const statusClasses = isOnline
+    ? 'border-b border-amber-300/40 bg-amber-500/10 text-amber-200'
+    : 'border-b border-rose-500/40 bg-rose-500/10 text-rose-200';
+  const message = isOnline ? globalError : offlineMessage;
+
+  return (
+    <div
+      className={`flex items-center justify-between gap-3 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.25em] ${statusClasses} lg:px-6`}
+    >
+      <span className="flex-1 text-left">
+        {message || 'Ocurrió un error inesperado. Reintenta más tarde.'}
+      </span>
+      {isOnline && globalError && (
+        <button
+          onClick={clearError}
+          className="rounded-full border border-white/30 px-2 py-1 text-[11px] uppercase tracking-[0.28em] transition hover:border-white"
+        >
+          <X size={14} />
+        </button>
+      )}
+    </div>
+  );
+};
+
+const CartLink = ({ className = '', ariaLabel = 'Abrir carrito' }) => {
+  const { cartCount } = useCartCount();
+
+  return (
+    <Link to="/cart" aria-label={ariaLabel} className={`relative inline-flex items-center justify-center ${className}`}>
+      <ShoppingCart size={18} />
+      {cartCount > 0 && (
+        <span className="absolute -top-1 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--danger)] text-[var(--ink)] text-[10px] font-semibold">
+          {cartCount}
+        </span>
+      )}
+    </Link>
+  );
+};
+
 const Navbar = () => {
   const { user, logout } = useAuth();
 
@@ -63,13 +121,7 @@ const Navbar = () => {
             <span className="mt-1 text-[10px] uppercase tracking-[0.42em] text-[var(--text-muted)]">Store</span>
           </Link>
 
-          <Link
-            to="/cart"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[var(--surface-2)] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)] lg:hidden"
-            aria-label="Abrir carrito"
-          >
-            <ShoppingCart size={18} />
-          </Link>
+          <CartLink className="h-11 w-11 rounded-full border border-[var(--border-soft)] bg-[var(--surface-2)] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)] lg:hidden" />
         </div>
 
         <div className="flex flex-wrap items-center gap-3 sm:gap-4 lg:justify-end">
@@ -90,13 +142,7 @@ const Navbar = () => {
           </nav>
 
           <div className="order-1 flex items-center gap-2 sm:gap-3 lg:order-2">
-            <Link
-              to="/cart"
-              className="hidden h-11 w-11 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[var(--surface-2)] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)] lg:inline-flex"
-              aria-label="Abrir carrito"
-            >
-              <ShoppingCart size={18} />
-            </Link>
+            <CartLink className="hidden h-11 w-11 rounded-full border border-[var(--border-soft)] bg-[var(--surface-2)] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)] lg:inline-flex" />
 
             {user ? (
               <>
@@ -169,37 +215,45 @@ const Footer = () => (
 const App = () => {
   const { loading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--bg-primary)]">
-        <Loader2 className="h-12 w-12 animate-spin text-[var(--accent)]" />
-      </div>
-    );
-  }
-
   return (
-    <ToastProvider>
-      <NotificationListener>
-        <div className="min-h-screen bg-[radial-gradient(circle_at_top,var(--glow),transparent_38%),linear-gradient(180deg,#fbf5ee,#f1e7db)] text-[var(--text-primary)] selection:bg-[var(--accent)]/30 selection:text-[var(--text-primary)]">
-          <Navbar />
-          <main className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8 lg:pb-32">
-            <Routes>
-              <Route path="/" element={<Gallery />} />
-              <Route path="/product/:slug" element={<ProductDetail />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/payment/success" element={<PaymentResult variant="success" />} />
-              <Route path="/payment/failure" element={<PaymentResult variant="failure" />} />
-              <Route path="/payment/pending" element={<PaymentResult variant="pending" />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </NotificationListener>
-    </ToastProvider>
+    <NetworkStatusProvider>
+      <CartCountProvider>
+        <CartNotificationProvider>
+          <ToastProvider>
+            <NotificationListener>
+              <CartNotificationList />
+              <div className="min-h-screen bg-[radial-gradient(circle_at_top,var(--glow),transparent_38%),linear-gradient(180deg,#fbf5ee,#f1e7db)] text-[var(--text-primary)] selection:bg-[var(--accent)]/30 selection:text-[var(--text-primary)]">
+                <NetworkBanner />
+                {loading ? (
+                  <div className="flex min-h-[70vh] items-center justify-center py-28">
+                    <Loader2 className="h-12 w-12 animate-spin text-[var(--accent)]" />
+                  </div>
+                ) : (
+                  <>
+                    <Navbar />
+                    <main className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8 lg:pb-32">
+                      <Routes>
+                        <Route path="/" element={<Gallery />} />
+                        <Route path="/product/:slug" element={<ProductDetail />} />
+                        <Route path="/cart" element={<Cart />} />
+                        <Route path="/profile" element={<Profile />} />
+                        <Route path="/orders" element={<Orders />} />
+                        <Route path="/payment/success" element={<PaymentResult variant="success" />} />
+                        <Route path="/payment/failure" element={<PaymentResult variant="failure" />} />
+                        <Route path="/payment/pending" element={<PaymentResult variant="pending" />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/signup" element={<Signup />} />
+                      </Routes>
+                    </main>
+                    <Footer />
+                  </>
+                )}
+              </div>
+            </NotificationListener>
+          </ToastProvider>
+        </CartNotificationProvider>
+      </CartCountProvider>
+    </NetworkStatusProvider>
   );
 };
 

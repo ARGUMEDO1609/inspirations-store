@@ -48,4 +48,39 @@ RSpec.describe Order, type: :model do
       expect(product.reload.stock).to eq(8)
     end
   end
+
+  describe '#map_order_status' do
+    let(:order) { build(:order, status: :pending) }
+
+    it 'maps approved payment_status to paid' do
+      expect(order.send(:map_order_status, 'approved')).to eq(:paid)
+    end
+
+    it 'keeps pending for in_process states' do
+      expect(order.send(:map_order_status, 'in_process')).to eq(:pending)
+      expect(order.send(:map_order_status, 'in_mediation')).to eq(:pending)
+    end
+
+    it 'maps rejection or cancellation to cancelled' do
+      expect(order.send(:map_order_status, 'rejected')).to eq(:cancelled)
+      expect(order.send(:map_order_status, 'cancelled')).to eq(:cancelled)
+    end
+
+    it 'returns the current status for unknown labels' do
+      expect(order.send(:map_order_status, 'unexpected')).to eq(:pending)
+    end
+  end
+
+  describe '#should_restore_stock?' do
+    let(:order) { build(:order, status: :pending) }
+
+    it 'requires the previous status to be pending and the next to be cancelled' do
+      expect(order.send(:should_restore_stock?, 'pending', :cancelled)).to be(true)
+    end
+
+    it 'rejects restoring stock for non-pending orders' do
+      expect(order.send(:should_restore_stock?, 'paid', :cancelled)).to be(false)
+      expect(order.send(:should_restore_stock?, 'pending', :paid)).to be(false)
+    end
+  end
 end

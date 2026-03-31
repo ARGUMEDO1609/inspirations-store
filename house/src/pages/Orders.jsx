@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, CreditCard, Loader2, MapPin, Package } from 'lucide-react';
 import api from '../api/axios';
+import useApiError from '../hooks/useApiError';
 
 const STATUS_STYLES = {
   paid: 'bg-[rgba(104,194,142,0.12)] border-[rgba(104,194,142,0.35)] text-[var(--success)]',
@@ -22,6 +23,7 @@ const STATUS_LABELS = {
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { handleError } = useApiError();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -31,13 +33,14 @@ const Orders = () => {
         setOrders(Array.isArray(ordersData) ? ordersData : ordersData?.data || []);
       } catch (error) {
         console.error('Error fetching orders:', error);
+        handleError(error, 'Error cargando pedidos');
       } finally {
         setLoading(false);
       }
     };
 
     fetchOrders();
-  }, []);
+  }, [handleError]);
 
   if (loading) {
     return (
