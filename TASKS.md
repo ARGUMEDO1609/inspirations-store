@@ -285,6 +285,24 @@ cd house && npm run lint
 cd house && npm run build
 ```
 
+## Trabajo reciente (31 de marzo de 2026)
+
+- Actualicé las dependencias críticas de autenticación en `server/Gemfile:59-60` y reincorporé sus resoluciones en `server/Gemfile.lock:119-539` para usar `devise 5.0.3`, `devise-jwt 0.13.0`, `warden-jwt_auth 0.8.0`, `jwt 2.10.2` y `action_text-trix 2.1.17`.
+- Intenté ejecutar `bundle install` desde `server/`, pero el entorno no podía alcanzar `index.rubygems.org`, así que no se pudieron descargar los paquetes actualizados.
+- Tras restablecer la conectividad, el siguiente intento de `cd server && bundle install` completó exitosamente y dejó instaladas las versiones fijadas, por lo que ya hay gemas disponibles para continuar con `rubocop`, `bundler-audit` y demás comprobaciones.
+
+### Próximos pasos inmediatos
+
+1. Ejecutar `bundle install`/`bundle update` en `server/` una vez haya conectividad para materializar las versiones apuntadas en el `Gemfile.lock`.
+2. Volver a correr `bin/rubocop` para verificar que la base sigue limpia con las nuevas gemas.
+3. Re-ejecutar `bin/bundler-audit` y confirmar que no aparecen alertas sobre `action_text-trix` ni `devise`.
+4. Verificar que `bin/ci` o al menos `cd server && bundle exec rspec` se siguen ejecutando sin errores tras la actualización del bundle.
+5. Registrar cualquier incompatibilidad restante antes de seguir con nuevas funcionalidades o despliegues.
+
+### Notas para la próxima sesión
+
+- Bundle completado con éxito el 31 de marzo de 2026; mañana continuar con los pasos 2-4 de arriba (`rubocop`, `bundler-audit`, `bin/ci`).
+
 ## Regla Operativa del Repo
 
 - Trabajar frontend solo en `house/`.
