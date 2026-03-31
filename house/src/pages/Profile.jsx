@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Loader2, Mail, MapPin, Phone, Save, Shield, User } from 'lucide-react';
 import api from '../api/axios';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/useAuth';
+import { useToast } from '../context/useToast';
+import useApiError from '../hooks/useApiError';
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
   const { toast } = useToast();
+  const { handleError } = useApiError();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -33,12 +35,7 @@ const Profile = () => {
         message: 'Tus datos quedaron guardados.'
       });
     } catch (error) {
-      const errorMessage = error.response?.data?.error || 'No se pudo actualizar el perfil.';
-      toast({
-        type: 'error',
-        title: 'Error',
-        message: errorMessage
-      });
+      handleError(error, 'Error actualizando perfil');
     } finally {
       setLoading(false);
     }

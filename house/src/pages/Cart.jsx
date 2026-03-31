@@ -1,20 +1,28 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, CreditCard, Loader2, MapPin, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, CreditCard, DollarSign, Loader2, MapPin, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import api from '../api/axios';
-import { useToast } from '../context/ToastContext';
-import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/useToast';
+import { useAuth } from '../context/useAuth';
+import useApiError from '../hooks/useApiError';
+import { useCartNotification } from '../context/CartNotificationContext';
+import { useCartCount } from '../context/CartCountContext';
 
 const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%23f5f0e8' width='200' height='200'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='16' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E%3C/text%3E%3C/svg%3E";
 
 const Cart = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [cart, setCart] = useState({ items: [], total: 0 });
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [shippingAddress, setShippingAddress] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('card');
   const { toast } = useToast();
+  const { handleError } = useApiError();
+  const { notifyCart } = useCartNotification();
+  const { setCartCount } = useCartCount();
   const safeTotal = Number(cart.total ?? 0);
 
   useEffect(() => {
@@ -27,13 +35,17 @@ const Cart = () => {
     try {
       const response = await api.get('/cart_items');
       const cartData = response.data.data;
+      const items = cartData?.items || [];
+      const totalQuantity = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
       setCart(cartData || { items: [], total: 0 });
+      setCartCount(totalQuantity);
     } catch (error) {
       console.error('Error fetching cart:', error);
+      handleError(error, 'Error cargando carrito');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [handleError, setCartCount]);
 
   useEffect(() => {
     fetchCart();
@@ -45,14 +57,10 @@ const Cart = () => {
     try {
       await api.put(`/cart_items/${id}`, { quantity: newQuantity });
       await fetchCart();
+      notifyCart('Cantidad actualizada en el carrito.', 'info');
     } catch (error) {
       console.error('Error updating quantity:', error);
-      const errorMessage = error.response?.data?.error || 'No se pudo actualizar la cantidad.';
-      toast({
-        type: 'error',
-        title: 'Cantidad no válida',
-        message: errorMessage
-      });
+      handleError(error, 'Cantidad no válida');
     } finally {
       setProcessingId(null);
     }
@@ -68,43 +76,151 @@ const Cart = () => {
         message: 'La pieza fue retirada de tu selección.'
       });
       await fetchCart();
+      notifyCart('Pieza removida del carrito.', 'info');
     } catch (error) {
       console.error('Error removing item:', error);
+      handleError(error, 'Error removing item');
     } finally {
       setProcessingId(null);
     }
   };
 
-  const handleCheckout = async () => {
-    if (!shippingAddress) {
-      toast({
-        type: 'error',
-        title: 'Dirección requerida',
-        message: 'Ingresa una dirección de envío antes de continuar.'
-      });
-      return;
-    }
+   const handleCheckout = async () => {
+     // Trim and check if shipping address is empty after trimming
+     const trimmedAddress = shippingAddress.trim();
+     if (!trimmedAddress) {
+       toast({
+         type: 'error',
+         title: 'Dirección requerida',
+         message: 'Ingresa una dirección de envío antes de continuar.'
+       });
+       return;
+     }
 
-    setLoading(true);
-    try {
-      const orderResponse = await api.post('/orders', {
-        order: { shipping_address: shippingAddress }
-      });
-      const orderId = orderResponse.data.data.id;
-      const paymentResponse = await api.get(`/orders/${orderId}/pay`);
-      window.location.href = paymentResponse.data.data.checkout_url;
-    } catch (error) {
-      console.error('Error initiating checkout:', error);
-      const errorMessage = error.response?.data?.error || 'No pudimos iniciar la transacción con Mercado Pago.';
-      toast({
-        type: 'error',
-        title: 'Pago no iniciado',
-        message: errorMessage
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+     // Check if we have items in cart before proceeding
+     if (cart.items.length === 0) {
+       toast({
+         type: 'error',
+         title: 'Carrito vacío',
+         message: 'Añade productos antes de continuar.'
+       });
+       return;
+     }
+
+     setLoading(true);
+     try {
+       const orderResponse = await api.post('/orders', {
+         order: { 
+           shipping_address: trimmedAddress, // Send trimmed address
+           payment_method: paymentMethod
+         }
+       });
+
+       if (paymentMethod === 'cash_on_delivery') {
+        toast({
+          type: 'success',
+          title: 'Pedido confirmado',
+          message: 'El pago se realizará contra entrega.'
+        });
+        setCart({ items: [], total: 0 });
+        navigate('/orders');
+        notifyCart('Pedido confirmado. Revisá tu historial para el seguimiento.', 'success');
+        return;
+       }
+
+       const orderId = orderResponse.data.data.id;
+       
+       let paymentResponse;
+       try {
+         paymentResponse = await api.get(`/orders/${orderId}/pay`);
+         
+         // Validate that we got a proper checkout URL
+         if (!paymentResponse.data || !paymentResponse.data.data || !paymentResponse.data.data.checkout_url) {
+           throw new Error('Respuesta de pago inválida');
+         }
+         
+         const checkoutUrl = paymentResponse.data.data.checkout_url;
+         if (!checkoutUrl || typeof checkoutUrl !== 'string' || checkoutUrl.trim() === '') {
+           throw new Error('URL de pago no válida o vacía');
+         }
+         
+         // Redirect to Mercado Pago payment page
+         window.location.href = checkoutUrl;
+       } catch (payError) {
+         console.error('Error getting payment URL:', payError);
+         const errorData = payError.response?.data;
+         if (errorData?.error?.includes('not available for payment')) {
+           toast({
+             type: 'warning',
+             title: 'Pedido existente',
+             message: 'Ya tienes un pedido en proceso. Contacta al administrador.'
+           });
+         } else {
+           handleError(payError, 'Error al procesar el pago');
+           // Show specific error for payment URL issues
+           toast({
+             type: 'error',
+             title: 'Error de pago',
+             message: 'No pudimos preparar el pago. Por favor intenta de nuevo o selecciona otro método de pago.'
+           });
+         }
+       }
+     } catch (error) {
+       console.error('Error initiating checkout:', error);
+       const errorData = error.response?.data;
+       
+       // Log the full error for debugging
+       console.error('Full error response:', errorData);
+       
+       // Show specific validation errors from backend
+       if (errorData?.errors) {
+         const errorMessages = Object.values(errorData.errors).flat();
+         errorMessages.forEach(msg => {
+           toast({
+             type: 'error',
+             title: 'Error de validación',
+             message: msg
+           });
+         });
+       } 
+       // Handle specific known errors
+       else if (errorData?.error?.includes('Insufficient stock')) {
+         toast({
+           type: 'error',
+           title: 'Stock insuficiente',
+           message: errorData.error
+         });
+       } else if (errorData?.error?.includes('Cart is empty')) {
+         toast({
+           type: 'error',
+           title: 'Carrito vacío',
+           message: 'Añade productos antes de continuar.'
+         });
+       } else if (errorData?.error?.includes('shipping_address')) {
+         toast({
+           type: 'error',
+           title: 'Dirección inválida',
+             message: errorData.error || 'La dirección de envío no es válida'
+         });
+       } else if (errorData?.error?.includes('blank')) {
+         toast({
+           type: 'error',
+           title: 'Campo requerido',
+           message: 'Por favor completa todos los campos requeridos'
+         });
+       } else if (errorData?.error) {
+         toast({
+           type: 'error',
+           title: 'Error de creación de orden',
+           message: errorData.error
+         });
+       } else {
+         handleError(error, 'Pago no iniciado');
+       }
+     } finally {
+       setLoading(false);
+     }
+   };
 
   if (loading && cart.items.length === 0) {
     return (
@@ -210,7 +326,41 @@ const Cart = () => {
               />
 
               <div className="mt-8 border-t border-[var(--border-soft)] pt-6">
-                <h3 className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)]">Resumen del pedido</h3>
+                <label className="mb-3 block text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">Método de pago</label>
+                <div className="grid gap-3">
+                 <label className={`flex cursor-pointer items-center gap-3 rounded-[1.4rem] border p-4 transition ${paymentMethod === 'card' ? 'border-[var(--accent)] bg-[rgba(215,161,74,0.1)]' : 'border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)]'}`}>
+                   <input
+                     type="radio"
+                     name="paymentMethod"
+                     value="card"
+                     checked={paymentMethod === 'card'}
+                     onChange={(e) => setPaymentMethod(e.target.value)}
+                     className="hidden"
+                   />
+                   <CreditCard size={20} className={paymentMethod === 'card' ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'} />
+                   <div className="flex-1">
+                     <p className="text-sm font-semibold text-[var(--text-primary)]">Tarjeta de crédito/débito</p>
+                     <p className="text-xs text-[var(--text-secondary)]">Serás redirigido a Mercado Pago para ingresar tus datos de tarjeta</p>
+                   </div>
+                 </label>
+                  <label className={`flex cursor-pointer items-center gap-3 rounded-[1.4rem] border p-4 transition ${paymentMethod === 'cash_on_delivery' ? 'border-[var(--accent)] bg-[rgba(215,161,74,0.1)]' : 'border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)]'}`}>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="cash_on_delivery"
+                      checked={paymentMethod === 'cash_on_delivery'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="hidden"
+                    />
+                    <DollarSign size={20} className={paymentMethod === 'cash_on_delivery' ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'} />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-[var(--text-primary)]">Contra entrega</p>
+                      <p className="text-xs text-[var(--text-secondary)]">Pagas cuando recibes el pedido</p>
+                    </div>
+                  </label>
+                </div>
+
+                <h3 className="mt-8 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)]">Resumen del pedido</h3>
                 <div className="mt-4 space-y-4">
                   {cart.items.map((item) => (
                     <div key={item.id} className="flex items-start justify-between gap-4 text-sm text-[var(--text-secondary)]">

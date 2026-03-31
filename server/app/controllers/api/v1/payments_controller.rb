@@ -16,7 +16,12 @@ class Api::V1::PaymentsController < Api::V1::ApiController
       return
     end
 
-    sdk = Mercadopago::SDK.new(ENV["MP_ACCESS_TOKEN"] || "TEST-9140410657904033-030213-9a0d8e8b8b8b8b8b8b8b8b8-12345678")
+    access_token = ENV["MP_ACCESS_TOKEN"].presence || "TEST-9140410657904033-030213-9a0d8e8b8b8b8b8b8b8b8b8-12345678"
+    sdk = Mercadopago::SDK.new(access_token)
+    unless sdk.present?
+      render_error("Could not initialize Mercado Pago SDK")
+      return
+    end
 
     preference_response = sdk.preference.create(preference_data)
     preference = preference_response[:response]
@@ -29,6 +34,9 @@ class Api::V1::PaymentsController < Api::V1::ApiController
     @order.update!(payment_id: preference["id"])
 
     render_success(data: { preference_id: preference["id"], checkout_url: preference["init_point"] }, message: "Payment preference created")
+  rescue => e
+    Rails.logger.error "Mercado Pago preference creation error: #{e.message}"
+    render_error("Payment processing error")
   end
 
   private
@@ -41,7 +49,6 @@ class Api::V1::PaymentsController < Api::V1::ApiController
         failure: "#{frontend_url}/payment/failure",
         pending: "#{frontend_url}/payment/pending"
       },
-      auto_return: "approved",
       external_reference: @order.id.to_s,
       notification_url: "#{backend_url}/api/v1/webhooks/mercadopago"
     }
