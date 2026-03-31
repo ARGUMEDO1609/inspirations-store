@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Globe, Loader2, ShieldCheck, ShoppingCart, Zap } from 'lucide-react';
 import api from '../api/axios';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../context/useToast';
+import useApiError from '../hooks/useApiError';
 
 const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800' viewBox='0 0 800 800'%3E%3Crect fill='%23f5f0e8' width='800' height='800'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='32' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3EImagen no disponible%3C/text%3E%3C/svg%3E";
 
@@ -31,6 +32,7 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const { toast } = useToast();
+  const { handleError } = useApiError();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -46,15 +48,17 @@ const ProductDetail = () => {
         }
       } catch (error) {
         console.error('Error fetching product:', error);
+        handleError(error, 'Error cargando producto');
       } finally {
         setLoading(false);
       }
     };
     fetchProduct();
-  }, [slug]);
+  }, [slug, handleError]);
 
   const handleAddToCart = async () => {
     if (!product) return;
+    
     setAdding(true);
     try {
       await api.post('/cart_items', {
@@ -64,7 +68,7 @@ const ProductDetail = () => {
       toast({
         type: 'success',
         title: 'Pieza añadida',
-        message: `${product.title} se agregó a tu selección.`
+        message: `${product.title} fue enviada a tu selección.`
       });
     } catch (error) {
       console.error('Error adding to cart:', error);

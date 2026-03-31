@@ -12,24 +12,33 @@ class Api::V1::OrdersController < Api::V1::ApiController
   end
 
   def create
-    @order = current_user.orders.new(order_params)
-    @order.status = :pending
-    @order.payment_status = "pending"
-
     cart_items = current_user.cart_items.includes(:product)
     if cart_items.empty?
       render_error("Cart is empty")
       return
     end
 
-    cart_items.each do |item|
-      if item.product.stock < item.quantity
-        render_error("Insufficient stock for #{item.product.title}")
-        return
-      end
+    insufficient_items = cart_items.select { |item| item.product.stock < item.quantity }
+    if insufficient_items.any?
+      render_error("Insufficient stock for #{insufficient_items.first.product.title}")
+      return
     end
 
-    @order.total = cart_items.sum { |item| item.product.price * item.quantity }
+    payment_method = order_params[:payment_method]&.to_sym
+    unless [ :card, :cash_on_delivery ].include?(payment_method)
+      render_error("Invalid payment method")
+      return
+    end
+
+    total = cart_items.sum { |item| item.product.price * item.quantity }
+
+    @order = current_user.orders.new(
+      shipping_address: order_params[:shipping_address],
+      status: payment_method == :cash_on_delivery ? :paid : :pending,
+      payment_status: payment_method == :cash_on_delivery ? "cash_on_delivery" : "pending",
+      payment_method: payment_method,
+      total: total
+    )
 
     if @order.save
       cart_items.each do |item|
@@ -41,7 +50,12 @@ class Api::V1::OrdersController < Api::V1::ApiController
         item.product.decrement!(:stock, item.quantity)
       end
       cart_items.destroy_all
-      render_success(data: @order, message: "Order created successfully", status: :created)
+
+      if payment_method == :cash_on_delivery
+        render_success(data: @order, message: "Order placed successfully. Payment will be collected on delivery.", status: :created)
+      else
+        render_success(data: @order, message: "Order created successfully", status: :created)
+      end
     else
       render_validation_errors(@order.errors.full_messages)
     end
@@ -60,6 +74,6 @@ class Api::V1::OrdersController < Api::V1::ApiController
   private
 
   def order_params
-    params.require(:order).permit(:shipping_address)
+    params.require(:order).permit(:shipping_address, :payment_method)
   end
 end

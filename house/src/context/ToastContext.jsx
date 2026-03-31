@@ -1,9 +1,6 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
+import { ToastContext } from './toastContext';
 import { CheckCircle, AlertCircle, X, Info } from 'lucide-react';
-
-const ToastContext = createContext();
-
-export const useToast = () => useContext(ToastContext);
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
@@ -14,7 +11,7 @@ export const ToastProvider = ({ children }) => {
 
   const toast = useCallback(({ title, message, type = 'info', duration = 4000 }) => {
     const id = Math.random().toString(36).substr(2, 9);
-    
+
     setToasts((prev) => [...prev, { id, title, message, type }]);
 
     setTimeout(() => {
@@ -25,11 +22,11 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      
+
       {/* Toast Container */}
       <div className="fixed bottom-8 right-8 z-[9999] flex flex-col gap-4 max-w-md w-full">
         {toasts.map((t) => (
-          <div 
+          <div
             key={t.id}
             className={`
               flex items-start gap-4 p-5 rounded-[24px] border backdrop-blur-2xl shadow-2xl animate-in slide-in-from-right-full duration-500
@@ -43,7 +40,7 @@ export const ToastProvider = ({ children }) => {
               {t.type === 'error' && <AlertCircle size={20} />}
               {t.type === 'info' && <Info size={20} />}
             </div>
-            
+
             <div className="flex-1">
               <h4 className="font-black text-xs uppercase tracking-widest mb-1 text-white">
                 {t.title || (t.type === 'success' ? 'Éxito' : t.type === 'error' ? 'Error' : 'Notificación')}
@@ -53,7 +50,7 @@ export const ToastProvider = ({ children }) => {
               </p>
             </div>
 
-            <button 
+            <button
               onClick={() => removeToast(t.id)}
               className="p-1 hover:bg-white/10 rounded-full transition"
             >
