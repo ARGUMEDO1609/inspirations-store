@@ -3,7 +3,10 @@ import { ArrowRight, Loader2 } from 'lucide-react';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
 import useActionCable from '../api/useActionCable';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../context/useToast';
+import useApiError from '../hooks/useApiError';
+import { useCartNotification } from '../context/CartNotificationContext';
+import { useCartCount } from '../context/CartCountContext';
 
 const Hero = ({ filter, setFilter, sort, setSort, categories, productCount }) => {
   return (
@@ -86,7 +89,11 @@ const Gallery = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
+  const [productsError, setProductsError] = useState(null);
   const { toast } = useToast();
+  const { handleError } = useApiError();
+  const { notifyCart } = useCartNotification();
+  const { refreshCartCount } = useCartCount();
 
   useActionCable('StoreChannel', {
     PRODUCT_CHANGE: () => {
@@ -109,12 +116,14 @@ const Gallery = () => {
       setCategories(Array.isArray(categoriesData) ? categoriesData : categoriesData?.data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
+      handleError(error, 'Error cargando categorías');
     }
   };
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
+      setProductsError(null);
       const response = await api.get('/products', {
         params: {
           category: filter,
@@ -125,23 +134,27 @@ const Gallery = () => {
       setProducts(Array.isArray(productsData) ? productsData : productsData?.data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
+      const message = handleError(error, 'Error cargando productos');
+      setProductsError(message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddToCart = async (product) => {
+   const handleAddToCart = async (product) => {
     try {
       setProcessingId(product.id);
       await api.post('/cart_items', {
-        product_id: product.id.toString(),
+        product_id: product.id,
         quantity: 1
       });
-      toast({
-        type: 'success',
-        title: 'Pieza añadida',
-        message: `${product.attributes.title} fue enviada a tu selección.`
-      });
+        toast({
+          type: 'success',
+          title: 'Pieza añadida',
+          message: `${product.attributes.title} fue enviada a tu selección.`
+        });
+        notifyCart(`${product.attributes.title} se agregó al carrito.`, 'success');
+        refreshCartCount();
     } catch (error) {
       console.error('Error adding to cart:', error);
       const errorMessage = error.response?.data?.error || 'Debes iniciar sesión para añadir productos al carrito.';
@@ -163,6 +176,10 @@ const Gallery = () => {
     );
   }
 
+  const showEmptyState = !loading && products.length === 0;
+  const emptyMessage =
+    productsError || 'La colección no pudo cargarse. Reintenta en unos segundos.';
+
   return (
     <div className="space-y-10 py-8 sm:space-y-12 sm:py-10 lg:space-y-14 lg:py-14">
       <Hero
@@ -174,16 +191,31 @@ const Gallery = () => {
         productCount={products.length}
       />
 
-      <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-        {products.map((item) => (
-          <ProductCard
-            key={item.id}
-            product={item.attributes}
-            isProcessing={processingId === item.id}
-            onAddToCart={() => handleAddToCart(item)}
-          />
-        ))}
-      </section>
+      {showEmptyState ? (
+        <section className="glass-panel animate-fade-up rounded-[2rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.32)] p-10 text-center text-sm text-[var(--text-secondary)]">
+          <p className="text-base font-semibold text-[var(--text-primary)]">{emptyMessage}</p>
+          <p className="mt-2 text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">
+            Revisa tu conexión o intenta cargar la colección en unos segundos.
+          </p>
+          <button
+            onClick={fetchProducts}
+            className="mt-6 inline-flex items-center justify-center rounded-full border border-[var(--accent)] px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--ink)] transition hover:bg-[var(--accent)] hover:text-[var(--surface-primary)]"
+          >
+            Reintentar carga
+          </button>
+        </section>
+      ) : (
+        <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+          {products.map((item) => (
+            <ProductCard
+              key={item.id}
+              product={item.attributes}
+              isProcessing={processingId === item.id}
+              onAddToCart={() => handleAddToCart(item)}
+            />
+          ))}
+        </section>
+      )}
     </div>
   );
 };

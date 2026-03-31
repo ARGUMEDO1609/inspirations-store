@@ -1,9 +1,8 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
+import { AuthContext } from './authContext';
 import api from '../api/axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
-const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -23,7 +22,7 @@ export const AuthProvider = ({ children }) => {
       const response = await api.get('/current_user');
       const userData = response.data.data;
       setUser(userData?.attributes || userData || response.data);
-    } catch (error) {
+    } catch {
       localStorage.removeItem('token');
     } finally {
       setLoading(false);
@@ -49,12 +48,13 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await api.delete('/logout', { baseURL: `${API_URL}/api/v1` });
-    } catch (error) {
+    } catch {
       // Ignore logout errors
     }
     localStorage.removeItem('token');
     setUser(null);
   };
+
   const signup = async (userData) => {
     const response = await api.post('/signup', {
       user: userData
@@ -81,5 +81,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);

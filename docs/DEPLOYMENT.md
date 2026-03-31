@@ -78,3 +78,25 @@ npm run build
 - El frontend se sirve estáticamente desde `house/dist/`
 - Mercado Pago requiere URLs públicas para webhooks
 - Action Cable usa WebSockets para tiempo real
+
+## Checklist de despliegue del backend
+
+1. Confirma que `server/.env` está sincronizado con el entorno (no subir el archivo a git y solo compartir variables necesarias).
+2. Ejecuta los checks antes de release: `bin/ci` desde la raíz incluye `bundle exec rspec`, `bin/rubocop`, `npm run lint`, etc.
+3. Prepara la base de datos productiva (crea, migra, seed) y vuelve a correr `rails db:migrate` si hay cambios pendientes.
+4. Compila assets con `RAILS_ENV=production rails assets:precompile`.
+5. Arranca la app con Puma o tu gestor (`RAILS_ENV=production bin/thrust` usa Thruster para subir el backend a la plataforma que elijas).
+
+## Build y publicación del frontend
+
+1. Actualiza `house/.env` con `VITE_API_URL` apuntando al backend en producción.
+2. Corre `cd house && npm install && npm run build` para generar `house/dist/`.
+3. Distribuye `dist/` mediante el servicio de tu preferencia. Para el despliegue que usamos hoy, `bin/thrust` en la raíz delega al binario `server/bin/thrust` y empuja los assets a Vercel (comprobando los logs de build antes de aceptar la release).
+4. Alternativamente, alinea el hosting estático con Netlify, Vercel o un CDN y enlace la carpeta `house/dist/`.
+
+## Revisión de secretos, logs y artefactos temporales
+
+- Revisa `log/production.log` y `log/sidekiq.log` antes de generar la release para asegurarte de que no hay errores repetidos ni excepciones truncadas.
+- Limpia `tmp/cache`, `tmp/pids`, y `tmp/sockets` si hiciera falta (`rails tmp:clear`).
+- Verifica que los secretos sensibles (`DEVISE_JWT_SECRET_KEY`, `MP_ACCESS_TOKEN`, credenciales de la base de datos) estén almacenados de forma segura o inyectados como variables en el entorno de despliegue.
+- Evita subir `.env` a git y documenta cualquier valor crítico directamente en este README o en `docs/DEPLOYMENT.md`.
