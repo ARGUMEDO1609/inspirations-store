@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Calendar, Clock, CreditCard, Loader2, MapPin, Package } from 'lucide-react';
 import api from '../api/axios';
 import useApiError from '../hooks/useApiError';
+import { formatCOP } from '../utils/formatCurrency';
 
 const STATUS_STYLES = {
   paid: 'bg-[rgba(104,194,142,0.12)] border-[rgba(104,194,142,0.35)] text-[var(--success)]',
@@ -113,7 +114,7 @@ const Orders = () => {
                     <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">
                       <CreditCard size={12} /> Total
                     </p>
-                    <p className="font-display text-4xl leading-none text-[var(--text-primary)]">${order.total}</p>
+                    <p className="font-display text-4xl leading-none text-[var(--text-primary)]">{formatCOP(order.total)}</p>
                   </div>
                   <div>
                     <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">Estado</p>
