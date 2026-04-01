@@ -7,6 +7,7 @@ import { useAuth } from '../context/useAuth';
 import useApiError from '../hooks/useApiError';
 import { useCartNotification } from '../context/CartNotificationContext';
 import { useCartCount } from '../context/CartCountContext';
+import { formatCOP } from '../utils/formatCurrency';
 
 const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%23f5f0e8' width='200' height='200'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='16' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E%3C/text%3E%3C/svg%3E";
 
@@ -289,7 +290,7 @@ const Cart = () => {
                     <h3 className="font-display text-[2rem] leading-none text-[var(--text-primary)] sm:text-[2.2rem]">
                       {item.product.title}
                     </h3>
-                    <p className="mt-2 text-sm text-[var(--text-secondary)]">${item.product.price} por pieza</p>
+                    <p className="mt-2 text-sm text-[var(--text-secondary)]">{formatCOP(item.product.price)} por pieza</p>
                     <div className="mt-5 inline-flex items-center gap-4 rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-4 py-2">
                       <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={processingId === item.id} className="text-[var(--text-muted)] transition hover:text-[var(--accent)] disabled:opacity-40">
                         <Minus size={16} />
@@ -302,7 +303,7 @@ const Cart = () => {
                   </div>
 
                   <div className="flex items-center justify-between gap-4 lg:flex-col lg:items-end">
-                    <p className="font-display text-4xl leading-none text-[var(--text-primary)]">${(item.product.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-display text-4xl leading-none text-[var(--text-primary)]">{formatCOP(item.product.price * item.quantity)}</p>
                     <button onClick={() => removeItem(item.id)} disabled={processingId === item.id} className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] text-[var(--danger)] transition hover:border-[var(--danger)] disabled:opacity-40">
                       {processingId === item.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                     </button>
@@ -365,7 +366,7 @@ const Cart = () => {
                   {cart.items.map((item) => (
                     <div key={item.id} className="flex items-start justify-between gap-4 text-sm text-[var(--text-secondary)]">
                       <span>{item.product.title} x {item.quantity}</span>
-                      <span className="shrink-0 font-semibold text-[var(--text-primary)]">${(item.product.price * item.quantity).toFixed(2)}</span>
+                      <span className="shrink-0 font-semibold text-[var(--text-primary)]">{formatCOP(item.product.price * item.quantity)}</span>
                     </div>
                   ))}
                 </div>
@@ -381,7 +382,7 @@ const Cart = () => {
           <div className="mt-8 space-y-5 text-sm text-[var(--text-secondary)]">
             <div className="flex items-center justify-between">
               <span>Subtotal</span>
-              <span className="font-semibold text-[var(--text-primary)]">${safeTotal.toFixed(2)}</span>
+              <span className="font-semibold text-[var(--text-primary)]">{formatCOP(safeTotal)}</span>
             </div>
             <div className="flex items-center justify-between border-b border-[var(--border-soft)] pb-5">
               <span>Envío</span>
@@ -389,7 +390,7 @@ const Cart = () => {
             </div>
             <div className="flex items-end justify-between">
               <span className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)]">Total</span>
-              <span className="font-display text-5xl leading-none text-[var(--text-primary)]">${safeTotal.toFixed(2)}</span>
+              <span className="font-display text-5xl leading-none text-[var(--text-primary)]">{formatCOP(safeTotal)}</span>
             </div>
           </div>
 
