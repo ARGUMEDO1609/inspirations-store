@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Globe, Loader2, ShieldCheck, ShoppingCart, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
 import api from '../api/axios';
 import { useToast } from '../context/useToast';
 import useApiError from '../hooks/useApiError';
@@ -24,6 +25,42 @@ const assuranceItems = [
     description: 'Preparada para envíos con seguimiento claro.'
   }
 ];
+
+const pageVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { when: 'beforeChildren', staggerChildren: 0.08 }
+  }
+};
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 26 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { when: 'beforeChildren', staggerChildren: 0.06 }
+  }
+};
+
+const panelVariants = {
+  hidden: { opacity: 0, y: 22 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: 'easeOut' }
+  }
+};
+
+const assuranceCardVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: 'easeOut' }
+  }
+};
 
 const ProductDetail = () => {
   const { slug } = useParams();
@@ -58,7 +95,7 @@ const ProductDetail = () => {
 
   const handleAddToCart = async () => {
     if (!product) return;
-    
+
     setAdding(true);
     try {
       await api.post('/cart_items', {
@@ -106,7 +143,7 @@ const ProductDetail = () => {
   }
 
   return (
-    <div className="space-y-8 py-8 sm:space-y-10 sm:py-10 lg:space-y-12 lg:py-14">
+    <motion.div className="space-y-8 py-8 sm:space-y-10 sm:py-10 lg:space-y-12 lg:py-14" initial="hidden" animate="visible" variants={pageVariants}>
       <button
         onClick={() => navigate('/')}
         className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)] transition hover:text-[var(--accent)]"
@@ -114,20 +151,26 @@ const ProductDetail = () => {
         <ArrowLeft size={15} /> Volver a la colección
       </button>
 
-      <section className="grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:gap-10 xl:gap-12">
-        <div className="glass-panel animate-fade-up relative overflow-hidden rounded-[2.35rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)]">
+      <motion.section className="grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:gap-10 xl:gap-12" variants={sectionVariants}>
+        <motion.div className="glass-panel relative overflow-hidden rounded-[2.35rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)]" variants={panelVariants}>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,161,74,0.22),transparent_28%)]" />
-          <img
+          <motion.img
             src={product.image_url || PLACEHOLDER}
             alt={product.title}
             className="relative aspect-[4/4.7] w-full object-cover"
+            initial={{ scale: 1.02 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
           />
           <div className="absolute left-5 top-5 rounded-full border border-[rgba(255,248,236,0.24)] bg-[rgba(46,31,19,0.52)] px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-[#fff1da] backdrop-blur-md sm:left-6 sm:top-6">
             Selección actual
           </div>
-        </div>
+        </motion.div>
 
-        <div className="glass-panel animate-fade-up-delay flex flex-col justify-between gap-8 rounded-[2.35rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.74),rgba(255,248,236,0.56))] p-6 sm:p-8 lg:p-10">
+        <motion.div
+          className="glass-panel flex flex-col justify-between gap-8 rounded-[2.35rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.74),rgba(255,248,236,0.56))] p-6 sm:p-8 lg:p-10"
+          variants={panelVariants}
+        >
           <div>
             <div className="flex flex-wrap items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">
               <span>REF {product.slug?.toUpperCase()}</span>
@@ -164,22 +207,23 @@ const ProductDetail = () => {
               {product.stock > 0 ? 'Añadir a selección' : 'Sin disponibilidad'}
             </button>
 
-            <div className="grid gap-3 sm:grid-cols-3">
+            <motion.div className="grid gap-3 sm:grid-cols-3" variants={sectionVariants}>
               {assuranceItems.map((item) => (
-                <div
+                <motion.div
                   key={item.label}
                   className="glass-panel rounded-[1.5rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.34)] p-4"
+                  variants={assuranceCardVariants}
                 >
                   <item.icon size={18} className="text-[var(--accent)]" />
                   <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-primary)]">{item.label}</p>
                   <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{item.description}</p>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
-        </div>
-      </section>
-    </div>
+        </motion.div>
+      </motion.section>
+    </motion.div>
   );
 };
 
