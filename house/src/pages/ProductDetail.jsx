@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import api from '../api/axios';
 import { useToast } from '../context/useToast';
 import useApiError from '../hooks/useApiError';
+import { formatCOP } from '../utils/formatCurrency';
 
 const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800' viewBox='0 0 800 800'%3E%3Crect fill='%23f5f0e8' width='800' height='800'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='32' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3EImagen no disponible%3C/text%3E%3C/svg%3E";
 
@@ -189,7 +190,7 @@ const ProductDetail = () => {
             <div className="mt-8 rounded-[1.8rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] p-5 sm:p-6">
               <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">Precio de colección</p>
               <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <p className="font-display text-5xl leading-none text-[var(--text-primary)] sm:text-6xl">${product.price}</p>
+                <p className="font-display text-5xl leading-none text-[var(--text-primary)] sm:text-6xl">{formatCOP(product.price)}</p>
                 <p className="max-w-xs text-sm leading-7 text-[var(--text-secondary)]">
                   Pago seguro, confirmación por webhook y seguimiento desde tu cuenta.
                 </p>

@@ -131,7 +131,7 @@ const Hero = ({ filter, setFilter, sort, setSort, categories, productCount }) =>
                   value={filter === 'all' ? 'all' : filter}
                   className="w-full appearance-none rounded-full border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] px-5 py-3 pr-12 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] outline-none transition hover:border-[var(--accent)]"
                 >
-                  <option value="all">Curaduría por categoría</option>
+                  <option value="all">Vista por categoría</option>
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.attributes.name} className="text-black">
                       {cat.attributes.name}
@@ -156,7 +156,7 @@ const Hero = ({ filter, setFilter, sort, setSort, categories, productCount }) =>
             >
               <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-secondary)]">Estado de la tienda</p>
               <p className="mt-3 font-display text-5xl leading-none text-[var(--text-primary)]">{productCount}</p>
-              <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">Piezas activas en la colección actual.</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">Productos activos</p>
             </motion.div>
             <motion.div
               className="glass-panel flex flex-col justify-between rounded-[1.65rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-5"
@@ -166,7 +166,7 @@ const Hero = ({ filter, setFilter, sort, setSort, categories, productCount }) =>
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-secondary)]">Dirección visual</p>
                 <h2 className="mt-3 font-display text-[2.2rem] leading-none text-[var(--text-primary)]">Boutique de colección</h2>
                 <p className="mt-3 max-w-sm text-sm leading-7 text-[var(--text-primary)] text-balance">
-                  Menos marketplace. Más selección de piezas con carácter propio.
+                  Menos marketplace. Más selección de productos con carácter propio.
                 </p>
               </div>
               <div className="mt-6 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-[var(--accent)]">
@@ -249,7 +249,7 @@ const Gallery = () => {
       });
         toast({
           type: 'success',
-          title: 'Pieza añadida',
+          title: 'Producto añadido',
           message: `${product.attributes.title} fue enviada a tu selección.`
         });
         notifyCart(`${product.attributes.title} se agregó al carrito.`, 'success');
@@ -277,7 +277,7 @@ const Gallery = () => {
 
   const showEmptyState = !loading && products.length === 0;
   const emptyMessage =
-    productsError || 'La colección no pudo cargarse. Reintenta en unos segundos.';
+    productsError || 'Los productos no pudieron cargarse. Reintenta en unos segundos.';
 
   return (
     <div className="space-y-10 py-8 sm:space-y-12 sm:py-10 lg:space-y-14 lg:py-14">
@@ -298,7 +298,7 @@ const Gallery = () => {
         >
           <p className="text-base font-semibold text-[var(--text-primary)]">{emptyMessage}</p>
           <p className="mt-2 text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">
-            Revisa tu conexión o intenta cargar la colección en unos segundos.
+            Revisa tu conexión o intenta cargar los productos en unos segundos.
           </p>
           <button
             onClick={fetchProducts}
@@ -309,7 +309,7 @@ const Gallery = () => {
         </motion.section>
       ) : (
         <motion.section
-          className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 sm:gap-5 xl:gap-6"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-15% 0px -25% 0px' }}
