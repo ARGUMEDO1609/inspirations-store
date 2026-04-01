@@ -47,7 +47,7 @@ GEM
       erubi (~> 1.11)
       rails-dom-testing (~> 2.2)
       rails-html-sanitizer (~> 1.6)
-    activeadmin (3.4.0)
+    activeadmin (3.5.1)
       arbre (~> 1.2, >= 1.2.1)
       csv
       formtastic (>= 3.1)
@@ -475,7 +475,7 @@ GEM
     thruster (0.1.18-x86_64-darwin)
     thruster (0.1.18-x86_64-linux)
     tilt (2.7.0)
-    timeout (0.6.0)
+    timeout (0.6.1)
     tsort (0.2.0)
     turbo-rails (2.0.23)
       actionpack (>= 7.1.0)
@@ -513,7 +513,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
-  activeadmin (~> 3.4)
+  activeadmin (~> 3.5)
   arctic_admin
   bootsnap
   brakeman
