@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import styled from '@emotion/styled';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
 import useActionCable from '../api/useActionCable';
@@ -8,20 +10,111 @@ import useApiError from '../hooks/useApiError';
 import { useCartNotification } from '../context/CartNotificationContext';
 import { useCartCount } from '../context/CartCountContext';
 
+const HeroSection = styled(motion.section)`
+  position: relative;
+  min-height: 560px;
+  overflow: hidden;
+  border-radius: 2.25rem;
+  border: 1px solid rgba(116, 88, 54, 0.14);
+  background: var(--bg-elevated);
+  isolation: isolate;
+  @media (min-width: 640px) {
+    min-height: 640px;
+  }
+  @media (min-width: 1024px) {
+    min-height: 720px;
+  }
+`;
+
+const HeroImage = styled.img`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const HeroGradient = styled.div`
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 250, 244, 0.04), rgba(41, 29, 20, 0.18) 42%, rgba(41, 29, 20, 0.34));
+  pointer-events: none;
+`;
+
+const HeroGlow = styled.div`
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(215, 161, 74, 0.18), transparent 38%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+`;
+
+const heroSectionVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      when: 'beforeChildren',
+      staggerChildren: 0.12
+    }
+  }
+};
+
+const heroColumnVariants = {
+  hidden: { opacity: 0, y: 32 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      when: 'beforeChildren',
+      staggerChildren: 0.08,
+      duration: 0.6,
+      ease: 'easeOut'
+    }
+  }
+};
+
+const heroCardVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, ease: 'easeOut' }
+  }
+};
+
+const gridVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      when: 'beforeChildren',
+      staggerChildren: 0.04,
+      delayChildren: 0.2
+    }
+  }
+};
+
 const Hero = ({ filter, setFilter, sort, setSort, categories, productCount }) => {
   return (
-    <section className="relative min-h-[560px] overflow-hidden rounded-[2.25rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)] sm:min-h-[640px] lg:min-h-[720px]">
-      <img
-        src="/portada.png"
-        alt="Portada de Inspiration Store"
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,250,244,0.04),rgba(41,29,20,0.18)_42%,rgba(41,29,20,0.34))]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,161,74,0.18),transparent_38%)]" />
+    <HeroSection
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.35 }}
+      variants={heroSectionVariants}
+    >
+      <HeroImage src="/portada.png" alt="Portada de Inspiration Store" />
+      <HeroGradient />
+      <HeroGlow />
 
       <div className="relative flex min-h-[560px] flex-col justify-end p-4 sm:min-h-[640px] sm:p-6 lg:min-h-[720px] lg:p-8 xl:p-10">
-        <div className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr] xl:items-end">
-          <div className="glass-panel animate-fade-up rounded-[1.7rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-4 sm:p-5 lg:p-6">
+        <motion.div className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr] xl:items-end" variants={heroColumnVariants}>
+          <motion.div
+            className="glass-panel rounded-[1.7rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-4 sm:p-5 lg:p-6"
+            variants={heroCardVariants}
+          >
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <button
                 onClick={() => {
@@ -54,15 +147,21 @@ const Hero = ({ filter, setFilter, sort, setSort, categories, productCount }) =>
                 Más buscadas
               </button>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
-            <div className="glass-panel animate-fade-up-delay rounded-[1.65rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-5">
+          <motion.div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1" variants={heroColumnVariants}>
+            <motion.div
+              className="glass-panel rounded-[1.65rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-5"
+              variants={heroCardVariants}
+            >
               <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-secondary)]">Estado de la tienda</p>
               <p className="mt-3 font-display text-5xl leading-none text-[var(--text-primary)]">{productCount}</p>
               <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">Piezas activas en la colección actual.</p>
-            </div>
-            <div className="glass-panel animate-fade-up-slow flex flex-col justify-between rounded-[1.65rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-5">
+            </motion.div>
+            <motion.div
+              className="glass-panel flex flex-col justify-between rounded-[1.65rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-5"
+              variants={heroCardVariants}
+            >
               <div>
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-secondary)]">Dirección visual</p>
                 <h2 className="mt-3 font-display text-[2.2rem] leading-none text-[var(--text-primary)]">Boutique de colección</h2>
@@ -74,11 +173,11 @@ const Hero = ({ filter, setFilter, sort, setSort, categories, productCount }) =>
                 Explorar selección
                 <ArrowRight size={15} />
               </div>
-            </div>
-          </div>
-        </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
       </div>
-    </section>
+    </HeroSection>
   );
 };
 
@@ -192,7 +291,11 @@ const Gallery = () => {
       />
 
       {showEmptyState ? (
-        <section className="glass-panel animate-fade-up rounded-[2rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.32)] p-10 text-center text-sm text-[var(--text-secondary)]">
+        <motion.section
+          className="glass-panel rounded-[2rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.32)] p-10 text-center text-sm text-[var(--text-secondary)]"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
           <p className="text-base font-semibold text-[var(--text-primary)]">{emptyMessage}</p>
           <p className="mt-2 text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">
             Revisa tu conexión o intenta cargar la colección en unos segundos.
@@ -203,18 +306,25 @@ const Gallery = () => {
           >
             Reintentar carga
           </button>
-        </section>
+        </motion.section>
       ) : (
-        <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {products.map((item) => (
+        <motion.section
+          className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-15% 0px -25% 0px' }}
+          variants={gridVariants}
+        >
+          {products.map((item, index) => (
             <ProductCard
               key={item.id}
               product={item.attributes}
               isProcessing={processingId === item.id}
               onAddToCart={() => handleAddToCart(item)}
+              index={index}
             />
           ))}
-        </section>
+        </motion.section>
       )}
     </div>
   );
