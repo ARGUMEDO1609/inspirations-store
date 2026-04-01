@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, ArrowUpRight, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { formatCOP } from '../utils/formatCurrency';
 
 const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'%3E%3Crect fill='%23f5f0e8' width='600' height='600'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='24' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3EImagen no disponible%3C/text%3E%3C/svg%3E";
 
@@ -9,13 +10,13 @@ const cardVariants = {
   hidden: (idx) => ({
     opacity: 0,
     y: 60,
-    scale: 0.95,
+    scale: 0.88,
     filter: 'blur(1.5px)'
   }),
   visible: (idx) => ({
     opacity: 1,
     y: 0,
-    scale: 1,
+    scale: 0.87,
     filter: 'blur(0px)',
     transition: {
       opacity: { duration: 0.5, ease: 'easeOut' },
@@ -62,7 +63,7 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
               </h3>
             </div>
             <span className="rounded-full border border-[rgba(255,248,236,0.24)] bg-[rgba(255,248,236,0.18)] px-3 py-2 text-sm font-semibold text-[#fff7eb] sm:text-base">
-              ${product.price}
+              {formatCOP(product.price)}
             </span>
           </div>
         </div>
@@ -86,7 +87,7 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
             to={`/product/${product.slug}`}
             className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
           >
-            Ver pieza
+            Ver producto
             <ArrowUpRight size={15} />
           </Link>
           <button
