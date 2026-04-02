@@ -39,7 +39,7 @@ El flujo activo del proyecto está en:
 
 ## Arquitectura y enfoque
 
-- `server/`: API Rails 8 con PostgreSQL, JWT, Pundit y ActiveAdmin. Expone `api/v1` y maneja pagos vía Mercado Pago, está sincronizado con Action Cable y centraliza errores mediante `ApiResponses`.
+- `server/`: API Rails 8 con PostgreSQL, JWT, Pundit y ActiveAdmin. Expone `api/v1` y maneja pagos vía ePayco, está sincronizado con Action Cable y centraliza errores mediante `ApiResponses`.
 - `house/`: frontend React + Vite + Tailwind que consume el API, reconcilia el carrito y muestra la experiencia completa (catalogación, checkout y páginas de pedidos). Desde el último ciclo se reforzó el banner global de estado de red y la carga de colecciones para minimizar errores de conexión.
 
 ## Documentación clave
@@ -57,4 +57,4 @@ El flujo activo del proyecto está en:
 ## Estado del frontend
 
 - La app ya tiene un banner persistente que informa sobre la red y errores globales, con un botón de reintento en galerías vacías o cuando falla la carga de productos.
-- Se mantiene el carrito, checkout e historial de pedidos con toques de UX: loaders, notificaciones y mensajes específicos sobre stock, direcciones o pagos (contra entrega y Mercado Pago).
+- Se mantiene el carrito, checkout e historial de pedidos con toques de UX: loaders, notificaciones y mensajes específicos sobre stock, direcciones o pagos (contra entrega y ePayco).

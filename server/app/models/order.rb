@@ -68,12 +68,14 @@ class Order < ApplicationRecord
   end
 
   def map_order_status(payment_status)
-    case payment_status
-    when "approved"
+    normalized = payment_status.to_s.downcase
+
+    case normalized
+    when "approved", "aceptada", "aceptado"
       :paid
-    when "pending", "in_process", "in_mediation"
+    when "pending", "pendiente", "in_process", "in_mediation"
       :pending
-    when "rejected", "cancelled"
+    when "rejected", "rechazada", "rechazado", "cancelled", "fallida", "fallido"
       :cancelled
     else
       status.to_sym

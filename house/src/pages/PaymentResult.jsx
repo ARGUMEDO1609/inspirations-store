@@ -16,7 +16,7 @@ const STATUS_CONFIG = {
   pending: {
     icon: Clock3,
     title: 'Pago pendiente',
-    message: 'Mercado Pago aún no termina la confirmación final.',
+    message: 'Epayco aún no termina la confirmación final.',
     accent: 'text-[var(--accent)]',
     surface: 'bg-[rgba(215,161,74,0.1)] border-[rgba(215,161,74,0.25)]',
     glow: 'bg-[radial-gradient(circle_at_top_left,rgba(215,161,74,0.22),transparent_42%),linear-gradient(180deg,rgba(255,250,244,0.78),rgba(255,248,236,0.56))]'
@@ -39,12 +39,21 @@ const ORDER_STATUS_LABELS = {
   completed: 'Completado'
 };
 
+const deriveVariantFromStatus = (value) => {
+  const normalized = value?.toString().toLowerCase();
+  if (!normalized) return null;
+  if (normalized.includes('acept') || normalized === 'approved') return 'success';
+  if (normalized.includes('pend')) return 'pending';
+  if (normalized.includes('rechaz') || normalized.includes('fall') || normalized === 'rejected' || normalized === 'cancelled') return 'failure';
+  return null;
+};
+
 const PaymentResult = ({ variant }) => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const paymentId = params.get('payment_id') || params.get('collection_id');
-  const externalReference = params.get('external_reference');
-  const status = params.get('status') || params.get('collection_status');
+  const paymentId = params.get('x_ref_payco') || params.get('payment_id') || params.get('collection_id');
+  const externalReference = params.get('x_id_invoice') || params.get('external_reference');
+  const statusParam = params.get('x_response') || params.get('status') || params.get('collection_status') || params.get('x_cod_response');
   const [order, setOrder] = useState(null);
   const [loadingOrder, setLoadingOrder] = useState(false);
   const { handleError } = useApiError();
@@ -68,10 +77,12 @@ const PaymentResult = ({ variant }) => {
     fetchOrder();
   }, [externalReference, handleError]);
 
-  const config = STATUS_CONFIG[variant] || STATUS_CONFIG.pending;
+  const variantFromStatus = deriveVariantFromStatus(statusParam);
+  const currentVariant = variant || variantFromStatus || 'pending';
+  const config = STATUS_CONFIG[currentVariant] || STATUS_CONFIG.pending;
   const Icon = config.icon;
   const resolvedOrderStatus = order?.status ? ORDER_STATUS_LABELS[order.status] || order.status : 'Pendiente de actualización';
-  const resolvedPaymentStatus = order?.payment_status || status || variant;
+  const resolvedPaymentStatus = order?.payment_status || statusParam || variant;
 
   return (
     <div className="py-10 sm:py-12 lg:py-16">

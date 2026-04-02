@@ -12,7 +12,6 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mercadopago/sdk-react": "^1.0.7",
     "@rails/actioncable": "^8.1.200",
     "axios": "^1.13.6",
     "framer-motion": "^10.18.0",
