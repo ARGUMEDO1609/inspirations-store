@@ -69,6 +69,13 @@ RSpec.describe Order, type: :model do
     it 'returns the current status for unknown labels' do
       expect(order.send(:map_order_status, 'unexpected')).to eq(:pending)
     end
+
+    it 'handles localized status labels from ePayco' do
+      expect(order.send(:map_order_status, 'Aceptada')).to eq(:paid)
+      expect(order.send(:map_order_status, 'Pendiente')).to eq(:pending)
+      expect(order.send(:map_order_status, 'Rechazada')).to eq(:cancelled)
+      expect(order.send(:map_order_status, 'Fallida')).to eq(:cancelled)
+    end
   end
 
   describe '#should_restore_stock?' do

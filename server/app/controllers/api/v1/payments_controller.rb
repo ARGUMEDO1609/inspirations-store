@@ -1,5 +1,3 @@
-require "mercadopago"
-
 class Api::V1::PaymentsController < Api::V1::ApiController
   before_action :authenticate_user!
 
@@ -16,54 +14,31 @@ class Api::V1::PaymentsController < Api::V1::ApiController
       return
     end
 
-    access_token = ENV["MP_ACCESS_TOKEN"].presence || "TEST-9140410657904033-030213-9a0d8e8b8b8b8b8b8b8b8b8-12345678"
-    sdk = Mercadopago::SDK.new(access_token)
-    unless sdk.present?
-      render_error("Could not initialize Mercado Pago SDK")
-      return
-    end
+    session_info = Epayco::SessionCreator.create_session!(
+      order: @order,
+      frontend_url: frontend_url,
+      backend_url: backend_url
+    )
 
-    preference_response = sdk.preference.create(preference_data)
-    preference = preference_response[:response]
-
-    if preference.blank? || preference["id"].blank? || preference["init_point"].blank?
-      render_error("Could not create payment preference")
-      return
-    end
-
-    @order.update!(payment_id: preference["id"])
-
-    render_success(data: { preference_id: preference["id"], checkout_url: preference["init_point"] }, message: "Payment preference created")
+    render_success(
+      data: {
+        session_id: session_info[:session_id],
+        amount: session_info[:amount],
+        currency: session_info[:currency]
+      },
+      message: "Sesión de pago creada"
+    )
+  rescue Epayco::SessionCreator::Error => e
+    Rails.logger.error "ePayco session creation error: #{e.message}"
+    render_error("No pudimos preparar el pago", details: e.message)
+  rescue ActiveRecord::RecordNotFound
+    render_not_found("Order not found")
   rescue => e
-    Rails.logger.error "Mercado Pago preference creation error: #{e.message}"
+    Rails.logger.error "Payment processing error: #{e.message}"
     render_error("Payment processing error")
   end
 
   private
-
-  def preference_data
-    {
-      items: serialized_items,
-      back_urls: {
-        success: "#{frontend_url}/payment/success",
-        failure: "#{frontend_url}/payment/failure",
-        pending: "#{frontend_url}/payment/pending"
-      },
-      external_reference: @order.id.to_s,
-      notification_url: "#{backend_url}/api/v1/webhooks/mercadopago"
-    }
-  end
-
-  def serialized_items
-    @order.order_items.map do |item|
-      {
-        title: item.product.title,
-        unit_price: item.unit_price.to_f,
-        quantity: item.quantity,
-        currency_id: "ARS"
-      }
-    end
-  end
 
   def frontend_url
     ENV["FRONTEND_URL"].presence || "http://localhost:5173"

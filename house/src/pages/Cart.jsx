@@ -10,6 +10,49 @@ import { useCartCount } from '../context/CartCountContext';
 import { formatCOP } from '../utils/formatCurrency';
 
 const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%23f5f0e8' width='200' height='200'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='16' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E%3C/text%3E%3C/svg%3E";
+const EPAYCO_SCRIPT_SRC = "https://checkout.epayco.co/checkout-v2.js";
+let epaycoScriptPromise;
+
+const loadEpaycoScript = () => {
+  if (typeof window === "undefined") {
+    return Promise.reject(new Error("Epayco checkout no está disponible en este entorno"));
+  }
+
+  if (window.ePayco) {
+    return Promise.resolve(window.ePayco);
+  }
+
+  if (!epaycoScriptPromise) {
+    epaycoScriptPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = EPAYCO_SCRIPT_SRC;
+      script.async = true;
+      script.onload = () => {
+        if (window.ePayco) {
+          resolve(window.ePayco);
+        } else {
+          reject(new Error("El script de ePayco cargó pero no expone `window.ePayco`"));
+        }
+      };
+      script.onerror = () => reject(new Error("No se pudo cargar el checkout de ePayco"));
+      document.body.appendChild(script);
+    });
+  }
+
+  return epaycoScriptPromise;
+};
+
+const openEpaycoCheckout = async (sessionId) => {
+  const isTest = import.meta.env.VITE_EPAYCO_TEST !== "false";
+  const ePayco = await loadEpaycoScript();
+  const checkout = ePayco.checkout.configure({
+    sessionId,
+    type: "standard",
+    test: isTest
+  });
+
+  checkout.open();
+};
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -134,21 +177,16 @@ const Cart = () => {
        let paymentResponse;
        try {
          paymentResponse = await api.get(`/orders/${orderId}/pay`);
-         
-         // Validate that we got a proper checkout URL
-         if (!paymentResponse.data || !paymentResponse.data.data || !paymentResponse.data.data.checkout_url) {
+
+         if (!paymentResponse.data?.data?.session_id) {
            throw new Error('Respuesta de pago inválida');
          }
-         
-         const checkoutUrl = paymentResponse.data.data.checkout_url;
-         if (!checkoutUrl || typeof checkoutUrl !== 'string' || checkoutUrl.trim() === '') {
-           throw new Error('URL de pago no válida o vacía');
-         }
-         
-         // Redirect to Mercado Pago payment page
-         window.location.href = checkoutUrl;
+
+         const sessionId = paymentResponse.data.data.session_id;
+
+         await openEpaycoCheckout(sessionId);
        } catch (payError) {
-         console.error('Error getting payment URL:', payError);
+         console.error('Error initiating ePayco checkout:', payError);
          const errorData = payError.response?.data;
          if (errorData?.error?.includes('not available for payment')) {
            toast({
@@ -158,11 +196,10 @@ const Cart = () => {
            });
          } else {
            handleError(payError, 'Error al procesar el pago');
-           // Show specific error for payment URL issues
            toast({
              type: 'error',
              title: 'Error de pago',
-             message: 'No pudimos preparar el pago. Por favor intenta de nuevo o selecciona otro método de pago.'
+             message: 'No pudimos preparar el pago con ePayco. Por favor intenta de nuevo o selecciona otro método de pago.'
            });
          }
        }
@@ -341,7 +378,7 @@ const Cart = () => {
                    <CreditCard size={20} className={paymentMethod === 'card' ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'} />
                    <div className="flex-1">
                      <p className="text-sm font-semibold text-[var(--text-primary)]">Tarjeta de crédito/débito</p>
-                     <p className="text-xs text-[var(--text-secondary)]">Serás redirigido a Mercado Pago para ingresar tus datos de tarjeta</p>
+                     <p className="text-xs text-[var(--text-secondary)]">Se abrirá el checkout de ePayco para completar el pago</p>
                    </div>
                  </label>
                   <label className={`flex cursor-pointer items-center gap-3 rounded-[1.4rem] border p-4 transition ${paymentMethod === 'cash_on_delivery' ? 'border-[var(--accent)] bg-[rgba(215,161,74,0.1)]' : 'border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)]'}`}>

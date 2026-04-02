@@ -241,6 +241,7 @@ const App = () => {
                         <Route path="/payment/success" element={<PaymentResult variant="success" />} />
                         <Route path="/payment/failure" element={<PaymentResult variant="failure" />} />
                         <Route path="/payment/pending" element={<PaymentResult variant="pending" />} />
+                        <Route path="/payment/result" element={<PaymentResult />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/signup" element={<Signup />} />
                       </Routes>

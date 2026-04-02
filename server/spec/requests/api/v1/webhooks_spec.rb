@@ -1,30 +1,20 @@
 require 'rails_helper'
+require 'securerandom'
 
 RSpec.describe Api::V1::WebhooksController, type: :controller do
   let(:user) { create(:user) }
   let(:product) { create(:product, stock: 8) }
   let(:order) { create(:order, user: user, status: :pending, payment_status: 'pending') }
-  let(:sdk) { instance_double(Mercadopago::SDK) }
-  let(:payment_api) { double('PaymentApi') }
 
   before do
     order.order_items.create!(product: product, quantity: 2, unit_price: product.price)
     product.decrement!(:stock, 2)
-    allow(Mercadopago::SDK).to receive(:new).and_return(sdk)
-    allow(sdk).to receive(:payment).and_return(payment_api)
+    allow(Epayco::WebhookValidator).to receive(:valid_signature?).and_return(true)
   end
 
-  describe 'POST #mercadopago' do
-    it 'marks the order as paid when Mercado Pago approves the payment' do
-      allow(payment_api).to receive(:get).and_return({
-        response: {
-          'id' => 'pay_123',
-          'status' => 'approved',
-          'external_reference' => order.id.to_s
-        }
-      })
-
-      post :mercadopago, params: { type: 'payment', data: { id: 'pay_123' } }
+  describe 'POST #epayco' do
+    it 'marks the order as paid when ePayco approves the payment' do
+      post :epayco, params: webhook_params(status: 'Aceptada', ref_payco: 'ref-pay-123')
 
       expect(response).to have_http_status(:ok)
       expect(order.reload.status).to eq('paid')
@@ -32,21 +22,25 @@ RSpec.describe Api::V1::WebhooksController, type: :controller do
       expect(product.reload.stock).to eq(6)
     end
 
-    it 'restores reserved stock when Mercado Pago cancels the payment' do
-      allow(payment_api).to receive(:get).and_return({
-        response: {
-          'id' => 'pay_456',
-          'status' => 'cancelled',
-          'external_reference' => order.id.to_s
-        }
-      })
-
-      post :mercadopago, params: { type: 'payment', data: { id: 'pay_456' } }
+    it 'restores reserved stock when ePayco flags the payment as failed' do
+      post :epayco, params: webhook_params(status: 'Rechazada', ref_payco: 'ref-pay-456')
 
       expect(response).to have_http_status(:ok)
       expect(order.reload.status).to eq('cancelled')
-      expect(order.payment_status).to eq('cancelled')
+      expect(order.payment_status).to eq('rejected')
       expect(product.reload.stock).to eq(8)
     end
+  end
+
+  def webhook_params(status:, ref_payco:)
+    {
+      x_id_invoice: order.id.to_s,
+      x_response: status,
+      x_ref_payco: ref_payco,
+      x_transaction_id: "tx-#{SecureRandom.hex(4)}",
+      x_amount: order.total.to_s,
+      x_currency_code: "COP",
+      x_signature: "signature"
+    }
   end
 end

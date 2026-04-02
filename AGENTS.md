@@ -144,7 +144,7 @@ PRs should include:
 - Address all review comments before merging
 
 ## Security & Configuration Tips
-Copy `server/.env.example` to `server/.env` for local setup. Never commit secrets (`DEVISE_JWT_SECRET_KEY`, `MP_ACCESS_TOKEN`, DB credentials).
+Copy `server/.env.example` to `server/.env` for local setup. Never commit secrets (`DEVISE_JWT_SECRET_KEY`, `EPAYCO_PUBLIC_KEY`, `EPAYCO_PRIVATE_KEY`, `EPAYCO_P_CUST_ID`, `EPAYCO_P_KEY`, DB credentials).
 
 Environment variables:
 - Backend: Set in `.env` file following `.env.example` format

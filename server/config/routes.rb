@@ -43,7 +43,7 @@ Rails.application.routes.draw do
         end
       end
 
-      post 'webhooks/mercadopago', to: 'webhooks#mercadopago'
+      post 'webhooks/epayco', to: 'webhooks#epayco'
     end
   end
 
