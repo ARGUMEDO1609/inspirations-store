@@ -16,7 +16,10 @@ cp server/.env.example server/.env
 | `DATABASE_USERNAME` | Usuario de PostgreSQL |
 | `DATABASE_PASSWORD` | Contraseña de PostgreSQL |
 | `DEVISE_JWT_SECRET_KEY` | Clave secreta para JWT (genera una cadena aleatoria segura de al menos 32 caracteres) |
-| `MP_ACCESS_TOKEN` | Token de acceso de Mercado Pago en producción |
+| `EPAYCO_PUBLIC_KEY` | Llave pública de ePayco (identifica el comercio en los APIs de Apify) |
+| `EPAYCO_PRIVATE_KEY` | Llave privada de ePayco usada para firmar las solicitudes de sesión |
+| `EPAYCO_P_CUST_ID` | Identificador de cliente (`p_cust_id_cliente`) usado en las confirmaciones |
+| `EPAYCO_P_KEY` | Llave de seguridad (`p_key`) para verificar la firma de los webhooks |
 | `FRONTEND_URL` | URL del frontend en producción |
 | `BACKEND_URL` | URL del backend en producción |
 
@@ -76,7 +79,7 @@ npm run build
 
 - El API debe estar disponible en `https://tu-dominio.com/api/v1`
 - El frontend se sirve estáticamente desde `house/dist/`
-- Mercado Pago requiere URLs públicas para webhooks
+- ePayco requiere URLs públicas para las respuestas y confirmaciones del checkout y webhooks
 - Action Cable usa WebSockets para tiempo real
 
 ## Checklist de despliegue del backend
@@ -98,5 +101,5 @@ npm run build
 
 - Revisa `log/production.log` y `log/sidekiq.log` antes de generar la release para asegurarte de que no hay errores repetidos ni excepciones truncadas.
 - Limpia `tmp/cache`, `tmp/pids`, y `tmp/sockets` si hiciera falta (`rails tmp:clear`).
-- Verifica que los secretos sensibles (`DEVISE_JWT_SECRET_KEY`, `MP_ACCESS_TOKEN`, credenciales de la base de datos) estén almacenados de forma segura o inyectados como variables en el entorno de despliegue.
+- Verifica que los secretos sensibles (`DEVISE_JWT_SECRET_KEY`, `EPAYCO_PUBLIC_KEY`, `EPAYCO_PRIVATE_KEY`, `EPAYCO_P_CUST_ID`, `EPAYCO_P_KEY`, credenciales de la base de datos) estén almacenados de forma segura o inyectados como variables en el entorno de despliegue.
 - Evita subir `.env` a git y documenta cualquier valor crítico directamente en este README o en `docs/DEPLOYMENT.md`.

@@ -1,83 +1,64 @@
 class Api::V1::WebhooksController < ActionController::Base
   skip_before_action :verify_authenticity_token, raise: false
   skip_before_action :authenticate_user!, raise: false
-  before_action :verify_mercadopago_signature
+  before_action :verify_epayco_signature
 
-  def mercadopago
-    resource_id = params[:id] || params.dig(:data, :id)
-    topic = params[:topic] || params[:type]
+  def epayco
+    invoice_id = params[:x_id_invoice]
+    x_response = params[:x_response] || params[:x_cod_response]
+    ref_payco = params[:x_ref_payco]
+    transaction_id = params[:x_transaction_id]
 
-    Rails.logger.info "Received Mercado Pago webhook: topic=#{topic}, resource_id=#{resource_id}"
+    Rails.logger.info "Received ePayco webhook: invoice=#{invoice_id}, status=#{x_response}, ref=#{ref_payco}"
 
-    process_payment_notification(resource_id) if topic == "payment" && resource_id.present?
+    order = find_order_by_invoice(invoice_id)
+    payment_status = map_epayco_status(x_response)
+
+    if order && payment_status.present?
+      order.apply_payment_update!(
+        payment_id: ref_payco.presence || transaction_id,
+        payment_status: payment_status
+      )
+    else
+      Rails.logger.warn(
+        "Could not apply ePayco update: order=#{invoice_id.inspect} status=#{x_response.inspect} payment_status=#{payment_status.inspect}"
+      )
+    end
 
     render json: { status: "ok" }, status: :ok
   rescue => e
-    Rails.logger.error "Mercadopago webhook processing error: #{e.message}"
+    Rails.logger.error "ePayco webhook processing error: #{e.message}"
     render json: { status: "error", message: "Internal server error" }, status: :internal_server_error
   end
 
   private
 
-  def process_payment_notification(resource_id)
-    Rails.logger.info "Processing Mercado Pago payment notification for resource_id: #{resource_id}"
-
-    sdk = Mercadopago::SDK.new(ENV.fetch("MP_ACCESS_TOKEN", nil))
-    payment_response = sdk.payment.get(resource_id)
-    payment = payment_response[:response]
-
-    unless payment
-      Rails.logger.warn "Could not retrieve payment details for resource_id: #{resource_id}"
-      return
-    end
-
-    order = find_order_for_payment(payment)
-    unless order
-      Rails.logger.warn "Could not find order for payment resource_id: #{resource_id}, external_reference: #{payment['external_reference']}"
-      return
-    end
-
-    Rails.logger.info "Updating order #{order.id} with payment status: #{payment['status']}"
-
-    order.apply_payment_update!(
-      payment_id: payment["id"]&.to_s,
-      payment_status: payment["status"]
-    )
-
-    Rails.logger.info "Mercadopago webhook processed successfully for order #{order.id} with payment status #{payment['status']}"
-  rescue => e
-    Rails.logger.error "Mercadopago webhook error processing payment #{resource_id}: #{e.message}"
-    raise e
+  def find_order_by_invoice(invoice)
+    return nil unless invoice.present?
+    Order.find_by(id: invoice)
   end
 
-  def find_order_for_payment(payment)
-    order_reference = payment["external_reference"]
-    if order_reference.present?
-      order = Order.find_by(id: order_reference)
-      Rails.logger.debug "Found order by external_reference: #{order_reference}" if order
-      return order
+  def map_epayco_status(value)
+    normalized = value.to_s.downcase
+    case normalized
+    when /acept/, "approved"
+      "approved"
+    when /pend/
+      "pending"
+    when /rechaz/
+      "rejected"
+    when /fall/
+      "cancelled"
+    when "cancelled", "rejected"
+      normalized
+    else
+      normalized.presence
     end
-
-    order = Order.find_by(payment_id: payment["id"]&.to_s)
-    Rails.logger.debug "Found order by payment_id: #{payment['id']}" if order
-    order
   end
 
-  def verify_mercadopago_signature
-    # For now, we'll accept all requests as we're in development
-    # In production, you should verify the x-signature header
-    # signature = request.headers['x-signature']
-    # # Verify signature using Mercado Pago's secret key
-    # unless valid_mercadopago_signature?(signature, request.raw_post)
-    #   render json: { status: 'error', message: 'Invalid signature' }, status: :unauthorized
-    # end
-    true
-  end
+  def verify_epayco_signature
+    return if Epayco::WebhookValidator.valid_signature?(params)
 
-  # This method should be implemented with actual signature verification logic
-  # def valid_mercadopago_signature?(signature, payload)
-  #   # Implementation would go here using Mercado Pago's secret key
-  #   # This is a placeholder for the actual implementation
-  #   true
-  # end
+    render json: { status: "error", message: "Invalid signature" }, status: :unauthorized
+  end
 end

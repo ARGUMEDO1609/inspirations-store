@@ -40,7 +40,7 @@ inspiration-store/
 - React Router
 - Axios
 - Action Cable client
-- Mercado Pago SDK React
+- ePayco Smart Checkout (`checkout-v2.js`)
 
 ### Backend
 
@@ -52,7 +52,7 @@ inspiration-store/
 - ActiveAdmin
 - Action Cable
 - Active Storage
-- Mercado Pago SDK
+- ePayco session service + webhook verifier
 - JSONAPI::Serializer
 - RSpec + FactoryBot
 
@@ -87,10 +87,10 @@ inspiration-store/
 
 ### Pagos
 
-- [x] Integración con Mercado Pago
-- [x] Creación de preferencia de pago
-- [x] Redirección al checkout externo
-- [x] Webhook para notificaciones de pago
+- [x] Integración con ePayco Smart Checkout
+- [x] Creación de sesión con Apify (`login` + `payment/session/create`)
+- [x] Apertura del checkout ePayco desde el frontend con el `sessionId`
+- [x] Webhook para confirmar pagos y actualizar stock
 - [x] Manejo de estados `approved`, `pending` y `cancelled/rejected`
 - [x] Pantallas de retorno de pago: éxito, fallo y pendiente
 - [x] Consulta del estado real del pedido al volver del checkout
@@ -154,7 +154,7 @@ inspiration-store/
 Objetivo: asegurar que el proceso de compra funcione completo y de forma confiable.
 
 - [x] Probar creación de pedido desde carrito con datos reales
-- [x] Verificar redirección correcta a Mercado Pago
+- [x] Verificar que la sesión de ePayco crea el checkout correctamente
 - [x] Implementar pantallas de retorno: éxito, fallo y pendiente
 - [x] Confirmar que el webhook actualiza el pedido correctamente
 - [x] Definir estados operativos del pedido (`pending`, `paid`, `cancelled`, `shipped`, `completed`)
@@ -179,7 +179,7 @@ Objetivo: cubrir lo que hoy sería más costoso romper.
 
 - [x] Añadir tests de autenticación JWT
 - [x] Añadir tests de requests para pagos
-- [x] Añadir tests de webhook de Mercado Pago
+- [x] Añadir tests de webhook de ePayco
 - [x] Añadir tests de policies/autorización
 - [x] Añadir tests de polimorfismo y normalización de direcciones
 - [x] Confirmar cobertura mínima de transición completa de estados de pedido
@@ -264,7 +264,7 @@ Cobertura ya añadida sobre:
 - carrito
 - pedidos
 - pagos
-- webhook de Mercado Pago
+- webhook de ePayco
 - policies
 - polimorfismo
 - normalización de direcciones
