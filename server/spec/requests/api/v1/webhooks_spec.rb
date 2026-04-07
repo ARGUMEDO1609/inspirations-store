@@ -9,12 +9,12 @@ RSpec.describe Api::V1::WebhooksController, type: :controller do
   before do
     order.order_items.create!(product: product, quantity: 2, unit_price: product.price)
     product.decrement!(:stock, 2)
-    allow(Epayco::WebhookValidator).to receive(:valid_signature?).and_return(true)
+    allow(Wompi::WebhookValidator).to receive(:valid?).and_return(true)
   end
 
-  describe 'POST #epayco' do
-    it 'marks the order as paid when ePayco approves the payment' do
-      post :epayco, params: webhook_params(status: 'Aceptada', ref_payco: 'ref-pay-123')
+  describe 'POST #wompi' do
+    it 'marks the order as paid when Wompi approves the payment' do
+      post :wompi, params: webhook_payload(status: 'APPROVED'), as: :json
 
       expect(response).to have_http_status(:ok)
       expect(order.reload.status).to eq('paid')
@@ -22,8 +22,8 @@ RSpec.describe Api::V1::WebhooksController, type: :controller do
       expect(product.reload.stock).to eq(6)
     end
 
-    it 'restores reserved stock when ePayco flags the payment as failed' do
-      post :epayco, params: webhook_params(status: 'Rechazada', ref_payco: 'ref-pay-456')
+    it 'restores reserved stock when Wompi declines the payment' do
+      post :wompi, params: webhook_payload(status: 'DECLINED'), as: :json
 
       expect(response).to have_http_status(:ok)
       expect(order.reload.status).to eq('cancelled')
@@ -32,15 +32,17 @@ RSpec.describe Api::V1::WebhooksController, type: :controller do
     end
   end
 
-  def webhook_params(status:, ref_payco:)
+  def webhook_payload(status:)
     {
-      x_id_invoice: order.id.to_s,
-      x_response: status,
-      x_ref_payco: ref_payco,
-      x_transaction_id: "tx-#{SecureRandom.hex(4)}",
-      x_amount: order.total.to_s,
-      x_currency_code: "COP",
-      x_signature: "signature"
+      data: {
+        transaction: {
+          id: "tx-#{SecureRandom.hex(4)}",
+          reference: "order-#{order.id}",
+          status: status,
+          amount_in_cents: (order.total * 100).to_i,
+          currency: 'COP'
+        }
+      }
     }
   end
 end

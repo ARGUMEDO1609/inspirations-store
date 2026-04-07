@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Globe, Loader2, ShieldCheck, ShoppingCart, Zap } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import api from '../api/axios';
 import { useToast } from '../context/useToast';
 import useApiError from '../hooks/useApiError';
@@ -144,7 +144,7 @@ const ProductDetail = () => {
   }
 
   return (
-    <motion.div className="space-y-8 py-8 sm:space-y-10 sm:py-10 lg:space-y-12 lg:py-14" initial="hidden" animate="visible" variants={pageVariants}>
+    <Motion.div className="space-y-8 py-8 sm:space-y-10 sm:py-10 lg:space-y-12 lg:py-14" initial="hidden" animate="visible" variants={pageVariants}>
       <button
         onClick={() => navigate('/')}
         className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)] transition hover:text-[var(--accent)]"
@@ -152,23 +152,24 @@ const ProductDetail = () => {
         <ArrowLeft size={15} /> Volver a la colección
       </button>
 
-      <motion.section className="grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:gap-10 xl:gap-12" variants={sectionVariants}>
-        <motion.div className="glass-panel relative overflow-hidden rounded-[2.35rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)]" variants={panelVariants}>
+      <Motion.section className="grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:gap-10 xl:gap-12" variants={sectionVariants}>
+        <Motion.div className="glass-panel relative overflow-hidden rounded-[2.35rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)]" variants={panelVariants}>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,161,74,0.22),transparent_28%)]" />
-          <motion.img
+          <Motion.img
             src={product.image_url || PLACEHOLDER}
             alt={product.title}
             className="relative aspect-[4/4.7] w-full object-cover"
             initial={{ scale: 1.02 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.7, ease: 'easeOut' }}
+            onError={(event) => { event.currentTarget.src = PLACEHOLDER; }}
           />
           <div className="absolute left-5 top-5 rounded-full border border-[rgba(255,248,236,0.24)] bg-[rgba(46,31,19,0.52)] px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-[#fff1da] backdrop-blur-md sm:left-6 sm:top-6">
             Selección actual
           </div>
-        </motion.div>
+        </Motion.div>
 
-        <motion.div
+        <Motion.div
           className="glass-panel flex flex-col justify-between gap-8 rounded-[2.35rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.74),rgba(255,248,236,0.56))] p-6 sm:p-8 lg:p-10"
           variants={panelVariants}
         >
@@ -208,9 +209,9 @@ const ProductDetail = () => {
               {product.stock > 0 ? 'Añadir a selección' : 'Sin disponibilidad'}
             </button>
 
-            <motion.div className="grid gap-3 sm:grid-cols-3" variants={sectionVariants}>
+            <Motion.div className="grid gap-3 sm:grid-cols-3" variants={sectionVariants}>
               {assuranceItems.map((item) => (
-                <motion.div
+                <Motion.div
                   key={item.label}
                   className="glass-panel rounded-[1.5rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.34)] p-4"
                   variants={assuranceCardVariants}
@@ -218,13 +219,13 @@ const ProductDetail = () => {
                   <item.icon size={18} className="text-[var(--accent)]" />
                   <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-primary)]">{item.label}</p>
                   <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{item.description}</p>
-                </motion.div>
+                </Motion.div>
               ))}
-            </motion.div>
+            </Motion.div>
           </div>
-        </motion.div>
-      </motion.section>
-    </motion.div>
+        </Motion.div>
+      </Motion.section>
+    </Motion.div>
   );
 };
 
