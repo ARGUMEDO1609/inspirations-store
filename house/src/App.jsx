@@ -28,7 +28,7 @@ const NotificationListener = ({ children }) => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  useActionCable('StoreChannel', useMemo(
+  const storeHandlers = useMemo(
     () => ({
       PRODUCT_CHANGE: (data) => {
         if (data.action === 'create') {
@@ -41,7 +41,9 @@ const NotificationListener = ({ children }) => {
       }
     }),
     [toast]
-  ));
+  );
+
+  useActionCable('StoreChannel', storeHandlers, Boolean(user));
 
   const orderHandlers = useMemo(
     () => ({
@@ -57,7 +59,7 @@ const NotificationListener = ({ children }) => {
     [toast, user]
   );
 
-  useActionCable({ channel: 'OrderChannel' }, orderHandlers);
+  useActionCable({ channel: 'OrderChannel' }, orderHandlers, Boolean(user));
 
   return children;
 };

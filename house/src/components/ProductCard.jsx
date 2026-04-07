@@ -1,18 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, ArrowUpRight, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import { formatCOP } from '../utils/formatCurrency';
 
 const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600'%3E%3Crect fill='%23f5f0e8' width='600' height='600'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='24' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3EImagen no disponible%3C/text%3E%3C/svg%3E";
 
 const cardVariants = {
-  hidden: (idx) => ({
+  hidden: {
     opacity: 0,
     y: 60,
     scale: 0.88,
     filter: 'blur(1.5px)'
-  }),
+  },
   visible: (idx) => ({
     opacity: 1,
     y: 0,
@@ -33,7 +33,7 @@ const imageVariants = {
 
 const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
   return (
-    <motion.article
+    <Motion.article
       className="glass-panel hover-lift group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.72),rgba(255,248,236,0.52))] transition duration-500 hover:border-[var(--accent)]/60 hover:shadow-[0_24px_50px_rgba(38,24,12,0.14)]"
       variants={cardVariants}
       initial="hidden"
@@ -46,8 +46,8 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
     >
       <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-[var(--glow)] blur-3xl transition duration-700 group-hover:scale-125" />
 
-      <motion.div className="relative aspect-[4/4.8] overflow-hidden border-b border-[var(--border-soft)] bg-[var(--bg-elevated)]">
-        <motion.img
+      <Motion.div className="relative aspect-[4/4.8] overflow-hidden border-b border-[var(--border-soft)] bg-[var(--bg-elevated)]">
+        <Motion.img
           src={product.image_url || PLACEHOLDER}
           alt={product.title}
           className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
@@ -67,7 +67,7 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
             </span>
           </div>
         </div>
-      </motion.div>
+      </Motion.div>
 
       <div className="flex flex-1 flex-col p-5 sm:p-6">
         <p className="line-clamp-3 text-sm leading-7 text-[var(--text-secondary)]">
@@ -100,7 +100,7 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
           </button>
         </div>
       </div>
-    </motion.article>
+    </Motion.article>
   );
 };
 

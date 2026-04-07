@@ -7,6 +7,11 @@ export const CartCountProvider = ({ children }) => {
   const [cartCount, setCartCount] = useState(0);
 
   const refreshCartCount = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setCartCount(0);
+      return 0;
+    }
     try {
       const response = await api.get('/cart_items');
       const items = response.data.data?.items || [];
