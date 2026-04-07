@@ -1,8 +1,17 @@
 import { useEffect } from 'react';
-import consumer from '../api/cable';
+import { getCableConsumer } from '../api/cable';
 
-const useActionCable = (channel, handlers) => {
+const useActionCable = (channel, handlers, enabled = true) => {
   useEffect(() => {
+    if (!enabled) {
+      return undefined;
+    }
+
+    const consumer = getCableConsumer();
+    if (!consumer) {
+      return undefined;
+    }
+
     const subscription = consumer.subscriptions.create(channel, {
       received(data) {
         if (handlers[data.type]) {
@@ -14,7 +23,7 @@ const useActionCable = (channel, handlers) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [channel, handlers]);
+  }, [channel, handlers, enabled]);
 };
 
 export default useActionCable;

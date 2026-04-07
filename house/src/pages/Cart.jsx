@@ -10,48 +10,38 @@ import { useCartCount } from '../context/CartCountContext';
 import { formatCOP } from '../utils/formatCurrency';
 
 const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%23f5f0e8' width='200' height='200'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='16' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E%3C/text%3E%3C/svg%3E";
-const EPAYCO_SCRIPT_SRC = "https://checkout.epayco.co/checkout-v2.js";
-let epaycoScriptPromise;
+const WOMPI_WIDGET_SRC = "https://checkout.wompi.co/widget.js";
+let wompiWidgetPromise;
 
-const loadEpaycoScript = () => {
-  if (typeof window === "undefined") {
-    return Promise.reject(new Error("Epayco checkout no está disponible en este entorno"));
+const loadWompiWidget = () => {
+  if (typeof window === 'undefined') {
+    return Promise.reject(new Error('Wompi checkout no está disponible en este entorno'));
   }
 
-  if (window.ePayco) {
-    return Promise.resolve(window.ePayco);
+  const checkoutClass = window.WidgetCheckout || window.WompiCheckout;
+  if (checkoutClass) {
+    return Promise.resolve(checkoutClass);
   }
 
-  if (!epaycoScriptPromise) {
-    epaycoScriptPromise = new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = EPAYCO_SCRIPT_SRC;
+  if (!wompiWidgetPromise) {
+    wompiWidgetPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = WOMPI_WIDGET_SRC;
       script.async = true;
       script.onload = () => {
-        if (window.ePayco) {
-          resolve(window.ePayco);
+        const loadedCheckout = window.WidgetCheckout || window.WompiCheckout;
+        if (loadedCheckout) {
+          resolve(loadedCheckout);
         } else {
-          reject(new Error("El script de ePayco cargó pero no expone `window.ePayco`"));
+          reject(new Error('El script de Wompi cargó pero no expone el constructor del checkout'));
         }
       };
-      script.onerror = () => reject(new Error("No se pudo cargar el checkout de ePayco"));
+      script.onerror = () => reject(new Error('No se pudo cargar el widget de Wompi'));
       document.body.appendChild(script);
     });
   }
 
-  return epaycoScriptPromise;
-};
-
-const openEpaycoCheckout = async (sessionId) => {
-  const isTest = import.meta.env.VITE_EPAYCO_TEST !== "false";
-  const ePayco = await loadEpaycoScript();
-  const checkout = ePayco.checkout.configure({
-    sessionId,
-    type: "standard",
-    test: isTest
-  });
-
-  checkout.open();
+  return wompiWidgetPromise;
 };
 
 const Cart = () => {
@@ -130,7 +120,6 @@ const Cart = () => {
   };
 
    const handleCheckout = async () => {
-     // Trim and check if shipping address is empty after trimming
      const trimmedAddress = shippingAddress.trim();
      if (!trimmedAddress) {
        toast({
@@ -141,7 +130,6 @@ const Cart = () => {
        return;
      }
 
-     // Check if we have items in cart before proceeding
      if (cart.items.length === 0) {
        toast({
          type: 'error',
@@ -155,7 +143,7 @@ const Cart = () => {
      try {
        const orderResponse = await api.post('/orders', {
          order: { 
-           shipping_address: trimmedAddress, // Send trimmed address
+           shipping_address: trimmedAddress,
            payment_method: paymentMethod
          }
        });
@@ -173,44 +161,58 @@ const Cart = () => {
        }
 
        const orderId = orderResponse.data.data.id;
-       
-       let paymentResponse;
-       try {
-         paymentResponse = await api.get(`/orders/${orderId}/pay`);
+       const { data } = await api.get(`/orders/${orderId}/pay`);
+       const checkout = data?.data?.checkout;
 
-         if (!paymentResponse.data?.data?.session_id) {
-           throw new Error('Respuesta de pago inválida');
-         }
+       if (!checkout) {
+         throw new Error('No se generó la información de Wompi');
+       }
 
-         const sessionId = paymentResponse.data.data.session_id;
+       const WompiCheckout = await loadWompiWidget();
+       const checkoutInstance = new WompiCheckout({
+         publicKey: checkout.public_key,
+         currency: checkout.currency,
+         amountInCents: checkout.amount_in_cents,
+         reference: checkout.reference,
+         signature: checkout.signature,
+         redirectUrl: checkout.redirect_url
+       });
 
-         await openEpaycoCheckout(sessionId);
-       } catch (payError) {
-         console.error('Error initiating ePayco checkout:', payError);
-         const errorData = payError.response?.data;
-         if (errorData?.error?.includes('not available for payment')) {
+       checkoutInstance.open((result) => {
+         const transaction = result?.transaction;
+         const status = transaction?.status?.toLowerCase();
+
+         if (status === 'approved') {
+           toast({
+             type: 'success',
+             title: 'Pago aprobado',
+             message: 'Tu pago fue aprobado y el pedido se actualizará pronto.'
+           });
+         } else if (status === 'pending') {
            toast({
              type: 'warning',
-             title: 'Pedido existente',
-             message: 'Ya tienes un pedido en proceso. Contacta al administrador.'
+             title: 'Pago pendiente',
+             message: 'Estamos esperando la confirmación final del pago.'
            });
          } else {
-           handleError(payError, 'Error al procesar el pago');
            toast({
              type: 'error',
-             title: 'Error de pago',
-             message: 'No pudimos preparar el pago con ePayco. Por favor intenta de nuevo o selecciona otro método de pago.'
+             title: 'Pago no completado',
+             message: 'No pudimos procesar el pago con Wompi.'
            });
          }
-       }
+      });
+      toast({
+        type: 'info',
+        title: 'Redireccionando',
+        message: 'Se abrirá el widget de Wompi para completar el pago.'
+      });
      } catch (error) {
        console.error('Error initiating checkout:', error);
        const errorData = error.response?.data;
        
-       // Log the full error for debugging
        console.error('Full error response:', errorData);
        
-       // Show specific validation errors from backend
        if (errorData?.errors) {
          const errorMessages = Object.values(errorData.errors).flat();
          errorMessages.forEach(msg => {
@@ -221,7 +223,6 @@ const Cart = () => {
            });
          });
        } 
-       // Handle specific known errors
        else if (errorData?.error?.includes('Insufficient stock')) {
          toast({
            type: 'error',
@@ -320,7 +321,12 @@ const Cart = () => {
               >
                 <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[auto_1fr_auto] lg:items-center">
                   <div className="h-24 w-24 overflow-hidden rounded-[1.55rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)] sm:h-28 sm:w-28">
-                    <img src={item.product.image_url || PLACEHOLDER} alt={item.product.title} className="h-full w-full object-cover" />
+                    <img
+                      src={item.product.image_url || PLACEHOLDER}
+                      alt={item.product.title}
+                      className="h-full w-full object-cover"
+                      onError={(event) => { event.currentTarget.src = PLACEHOLDER; }}
+                    />
                   </div>
 
                   <div className="min-w-0">
@@ -378,7 +384,7 @@ const Cart = () => {
                    <CreditCard size={20} className={paymentMethod === 'card' ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'} />
                    <div className="flex-1">
                      <p className="text-sm font-semibold text-[var(--text-primary)]">Tarjeta de crédito/débito</p>
-                     <p className="text-xs text-[var(--text-secondary)]">Se abrirá el checkout de ePayco para completar el pago</p>
+                     <p className="text-xs text-[var(--text-secondary)]">Se abrirá el widget de Wompi para completar el pago</p>
                    </div>
                  </label>
                   <label className={`flex cursor-pointer items-center gap-3 rounded-[1.4rem] border p-4 transition ${paymentMethod === 'cash_on_delivery' ? 'border-[var(--accent)] bg-[rgba(215,161,74,0.1)]' : 'border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)]'}`}>
