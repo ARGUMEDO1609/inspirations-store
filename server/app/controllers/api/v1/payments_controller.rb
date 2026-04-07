@@ -14,22 +14,19 @@ class Api::V1::PaymentsController < Api::V1::ApiController
       return
     end
 
-    session_info = Epayco::SessionCreator.create_session!(
+    checkout_payload = Wompi::CheckoutBuilder.build(
       order: @order,
-      frontend_url: frontend_url,
-      backend_url: backend_url
+      frontend_url: frontend_url
     )
 
     render_success(
       data: {
-        session_id: session_info[:session_id],
-        amount: session_info[:amount],
-        currency: session_info[:currency]
+        checkout: checkout_payload
       },
       message: "Sesión de pago creada"
     )
-  rescue Epayco::SessionCreator::Error => e
-    Rails.logger.error "ePayco session creation error: #{e.message}"
+  rescue Wompi::CheckoutBuilder::Error => e
+    Rails.logger.error "Wompi checkout creation error: #{e.message}"
     render_error("No pudimos preparar el pago", details: e.message)
   rescue ActiveRecord::RecordNotFound
     render_not_found("Order not found")
@@ -44,7 +41,4 @@ class Api::V1::PaymentsController < Api::V1::ApiController
     ENV["FRONTEND_URL"].presence || "http://localhost:5173"
   end
 
-  def backend_url
-    ENV["BACKEND_URL"].presence || request.base_url
-  end
 end

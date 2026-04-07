@@ -1,8 +1,25 @@
 import { createConsumer } from '@rails/actioncable';
 
 const cableUrl = import.meta.env.VITE_CABLE_URL || 'ws://127.0.0.1:3000/cable';
-const token = localStorage.getItem('token');
-const consumer = createConsumer(`${cableUrl}${token ? `?token=${token}` : ''}`);
+let cachedConsumer = null;
 
+export const getCableConsumer = () => {
+  if (cachedConsumer) {
+    return cachedConsumer;
+  }
 
-export default consumer;
+  const token = localStorage.getItem('token');
+  if (!token) {
+    return null;
+  }
+
+  cachedConsumer = createConsumer(`${cableUrl}?token=${token}`);
+  return cachedConsumer;
+};
+
+export const resetCableConsumer = () => {
+  if (cachedConsumer) {
+    cachedConsumer.disconnect();
+    cachedConsumer = null;
+  }
+};
