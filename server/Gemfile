@@ -56,7 +56,7 @@ group :development, :test do
   gem "faker", "~> 3.2"
 end
 
-gem "devise", ">= 4.9.0", "< 5"
+gem "devise", ">= 4.9.0", "< 6"
 gem "devise-jwt", "~> 0.13.0"
 gem "rack-cors", "~> 3.0"
 gem "pundit", "~> 2.5"
