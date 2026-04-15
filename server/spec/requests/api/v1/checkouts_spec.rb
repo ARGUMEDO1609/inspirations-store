@@ -45,7 +45,7 @@ RSpec.describe Api::V1::CheckoutsController, type: :controller do
       it 'returns an error' do
         post :create, params: { checkout: { shipping_address: 'Calle 123' } }, as: :json
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         parsed = JSON.parse(response.body)
         expect(parsed['error']).to eq('Cart is empty')
       end
@@ -61,7 +61,7 @@ RSpec.describe Api::V1::CheckoutsController, type: :controller do
       it 'returns a configuration error' do
         post :create, params: { checkout: { shipping_address: 'Calle 123' } }, as: :json
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         parsed = JSON.parse(response.body)
         expect(parsed['error']).to eq('No pudimos preparar el pago')
       end

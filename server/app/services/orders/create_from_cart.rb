@@ -25,6 +25,7 @@ module Orders
 
         cart_items = fetch_cart_items
         raise EmptyCart, "Cart is empty" if cart_items.empty?
+        validate_stock!(cart_items)
 
         total = calculate_total(cart_items)
 
@@ -62,6 +63,12 @@ module Orders
 
     def calculate_total(cart_items)
       cart_items.sum { |item| item.product.price * item.quantity }
+    end
+
+    def validate_stock!(cart_items)
+      cart_items.each do |item|
+        raise InsufficientStock, item.product if item.quantity > item.product.stock
+      end
     end
 
     def build_order(total)
