@@ -1,3 +1,5 @@
+require "securerandom"
+
 class Api::V1::WebhooksController < ActionController::Base
   skip_before_action :verify_authenticity_token, raise: false
   skip_before_action :authenticate_user!, raise: false
@@ -14,10 +16,20 @@ class Api::V1::WebhooksController < ActionController::Base
     Rails.logger.info "Received Wompi event: reference=#{reference.inspect} status=#{transaction['status']}"
 
     if order && payment_status.present?
-      order.apply_payment_update!(
-        payment_id: transaction['id'],
-        payment_status: payment_status
-      )
+      transaction_id = transaction['id'].presence || "wompi-#{SecureRandom.hex(6)}"
+
+      order.transaction do
+        order.payments.create!(
+          provider: "wompi",
+          transaction_id: transaction_id,
+          status: transaction['status']
+        )
+
+        order.apply_payment_update!(
+          payment_id: transaction['id'],
+          payment_status: payment_status
+        )
+      end
     else
       Rails.logger.warn(
         "Could not apply Wompi update: reference=#{reference.inspect} status=#{transaction['status'].inspect} payment_status=#{payment_status.inspect}"
@@ -37,8 +49,8 @@ class Api::V1::WebhooksController < ActionController::Base
 
   def find_order_by_reference(reference)
     return nil unless reference.present?
-    order_id = reference[/order-(\d+)/, 1]
-    Order.find_by(id: order_id)
+
+    Order.find_by(reference: reference)
   end
 
   def map_wompi_status(value)

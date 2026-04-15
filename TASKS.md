@@ -199,6 +199,10 @@ Objetivo: hacer que el admin sirva para operar la tienda, no solo para CRUD bás
 
 ### Fase 5 - Preparar proyecto para producción
 
+## Notas recientes
+
+- [ ] Continuar mañana con la investigación del error 403 de Wompi y asegurar que el redirect autorizado + la clave de pruebas en sandbox funcionen sobre `http://localhost:5173/payment/result`.
+- [ ] Validar que la base de datos local pueda migrar (`bundle exec rails db:migrate`) y luego ejecutar los specs de checkout/webhook.
 Objetivo: dejar el sistema listo para desplegar sin improvisación.
 
 - [x] Crear documentación de variables de entorno
@@ -299,9 +303,21 @@ cd house && npm run build
 4. Verificar que `bin/ci` o al menos `cd server && bundle exec rspec` se siguen ejecutando sin errores tras la actualización del bundle.
 5. Registrar cualquier incompatibilidad restante antes de seguir con nuevas funcionalidades o despliegues.
 
-### Notas para la próxima sesión
+### Notas para la próxima sesión (14 de abril de 2026)
 
-- Bundle completado con éxito el 31 de marzo de 2026; mañana continuar con los pasos 2-4 de arriba (`rubocop`, `bundler-audit`, `bin/ci`).
+Hoy logramos avances críticos en la integración con Wompi:
+- [x] Creamos la guía oficial de testing para Sandbox (`wompi_sandbox_testing.md`).
+- [x] Establecimos el checklist seguro de pase a producción (`payment_production_checklist.md`).
+- [x] Corregimos el **Error 403 de Amazon CloudFront** limpiando los saltos de línea invisibles (`\r`) en las llaves `.env` usando `.strip`.
+- [x] Evitamos el bloqueo estricto del cortafuegos de AWS (SSRF) configurando el backend para que **omita `redirect-url`** temporalmente cuando se prueba desde `localhost`.
+- [x] Refactorizamos la presentación visual de la moneda para que muestre `COP` al final (ej. `15.000 COP`) sin el símbolo `$`.
+- [x] Diagnosticamos por qué Wompi devolvía Error 422 interno (`api/merchants/undefined`): el carrito estaba enviando cobros por 16 pesos (`amount_in_cents=1600`).
+- [x] Aplicamos un parche temporal (hardcode) de `$20.000 COP` en la URL de Wompi para asegurar que la vista web de prueba pudiera cargar siempre sin estrellarse por el mínimo.
+
+#### Próximos pasos inmediatos (Mañana)
+1. **Validar secretos:** Revisar en el dashboard de Wompi que el "Secreto de Integridad" concuerde *exactamente* con `test_integrity_...` en el `.env`. Si no concuerda, la firma es inválida y Wompi devolverá 422 al dar clic en Pagar.
+2. **Prueba final de Nequi:** Utilizar el número de Sandbox oficial `3991111111` en la pasarela, dar click en Pagar, y recibir la orden de `Aprobada`.
+3. **Revertir parche temporal:** Cuando funcione, quitar el hardcode de `2000000` en `web_checkout_url.rb` y restaurar la fórmula real con los carritos reales >$1.500 COP.
 
 ## Regla Operativa del Repo
 
