@@ -9,29 +9,39 @@ RSpec.describe Api::V1::PaymentsController, type: :controller do
   let(:jwt_secret) { ENV['DEVISE_JWT_SECRET_KEY'] || 'temporary_secret_for_development_1234567890' }
   let(:token_payload) { { sub: user.id, jti: SecureRandom.uuid } }
   let(:token) { JWT.encode(token_payload, jwt_secret, 'HS256') }
-  let(:session_response) { { session_id: 'sess_123', amount: 120000, currency: 'COP' } }
+  let(:checkout_response) do
+    {
+      reference: order.reference,
+      order_id: order.id,
+      amount_in_cents: 120_000,
+      currency: 'COP',
+      public_key: 'pub_test_123',
+      signature: 'signature_123',
+      redirect_url: 'http://localhost:5173/payment/result'
+    }
+  end
 
   before do
     request.headers['Authorization'] = "Bearer #{token}"
     order.order_items.create!(product: product, quantity: 1, unit_price: product.price)
-    allow(Epayco::SessionCreator).to receive(:create_session!).and_return(session_response)
+    allow(Wompi::CheckoutBuilder).to receive(:build).and_return(checkout_response)
   end
 
   describe 'GET #create_preference' do
-    it 'returns a session payload for a pending order' do
+    it 'returns a checkout payload for a pending order' do
       get :create_preference, params: { id: order.id }
 
       expect(response).to have_http_status(:ok)
       parsed = JSON.parse(response.body)
-      expect(parsed.dig('data', 'session_id')).to eq('sess_123')
-      expect(parsed.dig('data', 'amount')).to eq(120000)
+      expect(parsed.dig('data', 'checkout', 'reference')).to eq(order.reference)
+      expect(parsed.dig('data', 'checkout', 'amount_in_cents')).to eq(120_000)
     end
 
-    it 'calls the session creator with the current order' do
+    it 'calls the checkout builder with the current order' do
       get :create_preference, params: { id: order.id }
 
-      expect(Epayco::SessionCreator).to have_received(:create_session!).with(
-        hash_including(order: order, frontend_url: anything, backend_url: anything)
+      expect(Wompi::CheckoutBuilder).to have_received(:build).with(
+        hash_including(order: order, frontend_url: anything)
       )
     end
 
@@ -40,7 +50,7 @@ RSpec.describe Api::V1::PaymentsController, type: :controller do
 
       get :create_preference, params: { id: empty_order.id }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
 
     it 'rejects orders that are not pending' do
@@ -48,7 +58,7 @@ RSpec.describe Api::V1::PaymentsController, type: :controller do
 
       get :create_preference, params: { id: order.id }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
 end

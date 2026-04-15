@@ -60,7 +60,7 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
      context 'with empty cart' do
        it 'returns error' do
          post :create, params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
-         expect(response).to have_http_status(:unprocessable_entity)
+         expect(response).to have_http_status(:unprocessable_content)
        end
     end
 
@@ -73,7 +73,7 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
 
        it 'returns error' do
          post :create, params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
-         expect(response).to have_http_status(:unprocessable_entity)
+         expect(response).to have_http_status(:unprocessable_content)
        end
     end
   end
