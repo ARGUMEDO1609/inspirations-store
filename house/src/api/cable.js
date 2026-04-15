@@ -8,7 +8,12 @@ export const getCableConsumer = () => {
     return cachedConsumer;
   }
 
-  const token = localStorage.getItem('token');
+  const storedToken = localStorage.getItem('token');
+  if (!storedToken) {
+    return null;
+  }
+
+  const token = storedToken.replace(/^Bearer\s+/i, '').trim();
   if (!token) {
     return null;
   }
