@@ -50,9 +50,7 @@ module Wompi
     end
 
     def amount_in_cents
-      # HARDCODE TEMPORAL: Forzamos $20.000 COP para evitar el Error 422 de Wompi por montos bajos
-      # Original era: (order.total.to_d * 100).round(0).to_i
-      2000000
+      (order.total.to_d * 100).round(0).to_i
     end
 
     def reference
