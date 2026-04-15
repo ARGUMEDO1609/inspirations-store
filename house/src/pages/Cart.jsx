@@ -10,39 +10,6 @@ import { useCartCount } from '../context/CartCountContext';
 import { formatCOP } from '../utils/formatCurrency';
 
 const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%23f5f0e8' width='200' height='200'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='16' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E%3C/text%3E%3C/svg%3E";
-const WOMPI_WIDGET_SRC = "https://checkout.wompi.co/widget.js";
-let wompiWidgetPromise;
-
-const loadWompiWidget = () => {
-  if (typeof window === 'undefined') {
-    return Promise.reject(new Error('Wompi checkout no está disponible en este entorno'));
-  }
-
-  const checkoutClass = window.WidgetCheckout || window.WompiCheckout;
-  if (checkoutClass) {
-    return Promise.resolve(checkoutClass);
-  }
-
-  if (!wompiWidgetPromise) {
-    wompiWidgetPromise = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = WOMPI_WIDGET_SRC;
-      script.async = true;
-      script.onload = () => {
-        const loadedCheckout = window.WidgetCheckout || window.WompiCheckout;
-        if (loadedCheckout) {
-          resolve(loadedCheckout);
-        } else {
-          reject(new Error('El script de Wompi cargó pero no expone el constructor del checkout'));
-        }
-      };
-      script.onerror = () => reject(new Error('No se pudo cargar el widget de Wompi'));
-      document.body.appendChild(script);
-    });
-  }
-
-  return wompiWidgetPromise;
-};
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -141,78 +108,49 @@ const Cart = () => {
 
      setLoading(true);
      try {
-       const orderResponse = await api.post('/orders', {
-         order: { 
-           shipping_address: trimmedAddress,
-           payment_method: paymentMethod
-         }
-       });
-
        if (paymentMethod === 'cash_on_delivery') {
-        toast({
-          type: 'success',
-          title: 'Pedido confirmado',
-          message: 'El pago se realizará contra entrega.'
-        });
-        setCart({ items: [], total: 0 });
-        navigate('/orders');
-        notifyCart('Pedido confirmado. Revisá tu historial para el seguimiento.', 'success');
-        return;
+         await api.post('/orders', {
+           order: {
+             shipping_address: trimmedAddress,
+             payment_method: paymentMethod
+           }
+         });
+
+         toast({
+           type: 'success',
+           title: 'Pedido confirmado',
+           message: 'El pago se realizará contra entrega.'
+         });
+         setCart({ items: [], total: 0 });
+         navigate('/orders');
+         notifyCart('Pedido confirmado. Revisá tu historial para el seguimiento.', 'success');
+         return;
        }
 
-       const orderId = orderResponse.data.data.id;
-       const { data } = await api.get(`/orders/${orderId}/pay`);
-       const checkout = data?.data?.checkout;
-
-       if (!checkout) {
-         throw new Error('No se generó la información de Wompi');
-       }
-
-       const WompiCheckout = await loadWompiWidget();
-       const checkoutInstance = new WompiCheckout({
-         publicKey: checkout.public_key,
-         currency: checkout.currency,
-         amountInCents: checkout.amount_in_cents,
-         reference: checkout.reference,
-         signature: checkout.signature,
-         redirectUrl: checkout.redirect_url
+       const response = await api.post('/checkout', {
+         checkout: {
+           shipping_address: trimmedAddress
+         }
        });
 
-       checkoutInstance.open((result) => {
-         const transaction = result?.transaction;
-         const status = transaction?.status?.toLowerCase();
+       const checkoutUrl = response.data?.data?.checkout_url;
+       if (!checkoutUrl) {
+         throw new Error('No se generó la URL de pago');
+       }
 
-         if (status === 'approved') {
-           toast({
-             type: 'success',
-             title: 'Pago aprobado',
-             message: 'Tu pago fue aprobado y el pedido se actualizará pronto.'
-           });
-         } else if (status === 'pending') {
-           toast({
-             type: 'warning',
-             title: 'Pago pendiente',
-             message: 'Estamos esperando la confirmación final del pago.'
-           });
-         } else {
-           toast({
-             type: 'error',
-             title: 'Pago no completado',
-             message: 'No pudimos procesar el pago con Wompi.'
-           });
-         }
-      });
-      toast({
-        type: 'info',
-        title: 'Redireccionando',
-        message: 'Se abrirá el widget de Wompi para completar el pago.'
-      });
+       toast({
+         type: 'info',
+         title: 'Redireccionando',
+         message: 'Serás llevado a Wompi para completar el pago.'
+       });
+
+       window.location.href = checkoutUrl;
      } catch (error) {
        console.error('Error initiating checkout:', error);
        const errorData = error.response?.data;
-       
+
        console.error('Full error response:', errorData);
-       
+
        if (errorData?.errors) {
          const errorMessages = Object.values(errorData.errors).flat();
          errorMessages.forEach(msg => {
@@ -222,8 +160,7 @@ const Cart = () => {
              message: msg
            });
          });
-       } 
-       else if (errorData?.error?.includes('Insufficient stock')) {
+       } else if (errorData?.error?.includes('Insufficient stock')) {
          toast({
            type: 'error',
            title: 'Stock insuficiente',
@@ -239,7 +176,7 @@ const Cart = () => {
          toast({
            type: 'error',
            title: 'Dirección inválida',
-             message: errorData.error || 'La dirección de envío no es válida'
+           message: errorData.error || 'La dirección de envío no es válida'
          });
        } else if (errorData?.error?.includes('blank')) {
          toast({

@@ -11,54 +11,35 @@ class Api::V1::OrdersController < Api::V1::ApiController
     render_success(data: @order.as_json(include: { order_items: { include: :product } }))
   end
 
+  def show_by_reference
+    @order = current_user.orders.find_by!(reference: params[:reference])
+    render_success(data: @order.as_json(include: { order_items: { include: :product } }))
+  end
+
   def create
-    cart_items = current_user.cart_items.includes(:product)
-    if cart_items.empty?
-      render_error("Cart is empty")
-      return
-    end
-
-    insufficient_items = cart_items.select { |item| item.product.stock < item.quantity }
-    if insufficient_items.any?
-      render_error("Insufficient stock for #{insufficient_items.first.product.title}")
-      return
-    end
-
-    payment_method = order_params[:payment_method]&.to_sym
-    unless [ :card, :cash_on_delivery ].include?(payment_method)
-      render_error("Invalid payment method")
-      return
-    end
-
-    total = cart_items.sum { |item| item.product.price * item.quantity }
-
-    @order = current_user.orders.new(
+    @order = Orders::CreateFromCart.new(
+      user: current_user,
       shipping_address: order_params[:shipping_address],
-      status: payment_method == :cash_on_delivery ? :paid : :pending,
-      payment_status: payment_method == :cash_on_delivery ? "cash_on_delivery" : "pending",
-      payment_method: payment_method,
-      total: total
-    )
+      payment_method: order_params[:payment_method]
+    ).call
 
-    if @order.save
-      cart_items.each do |item|
-        @order.order_items.create!(
-          product: item.product,
-          quantity: item.quantity,
-          unit_price: item.product.price
-        )
-        item.product.decrement!(:stock, item.quantity)
-      end
-      cart_items.destroy_all
-
-      if payment_method == :cash_on_delivery
-        render_success(data: @order, message: "Order placed successfully. Payment will be collected on delivery.", status: :created)
-      else
-        render_success(data: @order, message: "Order created successfully", status: :created)
-      end
+    if @order.cash_on_delivery?
+      render_success(
+        data: @order,
+        message: "Order placed successfully. Payment will be collected on delivery.",
+        status: :created
+      )
     else
-      render_validation_errors(@order.errors.full_messages)
+      render_success(data: @order, message: "Order created successfully", status: :created)
     end
+  rescue Orders::CreateFromCart::EmptyCart
+    render_error("Cart is empty")
+  rescue Orders::CreateFromCart::InsufficientStock => e
+    render_error("Insufficient stock for #{e.product&.title}")
+  rescue Orders::CreateFromCart::InvalidPaymentMethod => e
+    render_error(e.message)
+  rescue ActiveRecord::RecordInvalid => e
+    render_validation_errors(e.record.errors.full_messages)
   end
 
   def update

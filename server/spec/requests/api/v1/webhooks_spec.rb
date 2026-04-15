@@ -20,6 +20,7 @@ RSpec.describe Api::V1::WebhooksController, type: :controller do
       expect(order.reload.status).to eq('paid')
       expect(order.payment_status).to eq('approved')
       expect(product.reload.stock).to eq(6)
+      expect(order.payments.last.provider).to eq('wompi')
     end
 
     it 'restores reserved stock when Wompi declines the payment' do
@@ -29,6 +30,7 @@ RSpec.describe Api::V1::WebhooksController, type: :controller do
       expect(order.reload.status).to eq('cancelled')
       expect(order.payment_status).to eq('rejected')
       expect(product.reload.stock).to eq(8)
+      expect(order.payments.last.status).to eq('DECLINED')
     end
   end
 
@@ -37,7 +39,7 @@ RSpec.describe Api::V1::WebhooksController, type: :controller do
       data: {
         transaction: {
           id: "tx-#{SecureRandom.hex(4)}",
-          reference: "order-#{order.id}",
+          reference: order.reference,
           status: status,
           amount_in_cents: (order.total * 100).to_i,
           currency: 'COP'

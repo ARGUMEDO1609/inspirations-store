@@ -37,6 +37,9 @@ Rails.application.routes.draw do
         end
       end
 
+      post 'checkout', to: 'checkouts#create'
+      get 'orders/reference/:reference', to: 'orders#show_by_reference'
+
       resources :orders, only: [:index, :show, :create, :update] do
         member do
           get 'pay', to: 'payments#create_preference'

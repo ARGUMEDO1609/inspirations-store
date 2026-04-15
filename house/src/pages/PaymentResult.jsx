@@ -69,7 +69,7 @@ const statusParam = params.get('status') || params.get('collection_status') || p
     const fetchOrder = async () => {
       setLoadingOrder(true);
       try {
-        const response = await api.get(`/orders/${externalReference}`);
+        const response = await api.get(`/orders/reference/${externalReference}`);
         setOrder(response.data.data || response.data);
       } catch (error) {
         console.error('Error fetching order after payment:', error);

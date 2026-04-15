@@ -7,8 +7,7 @@ const getFormatter = (minimumFractionDigits, maximumFractionDigits) => {
     formatterCache.set(
       key,
       new Intl.NumberFormat('es-CO', {
-        style: 'currency',
-        currency: 'COP',
+        style: 'decimal',
         minimumFractionDigits,
         maximumFractionDigits
       })
@@ -23,8 +22,8 @@ export const formatCOP = (value, options = {}) => {
   const numeric = Number(value);
 
   if (Number.isNaN(numeric)) {
-    return getFormatter(minimumFractionDigits, maximumFractionDigits).format(0);
+    return `${getFormatter(minimumFractionDigits, maximumFractionDigits).format(0)} COP`;
   }
 
-  return getFormatter(minimumFractionDigits, maximumFractionDigits).format(numeric);
+  return `${getFormatter(minimumFractionDigits, maximumFractionDigits).format(numeric)} COP`;
 };
