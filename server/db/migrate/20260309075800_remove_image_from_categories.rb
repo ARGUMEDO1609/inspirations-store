@@ -1,5 +1,5 @@
 class RemoveImageFromCategories < ActiveRecord::Migration[8.1]
   def change
-    remove_column :categories, :image, :string
+    remove_column :categories, :image, :string if column_exists?(:categories, :image)
   end
 end
