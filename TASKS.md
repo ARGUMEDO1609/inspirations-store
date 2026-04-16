@@ -201,8 +201,12 @@ Objetivo: hacer que el admin sirva para operar la tienda, no solo para CRUD bás
 
 ## Notas recientes
 
-- [ ] Continuar mañana con la investigación del error 403 de Wompi y asegurar que el redirect autorizado + la clave de pruebas en sandbox funcionen sobre `http://localhost:5173/payment/result`.
-- [ ] Validar que la base de datos local pueda migrar (`bundle exec rails db:migrate`) y luego ejecutar los specs de checkout/webhook.
+- [x] Se validó la base local de test y la suite de RSpec volvió a correr correctamente.
+- [x] Se corrigió la validación de stock al crear pedidos desde el carrito.
+- [x] Se alinearon los specs de pagos al flujo actual con `Wompi::CheckoutBuilder`.
+- [x] Se eliminó el hardcode temporal de `$20.000 COP` y Wompi volvió a usar el total real de la orden.
+- [x] Se dejó un wrapper raíz `bin/rspec` para correr la suite desde el repo.
+- [x] La suite backend quedó verde: `105 examples, 0 failures`.
 Objetivo: dejar el sistema listo para desplegar sin improvisación.
 
 - [x] Crear documentación de variables de entorno
@@ -253,7 +257,7 @@ Lo siguiente que más conviene hacer, en orden:
 ## Riesgos Técnicos Abiertos
 
 - La reserva de stock al crear pedido ya quedó consistente, pero sigue siendo una decisión de negocio a revisar si luego quieres un modelo de descuento solo al aprobar pago.
-- Siguen apareciendo warnings de `devise_for` con Rails 8.2; no están rompiendo funcionalidad, pero conviene revisarlos más adelante.
+- El flujo de Wompi ya usa el total real de la orden otra vez; falta validar en sandbox si existe un mínimo práctico de monto o una validación adicional de negocio para montos bajos.
 - El sistema ya sincroniza `Address` con campos legacy, pero todavía conviven ambos modelos; a futuro conviene elegir una sola fuente de verdad.
 
 ## Estado de Testing
@@ -303,21 +307,21 @@ cd house && npm run build
 4. Verificar que `bin/ci` o al menos `cd server && bundle exec rspec` se siguen ejecutando sin errores tras la actualización del bundle.
 5. Registrar cualquier incompatibilidad restante antes de seguir con nuevas funcionalidades o despliegues.
 
-### Notas para la próxima sesión (14 de abril de 2026)
+### Notas para la próxima sesión (15 de abril de 2026)
 
-Hoy logramos avances críticos en la integración con Wompi:
-- [x] Creamos la guía oficial de testing para Sandbox (`wompi_sandbox_testing.md`).
-- [x] Establecimos el checklist seguro de pase a producción (`payment_production_checklist.md`).
-- [x] Corregimos el **Error 403 de Amazon CloudFront** limpiando los saltos de línea invisibles (`\r`) en las llaves `.env` usando `.strip`.
-- [x] Evitamos el bloqueo estricto del cortafuegos de AWS (SSRF) configurando el backend para que **omita `redirect-url`** temporalmente cuando se prueba desde `localhost`.
-- [x] Refactorizamos la presentación visual de la moneda para que muestre `COP` al final (ej. `15.000 COP`) sin el símbolo `$`.
-- [x] Diagnosticamos por qué Wompi devolvía Error 422 interno (`api/merchants/undefined`): el carrito estaba enviando cobros por 16 pesos (`amount_in_cents=1600`).
-- [x] Aplicamos un parche temporal (hardcode) de `$20.000 COP` en la URL de Wompi para asegurar que la vista web de prueba pudiera cargar siempre sin estrellarse por el mínimo.
+Hoy quedó resuelta la parte crítica de estabilidad local:
+- [x] La base de test quedó accesible otra vez y `bin/rspec` funciona desde la raíz.
+- [x] Se corrigió el fallo de stock insuficiente al crear órdenes.
+- [x] Se actualizaron los specs request de pagos al namespace actual de Wompi.
+- [x] Se limpiaron las deprecaciones de Rails 8 en specs request y rutas de Devise.
+- [x] La suite backend terminó limpia con `105 examples, 0 failures`.
+- [x] Se removió el hardcode temporal de Wompi y `WebCheckoutUrl` vuelve a calcular `amount_in_cents` desde `order.total`.
 
 #### Próximos pasos inmediatos (Mañana)
-1. **Validar secretos:** Revisar en el dashboard de Wompi que el "Secreto de Integridad" concuerde *exactamente* con `test_integrity_...` en el `.env`. Si no concuerda, la firma es inválida y Wompi devolverá 422 al dar clic en Pagar.
-2. **Prueba final de Nequi:** Utilizar el número de Sandbox oficial `3991111111` en la pasarela, dar click en Pagar, y recibir la orden de `Aprobada`.
-3. **Revertir parche temporal:** Cuando funcione, quitar el hardcode de `2000000` en `web_checkout_url.rb` y restaurar la fórmula real con los carritos reales >$1.500 COP.
+1. Validar en sandbox de Wompi un pago completo de punta a punta con el monto real de la orden y confirmar que ya no reaparece el 422 interno.
+2. Verificar si Wompi exige un monto mínimo práctico; si sí, decidir si la regla debe vivir en frontend, backend o ambos.
+3. Ejecutar `bin/ci` completo para incluir también lint y build del frontend antes del siguiente push grande.
+4. Revisar si conviene commitear o limpiar los logs locales y mantener `server/.env` solo como configuración privada.
 
 ## Regla Operativa del Repo
 
