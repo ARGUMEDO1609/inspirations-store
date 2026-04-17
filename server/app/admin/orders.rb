@@ -9,12 +9,12 @@ ActiveAdmin.register Order do
   scope :completed
   scope :cancelled
 
-  batch_action :mark_as_shipped, if: proc { selection.any? } do |ids|
+  batch_action :mark_as_shipped do |ids|
     Order.find(ids).each { |order| order.update!(status: :shipped) if order.paid? }
     redirect_to collection_path, notice: "Pedidos marcados como enviados."
   end
 
-  batch_action :mark_as_completed, if: proc { selection.any? } do |ids|
+  batch_action :mark_as_completed do |ids|
     Order.find(ids).each { |order| order.update!(status: :completed) if order.shipped? }
     redirect_to collection_path, notice: "Pedidos marcados como completados."
   end
