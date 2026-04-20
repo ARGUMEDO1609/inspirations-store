@@ -1,6 +1,6 @@
 ActiveAdmin.register Category do
   menu false
-  permit_params :name, :slug, :description, :image
+  permit_params :name, :description, :image
 
   controller do
     def create
@@ -29,10 +29,7 @@ ActiveAdmin.register Category do
           div 'Sin imagen', style: 'width:56px; height:56px; display:flex; align-items:center; justify-content:center; background:#f3f4f6; border-radius:14px; color:#6b7280; font-size:11px;'
         end
 
-        div do
-          div { strong link_to category.name, admin_category_path(category) }
-          div category.slug, style: 'color:#6b7280; font-size:12px; margin-top:4px;'
-        end
+        div { strong link_to category.name, admin_category_path(category) }
       end
     end
     column('Descripción') { |category| truncate(category.description, length: 70) }
@@ -42,16 +39,14 @@ ActiveAdmin.register Category do
   end
 
   filter :name
-  filter :slug
   filter :created_at
 
   form html: { multipart: true } do |f|
     f.semantic_errors(*f.object.errors.attribute_names)
 
     f.inputs 'Identidad de categoría' do
-      para 'Crea una categoría con nombre claro, URL consistente y una descripción útil para catálogo y admin.', style: 'margin:0 0 12px; color:#6b7280;'
+      para 'Crea una categoría con nombre claro y una descripción útil para catálogo y admin.', style: 'margin:0 0 12px; color:#6b7280;'
       f.input :name, hint: 'Debe ser clara para cliente y operación interna.'
-      f.input :slug, hint: 'Ayuda a mantener URLs limpias y organización consistente.'
       f.input :description, as: :text, input_html: { rows: 5 }, hint: 'Resume el tipo de piezas que agrupa esta categoría.'
     end
 
@@ -59,9 +54,11 @@ ActiveAdmin.register Category do
       f.input :image,
               as: :file,
               label: 'Subir imagen de categoría',
-              hint: f.object.image.attached? ?
-                image_tag(rails_storage_proxy_url(f.object.image, only_path: true), style: 'width:180px; border-radius:18px; border:1px solid #e5e7eb;') :
-                content_tag(:span, 'Todavía no hay imagen cargada para esta categoría.')
+              hint: (if f.object.persisted? && f.object.image.attached?
+                image_tag(f.object.image, style: 'width:180px; border-radius:18px; border:1px solid #e5e7eb;')
+              else
+                'Todavía no hay imagen cargada para esta categoría.'
+              end)
     end
 
     f.actions do
@@ -86,7 +83,6 @@ ActiveAdmin.register Category do
   sidebar 'Estado actual', only: %i[edit] do
     if resource.persisted?
       attributes_table_for resource do
-        row('Slug', &:slug)
         row('Productos asociados') { |record| record.products.count }
         row('Actualizada') { |record| l(record.updated_at, format: :short) }
       end
@@ -105,7 +101,6 @@ ActiveAdmin.register Category do
 
           attributes_table_for category do
             row :name
-            row :slug
             row('Descripción') { |record| simple_format(record.description) }
             row('Productos asociados') { |record| record.products.count }
             row :created_at
