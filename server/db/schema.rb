@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_17_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_20_150617) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -97,9 +97,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_000000) do
     t.datetime "created_at", null: false
     t.text "description"
     t.string "name"
-    t.string "slug"
     t.datetime "updated_at", null: false
-    t.index ["slug"], name: "index_categories_on_slug", unique: true
   end
 
   create_table "jwt_denylist", force: :cascade do |t|
@@ -176,12 +174,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_000000) do
     t.string "name"
     t.decimal "price"
     t.integer "product_type"
-    t.string "slug"
     t.integer "stock"
     t.string "title"
     t.datetime "updated_at", null: false
     t.index ["category_id"], name: "index_products_on_category_id"
-    t.index ["slug"], name: "index_products_on_slug", unique: true
   end
 
   create_table "reviews", force: :cascade do |t|

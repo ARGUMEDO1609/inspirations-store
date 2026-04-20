@@ -9,9 +9,6 @@ class Product < ApplicationRecord
   validates :title, presence: true
   validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :stock, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :slug, presence: true, uniqueness: true
-
-  before_validation :generate_slug, on: [ :create, :update ]
 
   after_create_commit  { broadcast_change("create") }
   after_update_commit  { broadcast_change("update") }
@@ -26,10 +23,6 @@ class Product < ApplicationRecord
   end
 
   private
-
-  def generate_slug
-    self.slug = title.parameterize if title.present? && slug.blank?
-  end
 
   def broadcast_change(action)
     ActionCable.server.broadcast("store_channel", {
