@@ -2,18 +2,16 @@ class Api::V1::ProductsController < Api::V1::ApiController
   before_action :authenticate_user!, only: [ :create, :update, :destroy ]
 
   def index
-    @products = Product.all
+    @q = Product.ransack(params[:q])
+    @products = @q.result(distinct: true)
 
     if params[:category].present? && params[:category] != "all"
-      if params[:category] == "digital"
-        @products = @products.joins(:category).where("categories.name ILIKE ?", "%Digital%")
-      elsif params[:category] == "physical"
-        @products = @products.joins(:category).where.not("categories.name ILIKE ?", "%Digital%")
-      else
-        @products = @products.joins(:category).where("categories.name = ?", params[:category])
-      end
+      # ... mantener compatibilidad si es necesario, o migrar a ransack
+      @products = @products.joins(:category).where("categories.name = ?", params[:category])
     end
 
+    @products = @products.includes(:category)
+    
     if params[:sort] == "popular"
       @products = @products.left_joins(:order_items)
                            .group(:id)
