@@ -1,6 +1,6 @@
 ActiveAdmin.register Product do
   menu false
-  permit_params :title, :description, :price, :stock, :category_id, :image
+  permit_params :title, :description, :price, :stock, :category_id, :image, variants_attributes: [:id, :name, :variant_type, :stock, :_destroy]
 
   controller do
     def create
@@ -88,6 +88,13 @@ ActiveAdmin.register Product do
       f.input :image,
               as: :file,
               label: 'Subir imagen principal'
+    end
+
+    f.inputs 'Tallas y variantes', for: [:variants, f.object.variants.build] do |variant|
+      variant.input :name, label: 'Talla', placeholder: 'ej: S, M, L, 38, 40'
+      variant.input :variant_type, as: :select, collection: ['size', 'color', 'material'], label: 'Tipo'
+      variant.input :stock, label: 'Stock', placeholder: 'Cantidad disponible'
+      variant.input :_destroy, as: :boolean, label: 'Eliminar'
     end
 
     f.actions do
