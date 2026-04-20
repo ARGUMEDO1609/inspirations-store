@@ -325,24 +325,24 @@ Hoy quedó resuelta la parte crítica de estabilidad local:
 
 ## Recomendaciones adicionales (20 abril 2026)
 
-### Estado actual
-- Backend: Suite limpia (`105 examples, 0 failures`)
+### Estado actual (actualizado)
+- Backend: Suite limpia (`99 examples, 0 failures`)
 - Frontend: Lint y build limpios
+- Slug eliminado de productos y categorías
 
 ### Tareas recomendadas
 
-1. **Limpiar lint del frontend** (~10 min) - ✅ COMPLETADO
-   - Arreglar `setState` en `useEffect` en contextos
-   - Mover `CartNotificationList` a archivo separado
-   - Configurar regla `react-refresh/only-export-components`
+1. **Limpiar lint del frontend** - ✅ COMPLETADO
+2. **Fix cart_items 500 error** - ✅ COMPLETADO
+3. **Remover slug de productos/categorías** - ✅ COMPLETADO
 
-2. **Ejecutar `bin/ci` completo**
+4. **Ejecutar `bin/ci` completo**
    - Incluir lint + build del frontend antes del siguiente push
 
-3. **Validar pago en sandbox ePayco**
+5. **Validar pago en sandbox ePayco**
    - Probar flujo completo (crear pedido → checkout → webhook → retorno)
 
-4. **Fase 5 - Preparar producción**
+6. **Fase 5 - Preparar producción**
    - Documentar variables de entorno
    - Definir estrategia de despliegue
 
