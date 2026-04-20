@@ -14,10 +14,8 @@ import { ToastProvider } from './context/ToastContext';
 import { useToast } from './context/useToast';
 import { NetworkStatusProvider } from './context/NetworkStatusContext';
 import useNetworkStatus from './context/useNetworkStatus';
-import {
-  CartNotificationList,
-  CartNotificationProvider
-} from './context/CartNotificationContext';
+import { CartNotificationProvider } from './context/CartNotificationContext';
+import CartNotificationList from './components/CartNotificationList';
 import {
   CartCountProvider,
   useCartCount
