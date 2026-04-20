@@ -1,10 +1,24 @@
 class Api::V1::CartItemsController < Api::V1::ApiController
   before_action :authenticate_user!
 
-  def index
+def index
     @cart_items = current_user.cart_items.includes(:product)
+    items_json = @cart_items.map do |item|
+      product = item.product
+      {
+        id: item.id,
+        quantity: item.quantity,
+        product: {
+          id: product.id,
+          title: product.title,
+          price: product.price,
+          stock: product.stock,
+          image_url: product.image.attached? ? Rails.application.routes.url_helpers.rails_storage_proxy_url(product.image, only_path: false) : nil
+        }
+      }
+    end
     render_success(data: {
-      items: @cart_items.as_json(include: :product),
+      items: items_json,
       total: @cart_items.sum { |item| item.product.price * item.quantity }
     })
   end

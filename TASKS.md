@@ -323,6 +323,29 @@ Hoy quedó resuelta la parte crítica de estabilidad local:
 3. Ejecutar `bin/ci` completo para incluir también lint y build del frontend antes del siguiente push grande.
 4. Revisar si conviene commitear o limpiar los logs locales y mantener `server/.env` solo como configuración privada.
 
+## Recomendaciones adicionales (20 abril 2026)
+
+### Estado actual
+- Backend: Suite limpia (`105 examples, 0 failures`)
+- Frontend: Lint y build limpios
+
+### Tareas recomendadas
+
+1. **Limpiar lint del frontend** (~10 min) - ✅ COMPLETADO
+   - Arreglar `setState` en `useEffect` en contextos
+   - Mover `CartNotificationList` a archivo separado
+   - Configurar regla `react-refresh/only-export-components`
+
+2. **Ejecutar `bin/ci` completo**
+   - Incluir lint + build del frontend antes del siguiente push
+
+3. **Validar pago en sandbox ePayco**
+   - Probar flujo completo (crear pedido → checkout → webhook → retorno)
+
+4. **Fase 5 - Preparar producción**
+   - Documentar variables de entorno
+   - Definir estrategia de despliegue
+
 ## Regla Operativa del Repo
 
 - Trabajar frontend solo en `house/`.
