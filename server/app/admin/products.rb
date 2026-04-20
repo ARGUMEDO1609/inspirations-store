@@ -1,6 +1,6 @@
 ActiveAdmin.register Product do
   menu false
-  permit_params :title, :description, :price, :stock, :category_id, :image, :slug
+  permit_params :title, :description, :price, :stock, :category_id, :image
 
   controller do
     def create
@@ -33,7 +33,6 @@ ActiveAdmin.register Product do
           div do
             strong link_to product.title, admin_product_path(product)
           end
-          div product.slug, style: 'color:#6b7280; font-size:12px; margin-top:4px;'
         end
       end
     end
@@ -76,7 +75,6 @@ ActiveAdmin.register Product do
       para 'Define la pieza principal del catálogo con un nombre claro y una categoría correcta.', style: 'margin:0 0 12px; color:#6b7280;'
       f.input :category, hint: 'La categoría afecta organización, navegación y filtros del storefront.'
       f.input :title, hint: 'Usa un título corto, memorable y consistente con el tono de la tienda.'
-      f.input :slug, hint: 'Puedes dejarlo listo para URLs limpias y fáciles de compartir.'
     end
 
     f.inputs 'Narrativa y operación' do
@@ -89,10 +87,7 @@ ActiveAdmin.register Product do
     f.inputs 'Imagen y presencia visual' do
       f.input :image,
               as: :file,
-              label: 'Subir imagen principal',
-              hint: f.object.image.attached? ?
-                image_tag(rails_storage_proxy_url(f.object.image, only_path: true), style: 'width:180px; border-radius:18px; border:1px solid #e5e7eb;') :
-                content_tag(:span, 'Todavía no hay imagen cargada para esta pieza.')
+              label: 'Subir imagen principal'
     end
 
     f.actions do
@@ -117,7 +112,6 @@ ActiveAdmin.register Product do
   sidebar 'Vista rápida', only: %i[edit] do
     if resource.persisted?
       attributes_table_for resource do
-        row('Slug', &:slug)
         row('Stock', &:stock)
         row('Pedidos asociados') { |record| record.order_items.count }
         row('Reseñas') { |record| record.reviews.count }
@@ -137,7 +131,6 @@ ActiveAdmin.register Product do
 
           attributes_table_for product do
             row :title
-            row :slug
             row :category
             row('Precio') { |record| number_to_currency(record.price) }
             row :stock

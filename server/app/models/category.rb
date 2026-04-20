@@ -4,16 +4,13 @@ class Category < ApplicationRecord
   has_many :reviews, as: :reviewable, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
-  validates :slug, presence: true, uniqueness: true
-
-  before_validation :generate_slug, on: [ :create, :update ]
 
   after_create_commit  { broadcast_change("create") }
   after_update_commit  { broadcast_change("update") }
   after_destroy_commit { broadcast_change("destroy") }
 
   def self.ransackable_attributes(auth_object = nil)
-    [ "created_at", "description", "id", "name", "slug", "updated_at" ]
+    [ "created_at", "description", "id", "name", "updated_at" ]
   end
 
   private
@@ -24,9 +21,5 @@ class Category < ApplicationRecord
       action: action,
       category: CategorySerializer.new(self).serializable_hash[:data]
     })
-  end
-
-  def generate_slug
-    self.slug = name.parameterize if name.present? && slug.blank?
   end
 end
