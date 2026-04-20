@@ -5,10 +5,21 @@ class Product < ApplicationRecord
   has_many :cart_items
   has_many :reviews, as: :reviewable, dependent: :destroy
   has_many :notes, as: :notable, dependent: :destroy
+  has_many :variants, as: :variantable, dependent: :destroy
+
+  accepts_nested_attributes_for :variants, allow_destroy: true, reject_if: :all_blank
 
   validates :title, presence: true
   validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :stock, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+
+  def sizes
+    variants.where(variant_type: 'size')
+  end
+
+  def has_variants?
+    variants.any?
+  end
 
   after_create_commit  { broadcast_change("create") }
   after_update_commit  { broadcast_change("update") }
@@ -19,7 +30,7 @@ class Product < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    [ "cart_items", "category", "order_items" ]
+    [ "cart_items", "category", "order_items", "variants" ]
   end
 
   private
