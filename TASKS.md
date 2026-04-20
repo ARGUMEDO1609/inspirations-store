@@ -326,23 +326,26 @@ Hoy quedó resuelta la parte crítica de estabilidad local:
 ## Recomendaciones adicionales (20 abril 2026)
 
 ### Estado actual (actualizado)
-- Backend: Suite limpia (`99 examples, 0 failures`)
+- Backend: Suite limpia (`108 examples, 0 failures`)
 - Frontend: Lint y build limpios
 - Slug eliminado de productos y categorías
+- Wompi configurado para pagos
+- Variants (tallas/colores) implementado con polimorfismo
 
 ### Tareas recomendadas
 
 1. **Limpiar lint del frontend** - ✅ COMPLETADO
 2. **Fix cart_items 500 error** - ✅ COMPLETADO
 3. **Remover slug de productos/categorías** - ✅ COMPLETADO
+4. **Agregar variants (tallas/colores)** - ✅ COMPLETADO
 
-4. **Ejecutar `bin/ci` completo**
+5. **Ejecutar `bin/ci` completo**
    - Incluir lint + build del frontend antes del siguiente push
 
-5. **Validar pago en sandbox ePayco**
+6. **Validar pago en sandbox Wompi**
    - Probar flujo completo (crear pedido → checkout → webhook → retorno)
 
-6. **Fase 5 - Preparar producción**
+7. **Fase 5 - Preparar producción**
    - Documentar variables de entorno
    - Definir estrategia de despliegue
 
