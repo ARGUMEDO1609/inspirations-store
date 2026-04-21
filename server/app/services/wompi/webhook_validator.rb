@@ -44,7 +44,7 @@ module Wompi
       end
 
       def value_for_property(data, property)
-        property.to_s.split('.').reduce(data) do |current, key|
+        property.to_s.split(".").reduce(data) do |current, key|
           current.is_a?(Hash) ? current[key] : nil
         end.to_s
       end

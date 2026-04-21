@@ -2,12 +2,12 @@ module ApiResponses
   extend ActiveSupport::Concern
 
   ERROR_CODES = {
-    bad_request: 'bad_request',
-    unauthorized: 'unauthorized',
-    forbidden: 'forbidden',
-    not_found: 'not_found',
-    unprocessable_entity: 'validation_failed',
-    internal_server_error: 'internal_error'
+    bad_request: "bad_request",
+    unauthorized: "unauthorized",
+    forbidden: "forbidden",
+    not_found: "not_found",
+    unprocessable_entity: "validation_failed",
+    internal_server_error: "internal_error"
   }.freeze
 
   included do
@@ -37,22 +37,22 @@ module ApiResponses
 
   def render_validation_errors(errors)
     render_error(
-      'Validation failed',
+      "Validation failed",
       status: :unprocessable_entity,
       code: ERROR_CODES[:unprocessable_entity],
       details: Array(errors)
     )
   end
 
-  def render_not_found(message = 'Resource not found')
+  def render_not_found(message = "Resource not found")
     render_error(message, status: :not_found)
   end
 
-  def render_unauthorized(message = 'Unauthorized')
+  def render_unauthorized(message = "Unauthorized")
     render_error(message, status: :unauthorized)
   end
 
-  def render_forbidden(message = 'You are not authorized to perform this action')
+  def render_forbidden(message = "You are not authorized to perform this action")
     render_error(message, status: :forbidden)
   end
 

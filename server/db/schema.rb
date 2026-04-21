@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_20_150617) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_21_140306) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -89,8 +89,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_20_150617) do
     t.integer "quantity", default: 1, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.bigint "variant_id"
     t.index ["product_id"], name: "index_cart_items_on_product_id"
     t.index ["user_id"], name: "index_cart_items_on_user_id"
+    t.index ["variant_id"], name: "index_cart_items_on_variant_id"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -124,8 +126,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_20_150617) do
     t.integer "quantity", default: 1
     t.decimal "unit_price", precision: 10, scale: 2
     t.datetime "updated_at", null: false
+    t.bigint "variant_id"
     t.index ["order_id"], name: "index_order_items_on_order_id"
     t.index ["product_id"], name: "index_order_items_on_product_id"
+    t.index ["variant_id"], name: "index_order_items_on_variant_id"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -216,13 +220,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_20_150617) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "variants", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.integer "stock", default: 0
+    t.datetime "updated_at", null: false
+    t.string "variant_type"
+    t.bigint "variantable_id", null: false
+    t.string "variantable_type", null: false
+    t.index ["variantable_type", "variantable_id", "name"], name: "idx_variant_product_name", unique: true
+    t.index ["variantable_type", "variantable_id"], name: "index_variants_on_variantable"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "cart_items", "products"
   add_foreign_key "cart_items", "users"
+  add_foreign_key "cart_items", "variants"
   add_foreign_key "notes", "admin_users"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
+  add_foreign_key "order_items", "variants"
   add_foreign_key "orders", "users"
   add_foreign_key "payments", "orders"
   add_foreign_key "product_variants", "products"
