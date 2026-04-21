@@ -11,7 +11,7 @@ class Api::V1::ProductsController < Api::V1::ApiController
     end
 
     @products = @products.includes(:category)
-    
+
     if params[:sort] == "popular"
       @products = @products.left_joins(:order_items)
                            .group(:id)

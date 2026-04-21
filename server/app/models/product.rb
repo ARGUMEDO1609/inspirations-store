@@ -14,11 +14,15 @@ class Product < ApplicationRecord
   validates :stock, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
   def sizes
-    variants.where(variant_type: 'size')
+    variants.where(variant_type: "size")
   end
 
   def has_variants?
     variants.any?
+  end
+
+  def sizes_data
+    variants.map { |v| "#{v.name}:#{v.stock}" }.join(", ")
   end
 
   after_create_commit  { broadcast_change("create") }

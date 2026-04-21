@@ -234,7 +234,7 @@ const App = () => {
                     <main className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8 lg:pb-32">
                       <Routes>
                         <Route path="/" element={<Gallery />} />
-                        <Route path="/product/:slug" element={<ProductDetail />} />
+                        <Route path="/product/:id" element={<ProductDetail />} />
                         <Route path="/cart" element={<Cart />} />
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/orders" element={<Orders />} />

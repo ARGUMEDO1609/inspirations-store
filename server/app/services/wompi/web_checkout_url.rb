@@ -34,10 +34,10 @@ module Wompi
         "reference" => reference,
         "signature:integrity" => integrity_signature
       }
-      
+
       # Wompi's AWS WAF blocks 'localhost' in URLs to prevent SSRF
       params["redirect-url"] = redirect_url unless redirect_url.include?("localhost")
-      
+
       URI.encode_www_form(params)
     end
 

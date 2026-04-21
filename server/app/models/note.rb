@@ -8,10 +8,10 @@ class Note < ApplicationRecord
   validates :notable_type, inclusion: { in: NOTABLE_TYPES }
 
   def self.ransackable_attributes(auth_object = nil)
-    ['body', 'created_at', 'id', 'notable_id', 'notable_type', 'updated_at']
+    [ "body", "created_at", "id", "notable_id", "notable_type", "updated_at" ]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ['notable', 'admin_user']
+    [ "notable", "admin_user" ]
   end
 end

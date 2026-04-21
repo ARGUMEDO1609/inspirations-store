@@ -8,6 +8,6 @@ class CreateVariants < ActiveRecord::Migration[8.1]
 
       t.timestamps
     end
-    add_index :variants, [:variantable_type, :variantable_id, :name], unique: true, name: 'idx_variant_product_name'
+    add_index :variants, [ :variantable_type, :variantable_id, :name ], unique: true, name: 'idx_variant_product_name'
   end
 end

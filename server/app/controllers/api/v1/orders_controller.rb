@@ -3,17 +3,17 @@ class Api::V1::OrdersController < Api::V1::ApiController
 
   def index
     @orders = current_user.orders.order(created_at: :desc)
-    render_success(data: @orders.as_json(include: :order_items))
+    render_success(data: @orders.as_json(include: { order_items: { include: :variant } }))
   end
 
   def show
     @order = current_user.orders.find(params[:id])
-    render_success(data: @order.as_json(include: { order_items: { include: :product } }))
+    render_success(data: @order.as_json(include: { order_items: { include: :variant } }))
   end
 
   def show_by_reference
     @order = current_user.orders.find_by!(reference: params[:reference])
-    render_success(data: @order.as_json(include: { order_items: { include: :product } }))
+    render_success(data: @order.as_json(include: { order_items: { include: :variant } }))
   end
 
   def create

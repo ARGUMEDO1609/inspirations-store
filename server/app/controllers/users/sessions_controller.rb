@@ -1,13 +1,13 @@
 class Users::SessionsController < Devise::SessionsController
   respond_to :json
-  skip_forgery_protection only: [:create, :destroy]
+  skip_forgery_protection only: [ :create, :destroy ]
 
   private
 
   def respond_with(resource, _opts = {})
     if request.format.json?
       render json: {
-        status: { code: 200, message: 'Logged in successfully.' },
+        status: { code: 200, message: "Logged in successfully." },
         data: UserSerializer.new(resource).serializable_hash[:data][:attributes]
       }, status: :ok
     else
@@ -19,7 +19,7 @@ class Users::SessionsController < Devise::SessionsController
     if current_user
       render json: {
         status: 200,
-        message: 'Logged out successfully.'
+        message: "Logged out successfully."
       }, status: :ok
     else
       render json: {

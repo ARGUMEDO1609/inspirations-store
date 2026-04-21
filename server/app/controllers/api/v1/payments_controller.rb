@@ -40,5 +40,4 @@ class Api::V1::PaymentsController < Api::V1::ApiController
   def frontend_url
     ENV["FRONTEND_URL"].presence || "http://localhost:5173"
   end
-
 end

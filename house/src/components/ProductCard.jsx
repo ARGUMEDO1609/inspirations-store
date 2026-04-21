@@ -84,7 +84,7 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
 
         <div className="mt-6 grid grid-cols-2 gap-3">
           <Link
-            to={`/product/${product.slug}`}
+            to={`/product/${product.id}`}
             className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
           >
             Ver producto

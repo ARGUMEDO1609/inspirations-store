@@ -270,6 +270,9 @@ const Cart = () => {
                     <h3 className="font-display text-[2rem] leading-none text-[var(--text-primary)] sm:text-[2.2rem]">
                       {item.product.title}
                     </h3>
+                    {item.variant && (
+                      <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">Talla: {item.variant.name}</p>
+                    )}
                     <p className="mt-2 text-sm text-[var(--text-secondary)]">{formatCOP(item.product.price)} por pieza</p>
                     <div className="mt-5 inline-flex items-center gap-4 rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-4 py-2">
                       <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={processingId === item.id} className="text-[var(--text-muted)] transition hover:text-[var(--accent)] disabled:opacity-40">
@@ -345,7 +348,7 @@ const Cart = () => {
                 <div className="mt-4 space-y-4">
                   {cart.items.map((item) => (
                     <div key={item.id} className="flex items-start justify-between gap-4 text-sm text-[var(--text-secondary)]">
-                      <span>{item.product.title} x {item.quantity}</span>
+                      <span>{item.product.title} {item.variant ? `(Talla ${item.variant.name})` : ''} x {item.quantity}</span>
                       <span className="shrink-0 font-semibold text-[var(--text-primary)]">{formatCOP(item.product.price * item.quantity)}</span>
                     </div>
                   ))}
