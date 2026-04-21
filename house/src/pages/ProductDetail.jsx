@@ -64,44 +64,44 @@ const assuranceCardVariants = {
 };
 
 const ProductDetail = () => {
-  const { slug } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [selectedSize, setSelectedSize] = useState(null);
   const { toast } = useToast();
   const { handleError } = useApiError();
 
   useEffect(() => {
     const fetchProduct = async () => {
+      setLoading(true);
       try {
-        const response = await api.get('/products');
-        const productsData = response.data.data;
-        const allProducts = Array.isArray(productsData) ? productsData : productsData?.data || [];
-        const found = allProducts.find((p) => p.attributes.slug === slug);
-        if (found) {
-          setProduct({ ...found.attributes, id: found.id });
-        } else {
-          console.error('Product not found');
-        }
+        const response = await api.get(`/products/${id}`);
+        setProduct(response.data.data.attributes);
       } catch (error) {
-        console.error('Error fetching product:', error);
         handleError(error, 'Error cargando producto');
+        setProduct(null);
       } finally {
         setLoading(false);
       }
     };
-    fetchProduct();
-  }, [slug, handleError]);
+    if (id) fetchProduct();
+  }, [id, handleError]);
 
   const handleAddToCart = async () => {
     if (!product) return;
+    if (product.has_variants && !selectedSize) {
+      toast({ type: 'error', title: 'Selecciona una talla', message: 'Elige tu talla antes de añadir.' });
+      return;
+    }
 
     setAdding(true);
     try {
       await api.post('/cart_items', {
         product_id: product.id.toString(),
-        quantity: 1
+        quantity: 1,
+        variant_id: selectedSize || null
       });
       toast({
         type: 'success',
@@ -175,7 +175,7 @@ const ProductDetail = () => {
         >
           <div>
             <div className="flex flex-wrap items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">
-              <span>REF {product.slug?.toUpperCase()}</span>
+              <span>REF {product.id}</span>
               <span className="h-1 w-1 rounded-full bg-[var(--text-muted)]"></span>
               <span>{product.stock} piezas</span>
             </div>
@@ -187,6 +187,29 @@ const ProductDetail = () => {
             <p className="mt-6 max-w-xl text-base leading-8 text-[var(--text-secondary)] sm:text-lg">
               {product.description}
             </p>
+
+            {product.variants?.length > 0 && (
+              <div className="mt-6">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)] mb-3">Selecciona talla</p>
+                <div className="flex flex-wrap gap-2">
+                  {product.variants.map((variant) => (
+                    <button
+                      key={variant.id}
+                      onClick={() => {
+                        setSelectedSize(variant.id);
+                      }}
+                      className={`rounded-full border px-5 py-2 text-sm font-semibold uppercase tracking-[0.16em] transition ${
+                        selectedSize === variant.id
+                          ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--ink)]'
+                          : 'border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] text-[var(--text-primary)] hover:border-[var(--accent)]'
+                      }`}
+                    >
+                      {variant.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="mt-8 rounded-[1.8rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] p-5 sm:p-6">
               <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">Precio de colección</p>
@@ -202,7 +225,7 @@ const ProductDetail = () => {
           <div className="space-y-5">
             <button
               onClick={handleAddToCart}
-              disabled={adding || product.stock <= 0}
+              disabled={adding || product.stock <= 0 || (product.has_variants && !selectedSize)}
               className="inline-flex min-h-[64px] w-full items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-60"
             >
               {adding ? <Loader2 className="animate-spin" size={18} /> : <ShoppingCart size={18} />}

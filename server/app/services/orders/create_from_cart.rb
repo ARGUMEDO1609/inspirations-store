@@ -35,10 +35,15 @@ module Orders
         cart_items.each do |cart_item|
           order.order_items.create!(
             product: cart_item.product,
+            variant: cart_item.variant,
             quantity: cart_item.quantity,
             unit_price: cart_item.product.price
           )
-          cart_item.product.decrement!(:stock, cart_item.quantity)
+          if cart_item.variant
+            cart_item.variant.decrement!(:stock, cart_item.quantity)
+          else
+            cart_item.product.decrement!(:stock, cart_item.quantity)
+          end
         end
 
         cart_items.destroy_all
@@ -58,7 +63,7 @@ module Orders
     end
 
     def fetch_cart_items
-      user.cart_items.includes(:product)
+      user.cart_items.includes(:product, :variant)
     end
 
     def calculate_total(cart_items)
@@ -67,7 +72,11 @@ module Orders
 
     def validate_stock!(cart_items)
       cart_items.each do |item|
-        raise InsufficientStock, item.product if item.quantity > item.product.stock
+        if item.variant
+          raise InsufficientStock, item.product if item.quantity > item.variant.stock
+        else
+          raise InsufficientStock, item.product if item.quantity > item.product.stock
+        end
       end
     end
 
