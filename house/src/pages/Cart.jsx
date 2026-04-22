@@ -8,6 +8,7 @@ import useApiError from '../hooks/useApiError';
 import { useCartNotification } from '../context/CartNotificationContext';
 import { useCartCount } from '../context/CartCountContext';
 import { formatCOP } from '../utils/formatCurrency';
+import useActionCable from '../api/useActionCable';
 
 const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%23f5f0e8' width='200' height='200'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='16' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E%3C/text%3E%3C/svg%3E";
 
@@ -51,6 +52,17 @@ const Cart = () => {
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
+
+  const cartHandlers = React.useMemo(
+    () => ({
+      CART_UPDATED: () => {
+        fetchCart();
+      }
+    }),
+    [fetchCart]
+  );
+
+  useActionCable({ channel: 'CartChannel' }, cartHandlers, Boolean(user));
 
   const updateQuantity = async (id, newQuantity) => {
     if (newQuantity < 1) return;

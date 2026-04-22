@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import api from '../api/axios';
+import useActionCable from '../api/useActionCable';
+import { useAuth } from './useAuth';
 
 export const CartCountContext = createContext(null);
 
@@ -12,6 +14,7 @@ export const useCartCount = () => {
 };
 
 export const CartCountProvider = ({ children }) => {
+  const { user } = useAuth();
   const [cartCount, setCartCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -37,28 +40,25 @@ export const CartCountProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!user) {
+      setCartCount(0);
       setLoading(false);
       return;
     }
-    api.get('/cart_items')
-      .then(res => {
-        if (!mounted) return;
-        const items = res.data.data?.items || [];
-        const total = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
-        setCartCount(total);
-      })
-      .catch(() => {
-        if (!mounted) return;
-        setCartCount(0);
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
-      });
-    return () => { mounted = false; };
-  }, []);
+
+    refreshCartCount();
+  }, [refreshCartCount, user]);
+
+  const cartHandlers = useMemo(
+    () => ({
+      CART_UPDATED: () => {
+        refreshCartCount();
+      }
+    }),
+    [refreshCartCount]
+  );
+
+  useActionCable({ channel: 'CartChannel' }, cartHandlers, Boolean(user));
 
   const value = useMemo(
     () => ({
