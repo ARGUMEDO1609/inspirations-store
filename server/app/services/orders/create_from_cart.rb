@@ -13,10 +13,11 @@ module Orders
 
     SUPPORTED_METHODS = %i[card cash_on_delivery].freeze
 
-    def initialize(user:, shipping_address:, payment_method:)
+    def initialize(user:, shipping_address:, payment_method:, source_client_id: nil)
       @user = user
       @shipping_address = shipping_address.to_s.strip
       @payment_method = payment_method.to_s.strip.downcase.to_sym
+      @source_client_id = source_client_id.to_s.presence
     end
 
     def call
@@ -47,6 +48,7 @@ module Orders
         end
 
         cart_items.destroy_all
+        CartItem.broadcast_cart_update_for(user, action: "checked_out", source_client_id: source_client_id)
 
         order
       end
@@ -54,7 +56,7 @@ module Orders
 
     private
 
-    attr_reader :user, :shipping_address, :payment_method
+    attr_reader :user, :shipping_address, :payment_method, :source_client_id
 
     def validate_payment_method!
       return if SUPPORTED_METHODS.include?(payment_method)

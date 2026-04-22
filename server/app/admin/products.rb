@@ -3,6 +3,18 @@ ActiveAdmin.register Product do
   permit_params :title, :description, :price, :stock, :category_id, :image, :sizes_data
 
   controller do
+    def create
+      build_resource
+      resource.assign_attributes(product_params.except(:sizes_data))
+      apply_sizes_data
+
+      if resource.save
+        redirect_to admin_products_path, notice: "Producto creado"
+      else
+        render :new, status: :unprocessable_entity
+      end
+    end
+
     def destroy
       super do |success, failure|
         success.html { redirect_to admin_products_path, notice: "Producto eliminado" }
@@ -11,10 +23,13 @@ ActiveAdmin.register Product do
     end
 
     def update
+      resource.assign_attributes(product_params.except(:sizes_data))
       apply_sizes_data
-      super do |success, failure|
-        success.html { redirect_to admin_products_path, notice: "Producto actualizado" }
-        failure.html { render :edit }
+
+      if resource.save
+        redirect_to admin_products_path, notice: "Producto actualizado"
+      else
+        render :edit, status: :unprocessable_entity
       end
     end
 
@@ -24,18 +39,64 @@ ActiveAdmin.register Product do
       raw = params[:product][:sizes_data].to_s
       return if raw.blank?
 
-      resource.variants.destroy_all
+      desired_sizes = parse_sizes_data(raw)
+      existing_sizes = resource.variants.select { |variant| variant.variant_type == "size" }
+      existing_by_name = existing_sizes.index_by { |variant| variant.name.to_s.downcase }
 
-      raw.split(",").each do |entry|
-        entry.strip!
+      desired_sizes.each do |attrs|
+        existing_variant = existing_by_name.delete(attrs[:key])
+
+        if existing_variant
+          existing_variant.assign_attributes(name: attrs[:name], stock: attrs[:stock])
+        else
+          resource.variants.build(name: attrs[:name], variant_type: "size", stock: attrs[:stock])
+        end
+      end
+
+      existing_by_name.each_value do |variant|
+        next if variant.new_record?
+
+        if variant_in_use?(variant)
+          variant.stock = 0
+        else
+          variant.mark_for_destruction
+        end
+      end
+    end
+
+    def parse_sizes_data(raw)
+      raw.split(",").filter_map do |entry|
+        entry = entry.to_s.strip
         next if entry.blank?
 
-        parts = entry.split(":").map(&:strip)
-        name = parts[0]
-        stock = parts[1].present? ? parts[1].to_i : 0
+        name, stock = entry.split(":", 2).map { |part| part.to_s.strip }
+        next if name.blank?
 
-        resource.variants.build(name: name, variant_type: "size", stock: stock)
+        {
+          key: name.downcase,
+          name: name,
+          stock: stock.present? ? stock.to_i : 0
+        }
       end
+    end
+
+    def variant_in_use?(variant)
+      CartItem.exists?(variant_id: variant.id) || OrderItem.exists?(variant_id: variant.id)
+    end
+
+    def product_params
+      permitted = params.require(:product).permit(:title, :description, :price, :stock, :category_id, :image, :sizes_data)
+      permitted[:price] = normalize_price_value(permitted[:price])
+      permitted
+    end
+
+    def normalize_price_value(raw_price)
+      raw_price = raw_price.to_s.strip
+      return raw_price if raw_price.blank?
+
+      normalized_price = raw_price.gsub(/[^\d,\.]/, "")
+      normalized_price = normalized_price.delete(".").tr(",", ".")
+      normalized_price.presence || raw_price
     end
   end
 

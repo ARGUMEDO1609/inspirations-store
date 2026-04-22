@@ -20,7 +20,8 @@ class Api::V1::OrdersController < Api::V1::ApiController
     @order = Orders::CreateFromCart.new(
       user: current_user,
       shipping_address: order_params[:shipping_address],
-      payment_method: order_params[:payment_method]
+      payment_method: order_params[:payment_method],
+      source_client_id: request.headers["X-Client-Instance-Id"]
     ).call
 
     if @order.cash_on_delivery?

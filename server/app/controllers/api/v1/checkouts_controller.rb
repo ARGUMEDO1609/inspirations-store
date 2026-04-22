@@ -5,7 +5,8 @@ class Api::V1::CheckoutsController < Api::V1::ApiController
     order = Orders::CreateFromCart.new(
       user: current_user,
       shipping_address: checkout_params[:shipping_address],
-      payment_method: :card
+      payment_method: :card,
+      source_client_id: request.headers["X-Client-Instance-Id"]
     ).call
 
     checkout_url = Wompi::WebCheckoutUrl.build(

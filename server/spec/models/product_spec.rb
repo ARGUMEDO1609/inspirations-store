@@ -22,4 +22,14 @@ RSpec.describe Product, type: :model do
       expect(product).to be_valid
     end
   end
+
+  describe '#sizes_data' do
+    it 'accepts virtual assignment before persistence' do
+      product = build(:product, category: category)
+
+      product.sizes_data = "S:2, M:4"
+
+      expect(product.sizes_data).to eq("S:2, M:4")
+    end
+  end
 end

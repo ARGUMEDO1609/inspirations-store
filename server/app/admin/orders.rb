@@ -1,5 +1,6 @@
 ActiveAdmin.register Order do
   menu false
+  actions :index, :show, :edit, :update
   permit_params :status, :shipping_address, :payment_status, :payment_id
 
   scope :all, default: true
