@@ -21,10 +21,13 @@ import {
   useCartCount
 } from './context/CartCountContext';
 import useActionCable from './api/useActionCable';
+import { getClientInstanceId } from './api/axios';
+import { useCartNotification } from './context/CartNotificationContext';
 
 const NotificationListener = ({ children }) => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { notifyCart } = useCartNotification();
 
   const storeHandlers = useMemo(
     () => ({
@@ -58,6 +61,27 @@ const NotificationListener = ({ children }) => {
   );
 
   useActionCable({ channel: 'OrderChannel' }, orderHandlers, Boolean(user));
+
+  const cartHandlers = useMemo(
+    () => ({
+      CART_UPDATED: (data) => {
+        if (!user || data.source_client_id === getClientInstanceId()) return;
+
+        const messages = {
+          created: 'Tu carrito se actualizó desde otra pestaña o sesión.',
+          updated: 'La cantidad de piezas cambió en otra pestaña o sesión.',
+          removed: 'Una pieza fue removida del carrito en otra pestaña o sesión.',
+          cleared: 'El carrito fue vaciado en otra pestaña o sesión.',
+          checked_out: 'El carrito cambió porque se completó un checkout en otra pestaña o sesión.'
+        };
+
+        notifyCart(messages[data.action] || 'El carrito cambió en otra pestaña o sesión.', 'info');
+      }
+    }),
+    [notifyCart, user]
+  );
+
+  useActionCable({ channel: 'CartChannel' }, cartHandlers, Boolean(user));
 
   return children;
 };

@@ -6,11 +6,8 @@ class Api::V1::ProductsController < Api::V1::ApiController
     @products = @q.result(distinct: true)
 
     if params[:category].present? && params[:category] != "all"
-      # ... mantener compatibilidad si es necesario, o migrar a ransack
       @products = @products.joins(:category).where("categories.name = ?", params[:category])
     end
-
-    @products = @products.includes(:category)
 
     if params[:sort] == "popular"
       @products = @products.left_joins(:order_items)
@@ -20,6 +17,8 @@ class Api::V1::ProductsController < Api::V1::ApiController
     else
       @products = @products.order(created_at: :desc)
     end
+
+    @products = @products.preload(:category)
 
     render json: ProductSerializer.new(@products).serializable_hash
   end

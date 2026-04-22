@@ -56,12 +56,11 @@ group :development, :test do
   gem "faker", "~> 3.2"
 end
 
-gem "devise", ">= 4.9.0", "< 5"
+gem "devise", ">= 5.0.3", "< 6"
 gem "devise-jwt", "~> 0.13.0"
 gem "rack-cors", "~> 3.0"
 gem "pundit", "~> 2.5"
-gem "activeadmin", "~> 3.4"
+gem "activeadmin", "~> 4.0.0.beta22"
 gem "jsonapi-serializer"
-gem "arctic_admin"
 gem "turbo-rails"
 gem "stimulus-rails"

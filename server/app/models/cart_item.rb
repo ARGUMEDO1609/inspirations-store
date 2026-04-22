@@ -14,6 +14,14 @@ class CartItem < ApplicationRecord
     [ "user", "product" ]
   end
 
+  def self.broadcast_cart_update_for(user, action: "updated", source_client_id: nil)
+    ActionCable.server.broadcast("cart_channel_#{user.id}", {
+      type: "CART_UPDATED",
+      action: action,
+      source_client_id: source_client_id
+    })
+  end
+
   private
 
   def validate_stock_availability

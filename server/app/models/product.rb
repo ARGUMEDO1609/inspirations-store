@@ -1,4 +1,6 @@
 class Product < ApplicationRecord
+  attr_writer :sizes_data
+
   belongs_to :category
   has_one_attached :image
   has_many :order_items
@@ -22,7 +24,7 @@ class Product < ApplicationRecord
   end
 
   def sizes_data
-    variants.map { |v| "#{v.name}:#{v.stock}" }.join(", ")
+    @sizes_data.presence || variants.map { |v| "#{v.name}:#{v.stock}" }.join(", ")
   end
 
   after_create_commit  { broadcast_change("create") }
