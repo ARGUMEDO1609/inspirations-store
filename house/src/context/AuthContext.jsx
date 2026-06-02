@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { AuthContext } from './authContext';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../api/axios';
 import { resetCableConsumer } from '../api/cable';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+export const AuthContext = createContext({});
+
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);

@@ -17,6 +17,7 @@ Run from repository root unless noted:
 - `cd server && bundle exec rspec SPEC_PATH:LINE_NUMBER` — single example
 - `cd server && bin/rubocop -a` — auto-correct style
 - `cd server && rails db:migrate && rails db:seed` — prepare DB
+- `cd server && npm run build:css` — build ActiveAdmin Tailwind CSS
 
 ### Frontend
 - `cd house && npm run dev` — dev server
