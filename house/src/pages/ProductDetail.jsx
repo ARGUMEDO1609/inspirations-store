@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Globe, Loader2, ShieldCheck, ShoppingCart, Zap } from 'lucide-react';
 import { motion as Motion } from 'framer-motion';
 import api from '../api/axios';
-import { useToast } from '../context/useToast';
+import { useToast } from '../context/ToastContext';
 import useApiError from '../hooks/useApiError';
 import { formatCOP } from '../utils/formatCurrency';
 

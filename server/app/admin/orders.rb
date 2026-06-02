@@ -1,5 +1,5 @@
 ActiveAdmin.register Order do
-  menu false
+  menu priority: 2, label: "Pedidos"
   actions :index, :show, :edit, :update
   permit_params :status, :shipping_address, :payment_status, :payment_id
 

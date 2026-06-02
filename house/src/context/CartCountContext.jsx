@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import api from '../api/axios';
 import useActionCable from '../api/useActionCable';
-import { useAuth } from './useAuth';
+import { useAuth } from './AuthContext';
 
 export const CartCountContext = createContext(null);
 

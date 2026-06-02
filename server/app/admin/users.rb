@@ -1,5 +1,5 @@
 ActiveAdmin.register User do
-  menu false
+  menu priority: 5, label: "Clientes"
   permit_params :email, :name, :role, :address, :phone, :password, :password_confirmation
 
   index title: "Clientes" do
