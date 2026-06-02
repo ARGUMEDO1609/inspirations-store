@@ -1,5 +1,5 @@
 ActiveAdmin.register Review do
-  menu false
+  menu priority: 6, label: "Reseñas"
   permit_params :rating, :comment, :user_id, :reviewable_type, :reviewable_id
 
   includes :user

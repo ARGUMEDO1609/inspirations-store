@@ -1,5 +1,5 @@
 ActiveAdmin.register Note do
-  menu false
+  menu priority: 7, label: "Notas internas"
   permit_params :notable_type, :notable_id, :body, :admin_user_id
 
   index title: "Notas internas" do

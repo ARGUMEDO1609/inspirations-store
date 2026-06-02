@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
 import useActionCable from '../api/useActionCable';
-import { useToast } from '../context/useToast';
+import { useToast } from '../context/ToastContext';
 import useApiError from '../hooks/useApiError';
 import { useCartNotification } from '../context/CartNotificationContext';
 import { useCartCount } from '../context/CartCountContext';

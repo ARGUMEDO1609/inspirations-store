@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { useToast } from '../context/useToast';
-import useNetworkStatus from '../context/useNetworkStatus';
+import { useToast } from '../context/ToastContext';
+import { useNetworkStatus } from '../context/NetworkStatusContext';
 import { getErrorMessage } from '../api/axios';
 
 export const useApiError = () => {

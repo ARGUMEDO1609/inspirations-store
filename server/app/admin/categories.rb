@@ -1,5 +1,5 @@
 ActiveAdmin.register Category do
-  menu false
+  menu priority: 4, label: "Categorías"
   permit_params :name, :description, :image
 
   controller do

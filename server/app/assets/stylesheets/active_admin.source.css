@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+@plugin "./aa-plugin.cjs";
+
+@config "../../../tailwind-active_admin.config.mjs";
