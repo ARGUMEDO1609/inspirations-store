@@ -1,5 +1,5 @@
 ActiveAdmin.register Product do
-  menu false
+  menu priority: 3, label: "Productos"
   permit_params :title, :description, :price, :stock, :category_id, :image, :sizes_data
 
   controller do

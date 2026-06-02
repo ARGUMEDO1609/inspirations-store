@@ -9,11 +9,11 @@ import ProductDetail from './pages/ProductDetail';
 import Profile from './pages/Profile';
 import Orders from './pages/Orders';
 import PaymentResult from './pages/PaymentResult';
-import { useAuth } from './context/useAuth';
+import { useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
-import { useToast } from './context/useToast';
+import { useToast } from './context/ToastContext';
 import { NetworkStatusProvider } from './context/NetworkStatusContext';
-import useNetworkStatus from './context/useNetworkStatus';
+import { useNetworkStatus } from './context/NetworkStatusContext';
 import { CartNotificationProvider } from './context/CartNotificationContext';
 import CartNotificationList from './components/CartNotificationList';
 import {
