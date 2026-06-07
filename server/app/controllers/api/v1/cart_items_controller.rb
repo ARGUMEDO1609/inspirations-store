@@ -1,25 +1,10 @@
 class Api::V1::CartItemsController < Api::V1::ApiController
   before_action :authenticate_user!
 
-def index
+  def index
     @cart_items = current_user.cart_items.includes(:product, :variant)
-    items_json = @cart_items.map do |item|
-      product = item.product
-      {
-        id: item.id,
-        quantity: item.quantity,
-        variant: item.variant ? { id: item.variant.id, name: item.variant.name } : nil,
-        product: {
-          id: product.id,
-          title: product.title,
-          price: product.price,
-          stock: product.stock,
-          image_url: product.image.attached? ? Rails.application.routes.url_helpers.rails_storage_proxy_url(product.image, only_path: false) : nil
-        }
-      }
-    end
     render_success(data: {
-      items: items_json,
+      items: @cart_items.map { |item| cart_item_payload(item) },
       total: @cart_items.sum { |item| item.product.price * item.quantity }
     })
   end
@@ -31,7 +16,7 @@ def index
 
     if @cart_item.save
       CartItem.broadcast_cart_update_for(current_user, action: "created", source_client_id: client_instance_id)
-      render_success(data: @cart_item, message: "Item added to cart", status: :created)
+      render_success(data: cart_item_payload(@cart_item), message: "Item added to cart", status: :created)
     else
       render_error(@cart_item.errors.full_messages.first)
     end
@@ -41,7 +26,7 @@ def index
     @cart_item = current_user.cart_items.find(params[:id])
     if @cart_item.update(quantity: params[:quantity])
       CartItem.broadcast_cart_update_for(current_user, action: "updated", source_client_id: client_instance_id)
-      render_success(data: @cart_item, message: "Cart updated successfully")
+      render_success(data: cart_item_payload(@cart_item), message: "Cart updated successfully")
     else
       render_validation_errors(@cart_item.errors.full_messages)
     end
@@ -64,5 +49,22 @@ def index
 
   def client_instance_id
     request.headers["X-Client-Instance-Id"].to_s.presence
+  end
+
+  def cart_item_payload(item)
+    product = item.product
+
+    {
+      id: item.id,
+      quantity: item.quantity,
+      variant: item.variant ? { id: item.variant.id, name: item.variant.name } : nil,
+      product: {
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        stock: product.stock,
+        image_url: product.image.attached? ? Rails.application.routes.url_helpers.rails_storage_proxy_url(product.image, only_path: false) : nil
+      }
+    }
   end
 end

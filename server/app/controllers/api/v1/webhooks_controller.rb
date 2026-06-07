@@ -12,18 +12,16 @@ class Api::V1::WebhooksController < ActionController::Base
     reference = transaction["reference"]
     order = find_order_by_reference(reference)
     payment_status = map_wompi_status(transaction["status"])
+    transaction_id = transaction["id"].presence || "wompi-#{reference.presence || SecureRandom.hex(6)}"
 
     Rails.logger.info "Received Wompi event: reference=#{reference.inspect} status=#{transaction['status']}"
 
     if order && payment_status.present?
-      transaction_id = transaction["id"].presence || "wompi-#{SecureRandom.hex(6)}"
-
       order.transaction do
-        order.payments.create!(
-          provider: "wompi",
-          transaction_id: transaction_id,
-          status: transaction["status"]
-        )
+        payment = order.payments.find_or_initialize_by(transaction_id: transaction_id)
+        payment.provider = "wompi"
+        payment.status = transaction["status"]
+        payment.save!
 
         order.apply_payment_update!(
           payment_id: transaction["id"],

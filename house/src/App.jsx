@@ -207,6 +207,39 @@ const Navbar = () => {
   );
 };
 
+const SupportBar = () => (
+  <div className="border-b border-[var(--border-soft)] bg-[rgba(255,255,255,0.34)]">
+    <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+      <div className="space-y-1">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[var(--text-muted)]">Soporte rápido</p>
+        <p className="text-sm text-[var(--text-secondary)]">Respuestas directas por correo, llamada o WhatsApp.</p>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <a
+          href="https://wa.me/573022069265?text=Hola%2C%20necesito%20ayuda%20con%20mi%20pedido"
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)]"
+        >
+          Abrir WhatsApp
+        </a>
+        <a
+          href="mailto:noslenque931@gmail.com"
+          className="inline-flex items-center justify-center rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.4)] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+        >
+          Enviar correo
+        </a>
+        <a
+          href="tel:+573022069265"
+          className="inline-flex items-center justify-center rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.4)] px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+        >
+          Llamar
+        </a>
+      </div>
+    </div>
+  </div>
+);
+
 const Footer = () => (
   <footer className="mt-24 border-t border-[var(--border-strong)] bg-[var(--bg-elevated)] py-14 sm:mt-32 sm:py-20">
     <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1.35fr_1fr_1fr] lg:px-8">
@@ -227,9 +260,16 @@ const Footer = () => (
       <div>
         <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)]">Soporte</p>
         <div className="mt-4 flex flex-col gap-3 text-sm text-[var(--text-secondary)]">
-          <a href="#" className="transition hover:text-[var(--accent)]">Privacidad</a>
-          <a href="#" className="transition hover:text-[var(--accent)]">Envíos</a>
-          <a href="#" className="transition hover:text-[var(--accent)]">Legal</a>
+          <a href="mailto:noslenque931@gmail.com" className="transition hover:text-[var(--accent)]">noslenque931@gmail.com</a>
+          <a href="tel:+573022069265" className="transition hover:text-[var(--accent)]">302 206 9265</a>
+          <a
+            href="https://wa.me/573022069265?text=Hola%2C%20necesito%20ayuda%20con%20mi%20pedido"
+            target="_blank"
+            rel="noreferrer"
+            className="transition hover:text-[var(--accent)]"
+          >
+            WhatsApp de soporte
+          </a>
         </div>
       </div>
     </div>
@@ -248,6 +288,7 @@ const App = () => {
               <CartNotificationList />
               <div className="min-h-screen bg-[radial-gradient(circle_at_top,var(--glow),transparent_38%),linear-gradient(180deg,#fbf5ee,#f1e7db)] text-[var(--text-primary)] selection:bg-[var(--accent)]/30 selection:text-[var(--text-primary)]">
                 <NetworkBanner />
+                <SupportBar />
                 {loading ? (
                   <div className="flex min-h-[70vh] items-center justify-center py-28">
                     <Loader2 className="h-12 w-12 animate-spin text-[var(--accent)]" />

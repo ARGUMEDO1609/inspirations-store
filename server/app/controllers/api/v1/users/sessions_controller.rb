@@ -12,7 +12,7 @@ class Api::V1::Users::SessionsController < Devise::SessionsController
       yield resource if block_given?
 
       render_success(
-        data: UserSerializer.new(resource).serializable_hash[:data][:attributes],
+        data: UserSerializer.new(resource).serializable_hash[:data],
         message: "Logged in successfully"
       )
     else

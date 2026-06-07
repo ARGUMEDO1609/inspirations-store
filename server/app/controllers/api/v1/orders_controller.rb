@@ -2,18 +2,18 @@ class Api::V1::OrdersController < Api::V1::ApiController
   before_action :authenticate_user!
 
   def index
-    @orders = current_user.orders.order(created_at: :desc)
-    render_success(data: @orders.as_json(include: { order_items: { include: :variant } }))
+    @orders = current_user.orders.includes(order_items: :variant).order(created_at: :desc)
+    render_success(data: OrderSerializer.new(@orders).serializable_hash[:data])
   end
 
   def show
-    @order = current_user.orders.find(params[:id])
-    render_success(data: @order.as_json(include: { order_items: { include: :variant } }))
+    @order = current_user.orders.includes(order_items: :variant).find(params[:id])
+    render_success(data: OrderSerializer.new(@order).serializable_hash[:data])
   end
 
   def show_by_reference
-    @order = current_user.orders.find_by!(reference: params[:reference])
-    render_success(data: @order.as_json(include: { order_items: { include: :variant } }))
+    @order = current_user.orders.includes(order_items: :variant).find_by!(reference: params[:reference])
+    render_success(data: OrderSerializer.new(@order).serializable_hash[:data])
   end
 
   def create
@@ -26,12 +26,12 @@ class Api::V1::OrdersController < Api::V1::ApiController
 
     if @order.cash_on_delivery?
       render_success(
-        data: @order,
+        data: OrderSerializer.new(@order).serializable_hash[:data],
         message: "Order placed successfully. Payment will be collected on delivery.",
         status: :created
       )
     else
-      render_success(data: @order, message: "Order created successfully", status: :created)
+      render_success(data: OrderSerializer.new(@order).serializable_hash[:data], message: "Order created successfully", status: :created)
     end
   rescue Orders::CreateFromCart::EmptyCart
     render_error("Cart is empty")
@@ -47,7 +47,7 @@ class Api::V1::OrdersController < Api::V1::ApiController
     authorize Order
     @order = Order.find(params[:id])
     if @order.update(order_params)
-      render_success(data: @order, message: "Order updated successfully")
+      render_success(data: OrderSerializer.new(@order).serializable_hash[:data], message: "Order updated successfully")
     else
       render_validation_errors(@order.errors.full_messages)
     end
