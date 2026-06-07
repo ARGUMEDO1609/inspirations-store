@@ -11,7 +11,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
       sign_in(resource)
 
       render_success(
-        data: UserSerializer.new(resource).serializable_hash[:data][:attributes],
+        data: UserSerializer.new(resource).serializable_hash[:data],
         message: "Signed up successfully"
       )
     else

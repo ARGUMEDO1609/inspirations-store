@@ -20,19 +20,19 @@ class Api::V1::ProductsController < Api::V1::ApiController
 
     @products = @products.preload(:category)
 
-    render json: ProductSerializer.new(@products).serializable_hash
+    render_success(data: ProductSerializer.new(@products).serializable_hash[:data])
   end
 
   def show
     @product = Product.find(params[:id])
-    render json: ProductSerializer.new(@product).serializable_hash
+    render_success(data: ProductSerializer.new(@product).serializable_hash[:data])
   end
 
   def create
     authorize Product
     @product = Product.new(product_params)
     if @product.save
-      render_success(data: ProductSerializer.new(@product).serializable_hash, message: "Product created successfully", status: :created)
+      render_success(data: ProductSerializer.new(@product).serializable_hash[:data], message: "Product created successfully", status: :created)
     else
       render_validation_errors(@product.errors.full_messages)
     end
@@ -42,7 +42,7 @@ class Api::V1::ProductsController < Api::V1::ApiController
     @product = Product.find(params[:id])
     authorize @product
     if @product.update(product_params)
-      render_success(data: ProductSerializer.new(@product).serializable_hash, message: "Product updated successfully")
+      render_success(data: ProductSerializer.new(@product).serializable_hash[:data], message: "Product updated successfully")
     else
       render_validation_errors(@product.errors.full_messages)
     end

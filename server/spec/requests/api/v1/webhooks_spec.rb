@@ -23,6 +23,19 @@ RSpec.describe Api::V1::WebhooksController, type: :controller do
       expect(order.payments.last.provider).to eq('wompi')
     end
 
+    it 'is idempotent for repeated approved events' do
+      payload = webhook_payload(status: 'APPROVED')
+
+      post :wompi, params: payload, as: :json
+      post :wompi, params: payload, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(order.reload.status).to eq('paid')
+      expect(order.payment_status).to eq('approved')
+      expect(product.reload.stock).to eq(6)
+      expect(order.payments.count).to eq(1)
+    end
+
     it 'restores reserved stock when Wompi declines the payment' do
       post :wompi, params: webhook_payload(status: 'DECLINED'), as: :json
 
