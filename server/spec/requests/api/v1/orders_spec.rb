@@ -14,19 +14,27 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
   end
 
   describe 'GET #index' do
-    it 'returns orders for current user' do
-      create(:order, user: user)
+    it 'returns orders for current user as serialized resources' do
+      order = create(:order, user: user)
       get :index
+
       expect(response).to have_http_status(:success)
+
+      parsed = JSON.parse(response.body)
+      expect(parsed.dig('data', 0, 'attributes', 'reference')).to eq(order.reference)
     end
   end
 
   describe 'GET #show' do
     let(:order) { create(:order, user: user) }
 
-    it 'returns the order' do
+    it 'returns the order as a serialized resource' do
       get :show, params: { id: order.id }
+
       expect(response).to have_http_status(:success)
+
+      parsed = JSON.parse(response.body)
+      expect(parsed.dig('data', 'attributes', 'reference')).to eq(order.reference)
     end
   end
 
@@ -38,6 +46,9 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
          post :create, params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
          expect(response).to have_http_status(:created)
          expect(Order.count).to eq(1)
+
+         parsed = JSON.parse(response.body)
+         expect(parsed.dig('data', 'attributes', 'reference')).to be_present
        end
 
        it 'marks payment as pending' do

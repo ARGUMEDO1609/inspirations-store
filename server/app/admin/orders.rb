@@ -21,12 +21,12 @@ ActiveAdmin.register Order do
   end
 
   member_action :mark_as_shipped, method: :put do
-    resource.update!(status: :shipped)
+    resource.update!(status: :shipped) if resource.paid?
     redirect_to resource_path(resource), notice: "Pedido marcado como enviado."
   end
 
   member_action :mark_as_completed, method: :put do
-    resource.update!(status: :completed)
+    resource.update!(status: :completed) if resource.shipped?
     redirect_to resource_path(resource), notice: "Pedido marcado como completado."
   end
 

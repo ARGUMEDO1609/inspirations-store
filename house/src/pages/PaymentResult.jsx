@@ -53,6 +53,14 @@ const deriveVariantFromStatus = (value) => {
   return null;
 };
 
+const normalizeOrder = (order) => {
+  if (order?.attributes) {
+    return { id: order.id, ...order.attributes };
+  }
+
+  return order;
+};
+
 const PaymentResult = ({ variant }) => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -86,8 +94,9 @@ const statusParam = params.get('status') || params.get('collection_status') || p
   const currentVariant = variant || variantFromStatus || 'pending';
   const config = STATUS_CONFIG[currentVariant] || STATUS_CONFIG.pending;
   const Icon = config.icon;
-  const resolvedOrderStatus = order?.status ? ORDER_STATUS_LABELS[order.status] || order.status : 'Pendiente de actualización';
-  const resolvedPaymentStatus = order?.payment_status || statusParam || variant;
+  const normalizedOrder = normalizeOrder(order);
+  const resolvedOrderStatus = normalizedOrder?.status ? ORDER_STATUS_LABELS[normalizedOrder.status] || normalizedOrder.status : 'Pendiente de actualización';
+  const resolvedPaymentStatus = normalizedOrder?.payment_status || statusParam || variant;
 
   return (
     <div className="py-10 sm:py-12 lg:py-16">
