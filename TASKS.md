@@ -254,11 +254,43 @@ Lo siguiente que más conviene hacer, en orden:
 3. Mejorar filtros y operación diaria del admin de pedidos.
 4. Preparar variables de entorno y base documental para despliegue.
 
+## Roadmap De 2 Semanas
+
+### Semana 1 - Blindaje Técnico
+
+Objetivo: cerrar los puntos más caros de romper y dejar una base verificable.
+
+- [ ] Unificar el contrato de respuestas del API para `auth`, `orders`, `checkout` y `cart_items`.
+- [ ] Hacer idempotente el procesamiento de `webhooks/wompi` para eventos repetidos.
+- [ ] Cubrir con tests los flujos críticos: login, signup, current user, checkout, pago y webhook.
+- [ ] Verificar transiciones de estado de `Order` y restauración de stock con casos explícitos.
+- [ ] Revisar el panel de pedidos en ActiveAdmin y dejar filtros operativos más útiles.
+
+### Semana 2 - Operación Y Presentación
+
+Objetivo: mejorar la experiencia de uso y dejar el proyecto listo para enseñar o desplegar.
+
+- [ ] Pulir el checkout para que los errores sean más claros y el retorno al pago sea más guiado.
+- [ ] Mejorar el feedback visual del estado del pedido y del historial post-compra.
+- [ ] Consolidar variables de entorno y checklist de despliegue para backend y frontend.
+- [ ] Añadir capturas, resumen funcional y decisiones técnicas para portafolio.
+- [ ] Ejecutar `bin/ci` como rutina de validación antes de cualquier entrega importante.
+
+## Criterio De Cierre
+
+Se puede considerar esta iteración completa cuando:
+
+- `bin/ci` corre limpio desde la raíz.
+- El webhook no duplica estados ni pagos al recibir eventos repetidos.
+- Los errores del API muestran la misma estructura en los flujos críticos.
+- El checkout y el historial de pedidos quedan entendibles sin revisar código.
+
 ## Riesgos Técnicos Abiertos
 
 - La reserva de stock al crear pedido ya quedó consistente, pero sigue siendo una decisión de negocio a revisar si luego quieres un modelo de descuento solo al aprobar pago.
 - El flujo de Wompi ya usa el total real de la orden otra vez; falta validar en sandbox si existe un mínimo práctico de monto o una validación adicional de negocio para montos bajos.
 - El sistema ya sincroniza `Address` con campos legacy, pero todavía conviven ambos modelos; a futuro conviene elegir una sola fuente de verdad.
+- La advertencia de bundle grande en `vite build` no bloquea el proyecto; queda como mejora opcional de performance si luego quieres optimizar carga inicial.
 
 ## Estado de Testing
 
@@ -294,6 +326,22 @@ cd house && npm run build
 ```
 
 ## Trabajo reciente (31 de marzo de 2026)
+
+## Trabajo reciente (7 de junio de 2026)
+
+- Dejé anotado el roadmap de ejecución de 2 semanas en esta misma sección para que quede claro qué sigue y en qué orden.
+- Hice idempotente el webhook de Wompi y unifiqué respuestas del API para `auth`, `orders`, `products`, `categories`, `users` y `cart_items`.
+- Agregué `OrderSerializer` y ajusté el frontend de pedidos para leer el nuevo formato sin romper el flujo actual.
+- Añadí specs de request para auth, catálogo, pedidos y webhook; el bloque crítico pasó con `32 examples, 0 failures`.
+- Subí `framer-motion` a `^12.18.1`, regeneré `house/package-lock.json` y confirmé `bin/ci` verde.
+- Detecté vulnerabilidades pendientes en dependencias del frontend con `npm audit`, pero no pude revalidarlas en el registry por falta de conectividad.
+- Cerré las alertas del frontend subiendo `axios`, `react-router-dom`, `postcss` y `vite`, y dejé `npm audit` en cero.
+- Validé el frontend con `npm run lint` y `npm run build`; el build sigue con la advertencia habitual de chunks grandes.
+- `bin/ci` volvió a fallar en este entorno por conexión a PostgreSQL en `db:prepare` y por una excepción de `brakeman`, así que ese cierre completo queda pendiente del entorno, no del código.
+- Añadí specs del flujo de negocio en `Orders::CreateFromCart` y del panel de admin para marcar pedidos como enviados o completados.
+- Falta revalidar la suite del backend con PostgreSQL accesible para cerrar por completo el ciclo de `bin/ci`.
+- Moví los datos de soporte a lugares visibles del frontend: footer y una barra/CTA superior con correo, teléfono y WhatsApp.
+- La advertencia de bundle grande en `vite build` sigue siendo una mejora opcional de performance, no un bloqueo.
 
 - Actualicé las dependencias críticas de autenticación en `server/Gemfile:59-60` y reincorporé sus resoluciones en `server/Gemfile.lock:119-539` para usar `devise 5.0.3`, `devise-jwt 0.13.0`, `warden-jwt_auth 0.8.0`, `jwt 2.10.2` y `action_text-trix 2.1.17`.
 - Intenté ejecutar `bundle install` desde `server/`, pero el entorno no podía alcanzar `index.rubygems.org`, así que no se pudieron descargar los paquetes actualizados.
