@@ -41,28 +41,24 @@ ActiveAdmin.register User do
   end
 
   show title: proc { |user| user.name } do
-    columns do
-      column do
-        panel "Perfil del cliente" do
-          attributes_table_for user do
-            row :name
-            row :email
-            row :role
-            row :phone
-            row("Dirección") { |record| record.display_address }
-            row("Alta") { |record| l(record.created_at, format: :long) }
-          end
+    div class: "grid md:grid-cols-2 gap-4" do
+      panel "Perfil del cliente" do
+        attributes_table_for user do
+          row :name
+          row :email
+          row :role
+          row :phone
+          row("Dirección") { |record| record.display_address }
+          row("Alta") { |record| l(record.created_at, format: :long) }
         end
       end
 
-      column do
-        panel "Actividad" do
-          attributes_table_for user do
-            row("Pedidos") { |record| record.orders.count }
-            row("Carrito activo") { |record| record.cart_items.count }
-            row("Reseñas") { |record| record.reviews.count }
-            row("Notas internas") { |record| record.notes.count }
-          end
+      panel "Actividad" do
+        attributes_table_for user do
+          row("Pedidos") { |record| record.orders.count }
+          row("Carrito activo") { |record| record.cart_items.count }
+          row("Reseñas") { |record| record.reviews.count }
+          row("Notas internas") { |record| record.notes.count }
         end
       end
     end
