@@ -53,3 +53,6 @@ AGENTS.md
 .windsurfrules
 .codeium/
 
+# Local deliverables / generated docs (not part of the codebase).
+/Sistema-de-Seeds-Inspiration-Store.pdf
+
