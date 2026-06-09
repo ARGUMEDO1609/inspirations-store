@@ -1,0 +1,70 @@
+# Production stack — optimized images.
+#
+#   docker compose -f docker-compose.prod.yml up --build -d
+#
+# Frontend (static + nginx) -> http://localhost
+# Backend  (Puma + Thruster) -> http://localhost:3000
+#
+# Requires these in .env: SERVER_DATABASE_PASSWORD, RAILS_MASTER_KEY,
+# DEVISE_JWT_SECRET_KEY, WOMPI_* and the public URLs (FRONTEND_URL / CORS_ORIGINS).
+#
+# Note: db:prepare creates the four production databases
+# (primary / cache / queue / cable) on first boot, since the "server" role is
+# a superuser inside this container.
+
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: server
+      POSTGRES_PASSWORD: ${SERVER_DATABASE_PASSWORD}
+      POSTGRES_DB: server_production
+    volumes:
+      # Postgres 18+ stores data in a version subdir under /var/lib/postgresql.
+      - pgdata_prod:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U server"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    image: inspirations-store-backend:prod
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      RAILS_ENV: production
+      DATABASE_HOST: db
+      SERVER_DATABASE_PASSWORD: ${SERVER_DATABASE_PASSWORD}
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      RAILS_SERVE_STATIC_FILES: "true"
+      # Public origin(s) allowed by CORS — set to your real frontend URL in prod.
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
+    ports:
+      - "3000:80"
+    volumes:
+      # Persist Active Storage uploads across deploys.
+      - storage_prod:/rails/storage
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    image: inspirations-store-frontend:prod
+    build:
+      context: ./house
+      target: prod
+      args:
+        # Baked into the bundle at build time — must be the public backend URL.
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata_prod:
+  storage_prod:
