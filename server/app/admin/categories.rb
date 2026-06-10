@@ -90,23 +90,19 @@ ActiveAdmin.register Category do
   end
 
   show title: proc { |category| category.name } do
-    columns do
-      column do
-        panel "Vista de categoría" do
-          if category.image.attached?
-            div style: "margin-bottom:16px;" do
-              image_tag rails_storage_proxy_url(category.image, only_path: true), style: "width:100%; max-width:420px; border-radius:22px; border:1px solid #e5e7eb;"
-            end
-          end
-
-          attributes_table_for category do
-            row :name
-            row("Descripción") { |record| simple_format(record.description) }
-            row("Productos asociados") { |record| record.products.count }
-            row :created_at
-            row :updated_at
-          end
+    panel "Vista de categoría" do
+      if category.image.attached?
+        div style: "margin-bottom:16px;" do
+          image_tag rails_storage_proxy_url(category.image, only_path: true), style: "width:100%; max-width:420px; border-radius:22px; border:1px solid #e5e7eb;"
         end
+      end
+
+      attributes_table_for category do
+        row :name
+        row("Descripción") { |record| simple_format(record.description) }
+        row("Productos asociados") { |record| record.products.count }
+        row :created_at
+        row :updated_at
       end
     end
   end

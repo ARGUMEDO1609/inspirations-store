@@ -103,29 +103,25 @@ ActiveAdmin.register Order do
   end
 
   show title: proc { |order| "Pedido ##{order.id.to_s.rjust(6, '0')}" } do
-    columns do
-      column do
-        panel "Resumen del pedido" do
-          attributes_table_for order do
-            row("Cliente") { |record| record.user&.name || record.user&.email }
-            row("Correo") { |record| record.user&.email }
-            row("Estado") { |record| status_tag(record.status) }
-            row("Pago") { |record| record.payment_status.presence || "sin confirmar" }
-            row("ID de pago", &:payment_id)
-            row("Total") { |record| number_to_currency(record.total) }
-            row("Creado") { |record| l(record.created_at, format: :long) }
-            row("Actualizado") { |record| l(record.updated_at, format: :long) }
-          end
+    div class: "grid md:grid-cols-2 gap-4" do
+      panel "Resumen del pedido" do
+        attributes_table_for order do
+          row("Cliente") { |record| record.user&.name || record.user&.email }
+          row("Correo") { |record| record.user&.email }
+          row("Estado") { |record| status_tag(record.status) }
+          row("Pago") { |record| record.payment_status.presence || "sin confirmar" }
+          row("ID de pago", &:payment_id)
+          row("Total") { |record| number_to_currency(record.total) }
+          row("Creado") { |record| l(record.created_at, format: :long) }
+          row("Actualizado") { |record| l(record.updated_at, format: :long) }
         end
       end
 
-      column do
-        panel "Entrega y operación" do
-          attributes_table_for order do
-            row("Dirección") { |record| simple_format(record.display_shipping_address) }
-            row("Cantidad de items") { |record| record.order_items.sum(:quantity) }
-            row("Reserva actual") { |record| record.pending? ? "Reservada" : "Procesada" }
-          end
+      panel "Entrega y operación" do
+        attributes_table_for order do
+          row("Dirección") { |record| simple_format(record.display_shipping_address) }
+          row("Cantidad de items") { |record| record.order_items.sum(:quantity) }
+          row("Reserva actual") { |record| record.pending? ? "Reservada" : "Procesada" }
         end
       end
     end
