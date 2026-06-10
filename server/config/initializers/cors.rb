@@ -7,9 +7,16 @@
 
 # Read more: https://github.com/cyu/rack-cors
 
+# Allowed origins come from CORS_ORIGINS (comma-separated) or FRONTEND_URL,
+# falling back to the local Vite dev server. This keeps the frontend URL
+# configurable per environment (Docker dev, production, etc.).
+allowed_origins =
+  ENV["CORS_ORIGINS"].presence&.split(",")&.map(&:strip) ||
+  [ ENV["FRONTEND_URL"].presence, "http://localhost:5173", "http://127.0.0.1:5173" ].compact
+
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins "http://localhost:5173", "http://127.0.0.1:5173" # Update this to your frontend URL
+    origins(*allowed_origins)
 
     resource "*",
       headers: :any,

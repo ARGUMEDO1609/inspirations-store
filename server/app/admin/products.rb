@@ -218,34 +218,30 @@ ActiveAdmin.register Product do
   end
 
   show title: proc { |product| product.title } do
-    columns do
-      column do
-        panel "Vista de producto" do
-          if product.image.attached?
-            div style: "margin-bottom:16px;" do
-              image_tag rails_storage_proxy_url(product.image, only_path: true), style: "width:100%; max-width:460px; border-radius:24px; border:1px solid #e5e7eb;"
-            end
+    div class: "grid md:grid-cols-2 gap-4" do
+      panel "Vista de producto" do
+        if product.image.attached?
+          div style: "margin-bottom:16px;" do
+            image_tag rails_storage_proxy_url(product.image, only_path: true), style: "width:100%; max-width:460px; border-radius:24px; border:1px solid #e5e7eb;"
           end
+        end
 
-          attributes_table_for product do
-            row :title
-            row :category
-            row("Precio") { |record| number_to_currency(record.price) }
-            row :stock
-            row :created_at
-            row :updated_at
-          end
+        attributes_table_for product do
+          row :title
+          row :category
+          row("Precio") { |record| number_to_currency(record.price) }
+          row :stock
+          row :created_at
+          row :updated_at
         end
       end
 
-      column do
-        panel "Descripción y operación" do
-          attributes_table_for product do
-            row("Descripción") { |record| simple_format(record.description) }
-            row("Pedidos asociados") { |record| record.order_items.count }
-            row("Unidades vendidas") { |record| record.order_items.sum(:quantity) }
-            row("Reseñas") { |record| record.reviews.count }
-          end
+      panel "Descripción y operación" do
+        attributes_table_for product do
+          row("Descripción") { |record| simple_format(record.description) }
+          row("Pedidos asociados") { |record| record.order_items.count }
+          row("Unidades vendidas") { |record| record.order_items.sum(:quantity) }
+          row("Reseñas") { |record| record.reviews.count }
         end
       end
     end
