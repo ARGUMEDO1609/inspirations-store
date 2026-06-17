@@ -12,7 +12,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@rails/actioncable": "^8.1.200",
+    "@rails/actioncable": "^8.1.300",
     "axios": "^1.16.1",
     "framer-motion": "^12.18.1",
     "lucide-react": "^0.576.0",
