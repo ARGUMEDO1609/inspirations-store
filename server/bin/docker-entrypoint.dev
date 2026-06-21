@@ -1,0 +1,15 @@
+#!/bin/bash -e
+
+# Development entrypoint for the Rails API container.
+
+# Build the ActiveAdmin Tailwind stylesheet (sprockets does not run Tailwind
+# itself). Writes app/assets/builds/active_admin.css.
+npm run build:css
+
+# Remove a stale server PID if the container was not shut down cleanly.
+rm -f tmp/pids/server.pid
+
+# Wait for PostgreSQL and create/migrate the database.
+./bin/rails db:prepare
+
+exec "${@}"
