@@ -13,7 +13,7 @@ RSpec.describe 'API V1 Auth', type: :request do
       post '/api/v1/login', params: { user: { email: user.email, password: 'password123' } }
 
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body).dig('data', 'email')).to eq(user.email)
+      expect(JSON.parse(response.body).dig('data', 'attributes', 'email')).to eq(user.email)
     end
 
     it 'rejects invalid credentials' do
@@ -37,7 +37,7 @@ RSpec.describe 'API V1 Auth', type: :request do
       }
 
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body).dig('data', 'email')).to eq('new-user@example.com')
+      expect(JSON.parse(response.body).dig('data', 'attributes', 'email')).to eq('new-user@example.com')
     end
   end
 
@@ -46,7 +46,7 @@ RSpec.describe 'API V1 Auth', type: :request do
       get '/api/v1/current_user', headers: { 'Authorization' => "Bearer #{token}" }
 
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body).dig('data', 'email')).to eq(user.email)
+      expect(JSON.parse(response.body).dig('data', 'attributes', 'email')).to eq(user.email)
     end
 
     it 'rejects missing tokens' do

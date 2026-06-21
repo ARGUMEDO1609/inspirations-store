@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowRight, CheckCircle2, Clock3, Loader2, XCircle } from 'lucide-react';
 import api from '../api/axios';
+import useApiError from '../hooks/useApiError';
 
 const STATUS_CONFIG = {
   success: {
@@ -15,7 +16,7 @@ const STATUS_CONFIG = {
   pending: {
     icon: Clock3,
     title: 'Pago pendiente',
-    message: 'Mercado Pago aún no termina la confirmación final.',
+    message: 'Wompi aún no confirma la transacción.',
     accent: 'text-[var(--accent)]',
     surface: 'bg-[rgba(215,161,74,0.1)] border-[rgba(215,161,74,0.25)]',
     glow: 'bg-[radial-gradient(circle_at_top_left,rgba(215,161,74,0.22),transparent_42%),linear-gradient(180deg,rgba(255,250,244,0.78),rgba(255,248,236,0.56))]'
@@ -23,7 +24,7 @@ const STATUS_CONFIG = {
   failure: {
     icon: XCircle,
     title: 'Pago no completado',
-    message: 'No pudimos confirmar el pago. Puedes revisar el pedido e intentarlo de nuevo.',
+    message: 'Wompi no pudo procesar la transacción. Puedes revisar el pedido e intentarlo de nuevo.',
     accent: 'text-[var(--danger)]',
     surface: 'bg-[rgba(221,125,116,0.1)] border-[rgba(221,125,116,0.25)]',
     glow: 'bg-[radial-gradient(circle_at_top_left,rgba(221,125,116,0.2),transparent_42%),linear-gradient(180deg,rgba(255,250,244,0.78),rgba(255,248,236,0.56))]'
@@ -38,14 +39,37 @@ const ORDER_STATUS_LABELS = {
   completed: 'Completado'
 };
 
+const deriveVariantFromStatus = (value) => {
+  const normalized = value?.toString().toLowerCase();
+  if (!normalized) return null;
+  if (normalized.includes('acept') || normalized === 'approved') return 'success';
+  if (normalized.includes('pend')) return 'pending';
+  if (
+    normalized.includes('rechaz') ||
+    normalized.includes('fall') ||
+    normalized.includes('declin') ||
+    ['rejected', 'declined', 'cancelled', 'terminated', 'voided', 'error'].includes(normalized)
+  ) return 'failure';
+  return null;
+};
+
+const normalizeOrder = (order) => {
+  if (order?.attributes) {
+    return { id: order.id, ...order.attributes };
+  }
+
+  return order;
+};
+
 const PaymentResult = ({ variant }) => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const paymentId = params.get('payment_id') || params.get('collection_id');
-  const externalReference = params.get('external_reference');
-  const status = params.get('status') || params.get('collection_status');
+const paymentId = params.get('id') || params.get('payment_id') || params.get('collection_id') || params.get('x_ref_payco');
+const externalReference = params.get('reference') || params.get('external_reference') || params.get('x_id_invoice');
+const statusParam = params.get('status') || params.get('collection_status') || params.get('x_response') || params.get('x_cod_response');
   const [order, setOrder] = useState(null);
   const [loadingOrder, setLoadingOrder] = useState(false);
+  const { handleError } = useApiError();
 
   useEffect(() => {
     if (!externalReference) return;
@@ -53,22 +77,26 @@ const PaymentResult = ({ variant }) => {
     const fetchOrder = async () => {
       setLoadingOrder(true);
       try {
-        const response = await api.get(`/orders/${externalReference}`);
-        setOrder(response.data);
+        const response = await api.get(`/orders/reference/${externalReference}`);
+        setOrder(response.data.data || response.data);
       } catch (error) {
         console.error('Error fetching order after payment:', error);
+        handleError(error, 'Error cargando pedido');
       } finally {
         setLoadingOrder(false);
       }
     };
 
     fetchOrder();
-  }, [externalReference]);
+  }, [externalReference, handleError]);
 
-  const config = STATUS_CONFIG[variant] || STATUS_CONFIG.pending;
+  const variantFromStatus = deriveVariantFromStatus(statusParam);
+  const currentVariant = variant || variantFromStatus || 'pending';
+  const config = STATUS_CONFIG[currentVariant] || STATUS_CONFIG.pending;
   const Icon = config.icon;
-  const resolvedOrderStatus = order?.status ? ORDER_STATUS_LABELS[order.status] || order.status : 'Pendiente de actualización';
-  const resolvedPaymentStatus = order?.payment_status || status || variant;
+  const normalizedOrder = normalizeOrder(order);
+  const resolvedOrderStatus = normalizedOrder?.status ? ORDER_STATUS_LABELS[normalizedOrder.status] || normalizedOrder.status : 'Pendiente de actualización';
+  const resolvedPaymentStatus = normalizedOrder?.payment_status || statusParam || variant;
 
   return (
     <div className="py-10 sm:py-12 lg:py-16">

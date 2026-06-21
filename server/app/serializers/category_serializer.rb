@@ -1,6 +1,6 @@
 class CategorySerializer
   include JSONAPI::Serializer
-  attributes :id, :name, :slug, :description, :image_url
+  attributes :id, :name, :description, :image_url
 
   attribute :image_url do |category|
     if category.image.attached?

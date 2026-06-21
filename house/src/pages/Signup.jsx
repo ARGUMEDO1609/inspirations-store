@@ -18,36 +18,36 @@ const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (formData.password !== formData.password_confirmation) {
-      toast({
-        type: 'error',
-        title: 'Validación',
-        message: 'Las contraseñas no coinciden.'
-      });
-      return;
-    }
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      if (formData.password !== formData.password_confirmation) {
+        toast({
+          type: 'error',
+          title: 'Validación',
+          message: 'Las contraseñas no coinciden.'
+        });
+        return;
+      }
 
-    setLoading(true);
-    try {
-      await signup(formData);
-      toast({
-        type: 'success',
-        title: 'Cuenta creada',
-        message: 'Tu espacio en Inspiration ya está listo.'
-      });
-      navigate('/');
-    } catch (err) {
-      toast({
-        type: 'error',
-        title: 'Registro no completado',
-        message: 'No pudimos crear tu cuenta. Intenta con otro correo.'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+      setLoading(true);
+      try {
+        await signup(formData);
+        toast({
+          type: 'success',
+          title: 'Cuenta creada',
+          message: 'Tu espacio en Inspiration ya está listo.'
+        });
+        navigate('/');
+      } catch {
+        toast({
+          type: 'error',
+          title: 'Registro no completado',
+          message: 'No pudimos crear tu cuenta. Intenta con otro correo.'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
   const handleChange = (e) => {
     setFormData({
