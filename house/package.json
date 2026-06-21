@@ -15,7 +15,7 @@
     "@rails/actioncable": "^8.1.300",
     "axios": "^1.16.1",
     "framer-motion": "^12.18.1",
-    "lucide-react": "^0.576.0",
+    "lucide-react": "^1.21.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.18.0"
