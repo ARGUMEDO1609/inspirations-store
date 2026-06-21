@@ -2,16 +2,11 @@ class Api::V1::ProductsController < Api::V1::ApiController
   before_action :authenticate_user!, only: [ :create, :update, :destroy ]
 
   def index
-    @products = Product.all
+    @q = Product.ransack(params[:q])
+    @products = @q.result(distinct: true)
 
     if params[:category].present? && params[:category] != "all"
-      if params[:category] == "digital"
-        @products = @products.joins(:category).where("categories.name ILIKE ?", "%Digital%")
-      elsif params[:category] == "physical"
-        @products = @products.joins(:category).where.not("categories.name ILIKE ?", "%Digital%")
-      else
-        @products = @products.joins(:category).where("categories.name = ?", params[:category])
-      end
+      @products = @products.joins(:category).where("categories.name = ?", params[:category])
     end
 
     if params[:sort] == "popular"
@@ -23,21 +18,23 @@ class Api::V1::ProductsController < Api::V1::ApiController
       @products = @products.order(created_at: :desc)
     end
 
-    render json: ProductSerializer.new(@products).serializable_hash
+    @products = @products.preload(:category)
+
+    render_success(data: ProductSerializer.new(@products).serializable_hash[:data])
   end
 
   def show
     @product = Product.find(params[:id])
-    render json: ProductSerializer.new(@product).serializable_hash
+    render_success(data: ProductSerializer.new(@product).serializable_hash[:data])
   end
 
   def create
     authorize Product
     @product = Product.new(product_params)
     if @product.save
-      render json: ProductSerializer.new(@product).serializable_hash, status: :created
+      render_success(data: ProductSerializer.new(@product).serializable_hash[:data], message: "Product created successfully", status: :created)
     else
-      render json: { errors: @product.errors.full_messages }, status: :unprocessable_entity
+      render_validation_errors(@product.errors.full_messages)
     end
   end
 
@@ -45,9 +42,9 @@ class Api::V1::ProductsController < Api::V1::ApiController
     @product = Product.find(params[:id])
     authorize @product
     if @product.update(product_params)
-      render json: ProductSerializer.new(@product).serializable_hash
+      render_success(data: ProductSerializer.new(@product).serializable_hash[:data], message: "Product updated successfully")
     else
-      render json: { errors: @product.errors.full_messages }, status: :unprocessable_entity
+      render_validation_errors(@product.errors.full_messages)
     end
   end
 
@@ -55,7 +52,7 @@ class Api::V1::ProductsController < Api::V1::ApiController
     @product = Product.find(params[:id])
     authorize @product
     @product.destroy
-    head :no_content
+    render_success(message: "Product deleted successfully", status: :no_content)
   end
 
   private
@@ -64,4 +61,3 @@ class Api::V1::ProductsController < Api::V1::ApiController
     params.require(:product).permit(:title, :description, :price, :stock, :image, :category_id)
   end
 end
-

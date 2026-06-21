@@ -1,5 +1,5 @@
 ActiveAdmin.register Address do
-  menu false
+  menu priority: 8, label: "Direcciones"
   permit_params :addressable_type, :addressable_id, :address_line_1, :address_line_2, :city, :state, :zip_code, :country, :address_type
 
   index do

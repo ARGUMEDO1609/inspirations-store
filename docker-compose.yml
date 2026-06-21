@@ -1,0 +1,78 @@
+# Development stack — everything runs in Docker with hot reload.
+#
+#   docker compose up --build
+#
+# Frontend (Vite + HMR)  -> http://localhost:5173
+# Backend  (Rails API)   -> http://localhost:3000
+# ActiveAdmin            -> http://localhost:3000/admin
+# PostgreSQL             -> localhost:5432
+#
+# Copy .env.docker.example to .env and fill in the secrets first.
+
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      POSTGRES_DB: ${DATABASE_NAME:-inspiration_store_development}
+    ports:
+      # Host 5433 to avoid clashing with a local PostgreSQL on 5432.
+      # Inside Docker, services still reach it as db:5432.
+      - "5433:5432"
+    volumes:
+      # Postgres 18+ stores data in a version subdir under /var/lib/postgresql.
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    image: inspirations-store-backend:dev
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env
+    environment:
+      RAILS_ENV: development
+      DATABASE_HOST: db
+      DATABASE_USERNAME: ${DATABASE_USERNAME:-postgres}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      DATABASE_NAME: ${DATABASE_NAME:-inspiration_store_development}
+      FRONTEND_URL: http://localhost:5173
+      BACKEND_URL: http://localhost:3000
+      # Explicit dev origins; overrides any CORS_ORIGINS coming from .env (prod).
+      CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./server:/rails
+      # Named volume keeps node_modules from being hidden by the bind mount above.
+      - server_node_modules:/rails/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    image: inspirations-store-frontend:dev
+    build:
+      context: ./house
+      target: dev
+    environment:
+      # The browser reaches the API through the published host port.
+      VITE_API_URL: http://localhost:3000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./house:/app
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  server_node_modules:
+  frontend_node_modules:

@@ -1,0 +1,51 @@
+# syntax=docker/dockerfile:1
+# Development image for the Rails API.
+# Versions pinned to match the local project:
+#   Ruby 3.3.6 (.ruby-version) · Node 24 (local) · PostgreSQL client for pg gem
+
+ARG RUBY_VERSION=3.3.6
+FROM docker.io/library/ruby:$RUBY_VERSION-slim
+
+WORKDIR /rails
+
+# Node major version (match local v24.x) — needed to build the ActiveAdmin Tailwind CSS.
+ARG NODE_MAJOR=24
+
+# System packages: build toolchain for native gems (pg, etc.), libvips for
+# Active Storage image processing, postgresql-client for db tasks, and Node.js.
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+      build-essential git curl ca-certificates gnupg \
+      libpq-dev libyaml-dev pkg-config \
+      libvips postgresql-client && \
+    mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
+      | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" \
+      > /etc/apt/sources.list.d/nodesource.list && \
+    apt-get update -qq && \
+    apt-get install --no-install-recommends -y nodejs && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV RAILS_ENV="development" \
+    BUNDLE_PATH="/usr/local/bundle"
+
+# Install gems (cached layer; bundle lives outside /rails so the source bind
+# mount in docker-compose does not clobber it).
+COPY vendor/ ./vendor/
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
+
+# Install JS deps used to build the ActiveAdmin stylesheet. The resulting
+# node_modules is kept on a named volume in compose so the bind mount does not
+# hide it.
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Baseline copy of the app (overlaid by the bind mount at runtime).
+COPY . .
+
+ENTRYPOINT ["bin/docker-entrypoint.dev"]
+
+EXPOSE 3000
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3000"]
