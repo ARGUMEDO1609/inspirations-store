@@ -1,23 +1,42 @@
+require "securerandom"
+
 class Order < ApplicationRecord
   belongs_to :user
   has_many :order_items, dependent: :destroy
   has_many :addresses, as: :addressable, dependent: :destroy
   has_many :notes, as: :notable, dependent: :destroy
+  has_many :payments, dependent: :destroy
 
   enum :status, { pending: 0, paid: 1, shipped: 2, completed: 3, cancelled: 4 }
+  enum :payment_method, { card: 0, cash_on_delivery: 1 }
 
-  validates :total, presence: true
+  validates :total, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :shipping_address, presence: true
+  validates :reference, presence: true, uniqueness: true
+
+  before_validation :ensure_reference, on: :create
 
   after_commit :sync_shipping_address_from_legacy!, if: :saved_change_to_shipping_address?
   after_update_commit { broadcast_status_change }
 
   def self.ransackable_attributes(auth_object = nil)
-    ['created_at', 'id', 'payment_id', 'payment_status', 'status', 'total', 'updated_at', 'user_id', 'shipping_address']
+    [
+      "created_at",
+      "id",
+      "payment_id",
+      "payment_status",
+      "reference",
+      "status",
+      "total",
+      "updated_at",
+      "user_id",
+      "shipping_address",
+      "payment_method"
+    ]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ['user', 'order_items', 'addresses', 'notes']
+    [ "user", "order_items", "addresses", "notes" ]
   end
 
   def shipping_address_record
@@ -48,7 +67,28 @@ class Order < ApplicationRecord
     end
   end
 
+  def broadcast_status_change
+    ActionCable.server.broadcast("order_channel_#{user_id}", {
+      type: "ORDER_STATUS_UPDATE",
+      order_id: id,
+      status: status
+    })
+  end
+
   private
+
+  def ensure_reference
+    return if reference.present?
+
+    self.reference = generate_reference
+  end
+
+  def generate_reference
+    loop do
+      token = "order-#{SecureRandom.hex(6)}"
+      break token unless Order.exists?(reference: token)
+    end
+  end
 
   def sync_shipping_address_from_legacy!
     raw_address = self[:shipping_address].to_s.strip
@@ -62,17 +102,19 @@ class Order < ApplicationRecord
     if existing_address
       existing_address.update!(address_line_1: raw_address)
     else
-      addresses.create!(address_type: :shipping, address_line_1: raw_address, city: '')
+      addresses.create!(address_type: :shipping, address_line_1: raw_address, city: "")
     end
   end
 
   def map_order_status(payment_status)
-    case payment_status
-    when 'approved'
+    normalized = payment_status.to_s.downcase
+
+    case normalized
+    when "approved", "aceptada", "aceptado"
       :paid
-    when 'pending', 'in_process', 'in_mediation'
+    when "pending", "pendiente", "in_process", "in_mediation"
       :pending
-    when 'rejected', 'cancelled'
+    when "rejected", "rechazada", "rechazado", "cancelled", "fallida", "fallido"
       :cancelled
     else
       status.to_sym
@@ -80,20 +122,12 @@ class Order < ApplicationRecord
   end
 
   def should_restore_stock?(previous_status, next_status)
-    previous_status == 'pending' && next_status == :cancelled
+    previous_status == "pending" && next_status == :cancelled
   end
 
   def restore_reserved_stock!
     order_items.includes(:product).find_each do |item|
       item.product.increment!(:stock, item.quantity)
     end
-  end
-
-  def broadcast_status_change
-    ActionCable.server.broadcast("order_channel_#{user_id}", {
-      type: 'ORDER_STATUS_UPDATE',
-      order_id: id,
-      status: status
-    })
   end
 end

@@ -2,64 +2,60 @@ class Api::V1::OrdersController < Api::V1::ApiController
   before_action :authenticate_user!
 
   def index
-    @orders = current_user.orders.order(created_at: :desc)
-    render json: @orders.as_json(include: :order_items)
+    @orders = current_user.orders.includes(order_items: :variant).order(created_at: :desc)
+    render_success(data: OrderSerializer.new(@orders).serializable_hash[:data])
   end
 
   def show
-    @order = current_user.orders.find(params[:id])
-    render json: @order.as_json(include: { order_items: { include: :product } })
+    @order = current_user.orders.includes(order_items: :variant).find(params[:id])
+    render_success(data: OrderSerializer.new(@order).serializable_hash[:data])
+  end
+
+  def show_by_reference
+    @order = current_user.orders.includes(order_items: :variant).find_by!(reference: params[:reference])
+    render_success(data: OrderSerializer.new(@order).serializable_hash[:data])
   end
 
   def create
-    @order = current_user.orders.new(order_params)
-    @order.status = :pending
-    @order.payment_status = 'pending'
+    @order = Orders::CreateFromCart.new(
+      user: current_user,
+      shipping_address: order_params[:shipping_address],
+      payment_method: order_params[:payment_method],
+      source_client_id: request.headers["X-Client-Instance-Id"]
+    ).call
 
-    cart_items = current_user.cart_items.includes(:product)
-    if cart_items.empty?
-      render json: { error: 'Cart is empty' }, status: :unprocessable_entity
-      return
-    end
-
-    cart_items.each do |item|
-      if item.product.stock < item.quantity
-        render json: { error: "Insufficient stock for #{item.product.title}" }, status: :unprocessable_entity
-        return
-      end
-    end
-
-    @order.total = cart_items.sum { |item| item.product.price * item.quantity }
-
-    if @order.save
-      cart_items.each do |item|
-        @order.order_items.create!(
-          product: item.product,
-          quantity: item.quantity,
-          unit_price: item.product.price
-        )
-        item.product.decrement!(:stock, item.quantity)
-      end
-      cart_items.destroy_all
-      render json: @order, status: :created
+    if @order.cash_on_delivery?
+      render_success(
+        data: OrderSerializer.new(@order).serializable_hash[:data],
+        message: "Order placed successfully. Payment will be collected on delivery.",
+        status: :created
+      )
     else
-      render json: { errors: @order.errors.full_messages }, status: :unprocessable_entity
+      render_success(data: OrderSerializer.new(@order).serializable_hash[:data], message: "Order created successfully", status: :created)
     end
+  rescue Orders::CreateFromCart::EmptyCart
+    render_error("Cart is empty")
+  rescue Orders::CreateFromCart::InsufficientStock => e
+    render_error("Insufficient stock for #{e.product&.title}")
+  rescue Orders::CreateFromCart::InvalidPaymentMethod => e
+    render_error(e.message)
+  rescue ActiveRecord::RecordInvalid => e
+    render_validation_errors(e.record.errors.full_messages)
   end
 
   def update
     authorize Order
     @order = Order.find(params[:id])
     if @order.update(order_params)
-      render json: @order
+      render_success(data: OrderSerializer.new(@order).serializable_hash[:data], message: "Order updated successfully")
     else
-      render json: { errors: @order.errors.full_messages }, status: :unprocessable_entity
+      render_validation_errors(@order.errors.full_messages)
     end
   end
 
   private
 
   def order_params
-    params.require(:order).permit(:shipping_address)
+    params.require(:order).permit(:shipping_address, :payment_method)
   end
 end

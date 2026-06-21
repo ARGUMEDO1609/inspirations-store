@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Globe, Loader2, ShieldCheck, ShoppingCart, Zap } from 'lucide-react';
+import { motion as Motion } from 'framer-motion';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
+import useApiError from '../hooks/useApiError';
+import { formatCOP } from '../utils/formatCurrency';
+
+const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800' viewBox='0 0 800 800'%3E%3Crect fill='%23f5f0e8' width='800' height='800'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='32' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3EImagen no disponible%3C/text%3E%3C/svg%3E";
 
 const assuranceItems = [
   {
@@ -22,46 +27,86 @@ const assuranceItems = [
   }
 ];
 
+const pageVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { when: 'beforeChildren', staggerChildren: 0.08 }
+  }
+};
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 26 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { when: 'beforeChildren', staggerChildren: 0.06 }
+  }
+};
+
+const panelVariants = {
+  hidden: { opacity: 0, y: 22 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: 'easeOut' }
+  }
+};
+
+const assuranceCardVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: 'easeOut' }
+  }
+};
+
 const ProductDetail = () => {
-  const { slug } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [selectedSize, setSelectedSize] = useState(null);
   const { toast } = useToast();
+  const { handleError } = useApiError();
 
   useEffect(() => {
     const fetchProduct = async () => {
+      setLoading(true);
       try {
-        const response = await api.get('/products');
-        const allProducts = response.data.data;
-        const found = allProducts.find((p) => p.attributes.slug === slug);
-        if (found) {
-          setProduct({ ...found.attributes, id: found.id });
-        } else {
-          console.error('Product not found');
-        }
+        const response = await api.get(`/products/${id}`);
+        setProduct(response.data.data.attributes);
       } catch (error) {
-        console.error('Error fetching product:', error);
+        handleError(error, 'Error cargando producto');
+        setProduct(null);
       } finally {
         setLoading(false);
       }
     };
-    fetchProduct();
-  }, [slug]);
+    if (id) fetchProduct();
+  }, [id, handleError]);
 
   const handleAddToCart = async () => {
     if (!product) return;
+    if (product.has_variants && !selectedSize) {
+      toast({ type: 'error', title: 'Selecciona una talla', message: 'Elige tu talla antes de añadir.' });
+      return;
+    }
+
     setAdding(true);
     try {
       await api.post('/cart_items', {
         product_id: product.id.toString(),
-        quantity: 1
+        quantity: 1,
+        variant_id: selectedSize || null
       });
       toast({
         type: 'success',
         title: 'Pieza añadida',
-        message: `${product.title} se agregó a tu selección.`
+        message: `${product.title} fue enviada a tu selección.`
       });
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -99,7 +144,7 @@ const ProductDetail = () => {
   }
 
   return (
-    <div className="space-y-8 py-8 sm:space-y-10 sm:py-10 lg:space-y-12 lg:py-14">
+    <Motion.div className="space-y-8 py-8 sm:space-y-10 sm:py-10 lg:space-y-12 lg:py-14" initial="hidden" animate="visible" variants={pageVariants}>
       <button
         onClick={() => navigate('/')}
         className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)] transition hover:text-[var(--accent)]"
@@ -107,23 +152,30 @@ const ProductDetail = () => {
         <ArrowLeft size={15} /> Volver a la colección
       </button>
 
-      <section className="grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:gap-10 xl:gap-12">
-        <div className="glass-panel animate-fade-up relative overflow-hidden rounded-[2.35rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)]">
+      <Motion.section className="grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:gap-10 xl:gap-12" variants={sectionVariants}>
+        <Motion.div className="glass-panel relative overflow-hidden rounded-[2.35rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)]" variants={panelVariants}>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,161,74,0.22),transparent_28%)]" />
-          <img
-            src={product.image_url || 'https://via.placeholder.com/800'}
+          <Motion.img
+            src={product.image_url || PLACEHOLDER}
             alt={product.title}
             className="relative aspect-[4/4.7] w-full object-cover"
+            initial={{ scale: 1.02 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+            onError={(event) => { event.currentTarget.src = PLACEHOLDER; }}
           />
           <div className="absolute left-5 top-5 rounded-full border border-[rgba(255,248,236,0.24)] bg-[rgba(46,31,19,0.52)] px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-[#fff1da] backdrop-blur-md sm:left-6 sm:top-6">
             Selección actual
           </div>
-        </div>
+        </Motion.div>
 
-        <div className="glass-panel animate-fade-up-delay flex flex-col justify-between gap-8 rounded-[2.35rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.74),rgba(255,248,236,0.56))] p-6 sm:p-8 lg:p-10">
+        <Motion.div
+          className="glass-panel flex flex-col justify-between gap-8 rounded-[2.35rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.74),rgba(255,248,236,0.56))] p-6 sm:p-8 lg:p-10"
+          variants={panelVariants}
+        >
           <div>
             <div className="flex flex-wrap items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">
-              <span>REF {product.slug?.toUpperCase()}</span>
+              <span>REF {product.id}</span>
               <span className="h-1 w-1 rounded-full bg-[var(--text-muted)]"></span>
               <span>{product.stock} piezas</span>
             </div>
@@ -136,10 +188,33 @@ const ProductDetail = () => {
               {product.description}
             </p>
 
+            {product.variants?.length > 0 && (
+              <div className="mt-6">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)] mb-3">Selecciona talla</p>
+                <div className="flex flex-wrap gap-2">
+                  {product.variants.map((variant) => (
+                    <button
+                      key={variant.id}
+                      onClick={() => {
+                        setSelectedSize(variant.id);
+                      }}
+                      className={`rounded-full border px-5 py-2 text-sm font-semibold uppercase tracking-[0.16em] transition ${
+                        selectedSize === variant.id
+                          ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--ink)]'
+                          : 'border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] text-[var(--text-primary)] hover:border-[var(--accent)]'
+                      }`}
+                    >
+                      {variant.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="mt-8 rounded-[1.8rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] p-5 sm:p-6">
               <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">Precio de colección</p>
               <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <p className="font-display text-5xl leading-none text-[var(--text-primary)] sm:text-6xl">${product.price}</p>
+                <p className="font-display text-5xl leading-none text-[var(--text-primary)] sm:text-6xl">{formatCOP(product.price)}</p>
                 <p className="max-w-xs text-sm leading-7 text-[var(--text-secondary)]">
                   Pago seguro, confirmación por webhook y seguimiento desde tu cuenta.
                 </p>
@@ -150,29 +225,30 @@ const ProductDetail = () => {
           <div className="space-y-5">
             <button
               onClick={handleAddToCart}
-              disabled={adding || product.stock <= 0}
+              disabled={adding || product.stock <= 0 || (product.has_variants && !selectedSize)}
               className="inline-flex min-h-[64px] w-full items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-60"
             >
               {adding ? <Loader2 className="animate-spin" size={18} /> : <ShoppingCart size={18} />}
               {product.stock > 0 ? 'Añadir a selección' : 'Sin disponibilidad'}
             </button>
 
-            <div className="grid gap-3 sm:grid-cols-3">
+            <Motion.div className="grid gap-3 sm:grid-cols-3" variants={sectionVariants}>
               {assuranceItems.map((item) => (
-                <div
+                <Motion.div
                   key={item.label}
                   className="glass-panel rounded-[1.5rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.34)] p-4"
+                  variants={assuranceCardVariants}
                 >
                   <item.icon size={18} className="text-[var(--accent)]" />
                   <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-primary)]">{item.label}</p>
                   <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{item.description}</p>
-                </div>
+                </Motion.div>
               ))}
-            </div>
+            </Motion.div>
           </div>
-        </div>
-      </section>
-    </div>
+        </Motion.div>
+      </Motion.section>
+    </Motion.div>
   );
 };
 

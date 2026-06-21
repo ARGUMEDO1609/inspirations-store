@@ -12,27 +12,27 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await login(email, password);
-      toast({
-        type: 'success',
-        title: 'Ingreso exitoso',
-        message: 'Tu sesión quedó activa.'
-      });
-      navigate('/');
-    } catch (err) {
-      toast({
-        type: 'error',
-        title: 'Acceso denegado',
-        message: 'Credenciales inválidas. Revisa tu correo y contraseña.'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setLoading(true);
+      try {
+        await login(email, password);
+        toast({
+          type: 'success',
+          title: 'Ingreso exitoso',
+          message: 'Tu sesión quedó activa.'
+        });
+        navigate('/');
+      } catch {
+        toast({
+          type: 'error',
+          title: 'Acceso denegado',
+          message: 'Credenciales inválidas. Revisa tu correo y contraseña.'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
   return (
     <div className="py-10 sm:py-12 lg:py-16">

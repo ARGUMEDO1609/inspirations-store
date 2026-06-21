@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, CreditCard, Loader2, MapPin, Package } from 'lucide-react';
 import api from '../api/axios';
+import useApiError from '../hooks/useApiError';
+import { formatCOP } from '../utils/formatCurrency';
 
 const STATUS_STYLES = {
   paid: 'bg-[rgba(104,194,142,0.12)] border-[rgba(104,194,142,0.35)] text-[var(--success)]',
@@ -19,24 +21,35 @@ const STATUS_LABELS = {
   cancelled: 'Cancelado'
 };
 
+const normalizeOrder = (order) => {
+  if (order?.attributes) {
+    return { id: order.id, ...order.attributes };
+  }
+
+  return order;
+};
+
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { handleError } = useApiError();
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const response = await api.get('/orders');
-        setOrders(response.data);
+        const ordersData = response.data.data;
+        setOrders(Array.isArray(ordersData) ? ordersData : ordersData?.data || []);
       } catch (error) {
         console.error('Error fetching orders:', error);
+        handleError(error, 'Error cargando pedidos');
       } finally {
         setLoading(false);
       }
     };
 
     fetchOrders();
-  }, []);
+  }, [handleError]);
 
   if (loading) {
     return (
@@ -82,12 +95,13 @@ const Orders = () => {
 
       <div className="space-y-5">
         {orders.map((order, index) => {
-          const statusStyle = STATUS_STYLES[order.status] || STATUS_STYLES.pending;
-          const statusLabel = STATUS_LABELS[order.status] || order.status;
+          const normalizedOrder = normalizeOrder(order);
+          const statusStyle = STATUS_STYLES[normalizedOrder.status] || STATUS_STYLES.pending;
+          const statusLabel = STATUS_LABELS[normalizedOrder.status] || normalizedOrder.status;
 
           return (
             <article
-              key={order.id}
+              key={normalizedOrder.id}
               className="glass-panel animate-fade-up overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.74),rgba(255,248,236,0.52))]"
               style={{ animationDelay: `${index * 70}ms` }}
             >
@@ -97,19 +111,19 @@ const Orders = () => {
                     <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">
                       <Package size={12} /> Pedido
                     </p>
-                    <p className="font-display text-3xl leading-none text-[var(--text-primary)]">#{order.id.toString().padStart(6, '0')}</p>
+                    <p className="font-display text-3xl leading-none text-[var(--text-primary)]">#{normalizedOrder.id.toString().padStart(6, '0')}</p>
                   </div>
                   <div>
                     <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">
                       <Calendar size={12} /> Fecha
                     </p>
-                    <p className="text-[var(--text-primary)]">{new Date(order.created_at).toLocaleDateString()}</p>
+                    <p className="text-[var(--text-primary)]">{new Date(normalizedOrder.created_at).toLocaleDateString()}</p>
                   </div>
                   <div>
                     <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">
                       <CreditCard size={12} /> Total
                     </p>
-                    <p className="font-display text-4xl leading-none text-[var(--text-primary)]">${order.total}</p>
+                    <p className="font-display text-4xl leading-none text-[var(--text-primary)]">{formatCOP(normalizedOrder.total)}</p>
                   </div>
                   <div>
                     <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">Estado</p>
@@ -121,13 +135,13 @@ const Orders = () => {
                     <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">
                       <MapPin size={12} /> Entrega
                     </p>
-                    <p className="line-clamp-2 text-sm leading-6 text-[var(--text-secondary)]">{order.shipping_address || 'Sin dirección registrada'}</p>
+                    <p className="line-clamp-2 text-sm leading-6 text-[var(--text-secondary)]">{normalizedOrder.shipping_address || 'Sin dirección registrada'}</p>
                   </div>
                 </div>
 
                 <div className="min-w-[180px] rounded-[1.5rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] p-4 sm:p-5">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">Pago</p>
-                  <p className="mt-3 text-lg font-semibold text-[var(--text-primary)]">{order.payment_status || 'sin confirmar'}</p>
+                  <p className="mt-3 text-lg font-semibold text-[var(--text-primary)]">{normalizedOrder.payment_status || 'sin confirmar'}</p>
                   <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
                     El historial se mantiene sincronizado con los cambios del pedido.
                   </p>
