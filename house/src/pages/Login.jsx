@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Loader2 } from 'lucide-react';
-import { useAuth } from '../context/useAuth';
-import { useToast } from '../context/useToast';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');

@@ -16,9 +16,15 @@ cp server/.env.example server/.env
 | `DATABASE_USERNAME` | Usuario de PostgreSQL |
 | `DATABASE_PASSWORD` | Contraseña de PostgreSQL |
 | `DEVISE_JWT_SECRET_KEY` | Clave secreta para JWT (genera una cadena aleatoria segura de al menos 32 caracteres) |
-| `MP_ACCESS_TOKEN` | Token de acceso de Mercado Pago en producción |
+| `WOMPI_PUBLIC_KEY` | Llave pública de Wompi usada para iniciar el WompiCheckout |
+| `WOMPI_INTEGRITY_KEY` | Llave que firma los parámetros de la sesión (`reference`, `amount_in_cents`, `currency`) |
+| `WOMPI_EVENT_SECRET` | Secreto usado para validar el checksum de los webhooks de eventos |
+| `WOMPI_CURRENCY` | Moneda usada por defecto (COP) |
+| `WOMPI_FAKE_MODE` | `true` activa un checkout simulado para desarrollo cuando aún no tienes las claves reales |
 | `FRONTEND_URL` | URL del frontend en producción |
 | `BACKEND_URL` | URL del backend en producción |
+
+En entornos de desarrollo sin claves reales de Wompi puedes activar `WOMPI_FAKE_MODE=true`. Esto evita que Rails intente validar firmas o llamar a la API y genera un payload genérico para que el frontend abra el widget (usa los valores `WOMPI_FAKE_PUBLIC_KEY` y `WOMPI_FAKE_INTEGRITY_KEY`).
 
 ## Despliegue del Backend (Rails)
 
@@ -76,7 +82,7 @@ npm run build
 
 - El API debe estar disponible en `https://tu-dominio.com/api/v1`
 - El frontend se sirve estáticamente desde `house/dist/`
-- Mercado Pago requiere URLs públicas para webhooks
+- ePayco requiere URLs públicas para las respuestas y confirmaciones del checkout y webhooks
 - Action Cable usa WebSockets para tiempo real
 
 ## Checklist de despliegue del backend
@@ -98,5 +104,5 @@ npm run build
 
 - Revisa `log/production.log` y `log/sidekiq.log` antes de generar la release para asegurarte de que no hay errores repetidos ni excepciones truncadas.
 - Limpia `tmp/cache`, `tmp/pids`, y `tmp/sockets` si hiciera falta (`rails tmp:clear`).
-- Verifica que los secretos sensibles (`DEVISE_JWT_SECRET_KEY`, `MP_ACCESS_TOKEN`, credenciales de la base de datos) estén almacenados de forma segura o inyectados como variables en el entorno de despliegue.
+- Verifica que los secretos sensibles (`DEVISE_JWT_SECRET_KEY`, `WOMPI_PUBLIC_KEY`, `WOMPI_INTEGRITY_KEY`, `WOMPI_EVENT_SECRET`, credenciales de la base de datos) estén almacenados de forma segura o inyectados como variables en el entorno de despliegue.
 - Evita subir `.env` a git y documenta cualquier valor crítico directamente en este README o en `docs/DEPLOYMENT.md`.

@@ -1,2 +1,3 @@
 web: cd house && npm run dev
-api: cd server && rails s -p 3000
+# Build the ActiveAdmin stylesheet before starting Rails so a clean dev boot works.
+api: cd server && npm run build:css && rails s -p 3000

@@ -1,5 +1,6 @@
 ActiveAdmin.register Order do
-  menu false
+  menu priority: 2, label: "Pedidos"
+  actions :index, :show, :edit, :update
   permit_params :status, :shipping_address, :payment_status, :payment_id
 
   scope :all, default: true
@@ -9,23 +10,23 @@ ActiveAdmin.register Order do
   scope :completed
   scope :cancelled
 
-  batch_action :mark_as_shipped, if: proc { selection.any? } do |ids|
+  batch_action :mark_as_shipped do |ids|
     Order.find(ids).each { |order| order.update!(status: :shipped) if order.paid? }
     redirect_to collection_path, notice: "Pedidos marcados como enviados."
   end
 
-  batch_action :mark_as_completed, if: proc { selection.any? } do |ids|
+  batch_action :mark_as_completed do |ids|
     Order.find(ids).each { |order| order.update!(status: :completed) if order.shipped? }
     redirect_to collection_path, notice: "Pedidos marcados como completados."
   end
 
   member_action :mark_as_shipped, method: :put do
-    resource.update!(status: :shipped)
+    resource.update!(status: :shipped) if resource.paid?
     redirect_to resource_path(resource), notice: "Pedido marcado como enviado."
   end
 
   member_action :mark_as_completed, method: :put do
-    resource.update!(status: :completed)
+    resource.update!(status: :completed) if resource.shipped?
     redirect_to resource_path(resource), notice: "Pedido marcado como completado."
   end
 
@@ -102,29 +103,25 @@ ActiveAdmin.register Order do
   end
 
   show title: proc { |order| "Pedido ##{order.id.to_s.rjust(6, '0')}" } do
-    columns do
-      column do
-        panel "Resumen del pedido" do
-          attributes_table_for order do
-            row("Cliente") { |record| record.user&.name || record.user&.email }
-            row("Correo") { |record| record.user&.email }
-            row("Estado") { |record| status_tag(record.status) }
-            row("Pago") { |record| record.payment_status.presence || "sin confirmar" }
-            row("ID de pago", &:payment_id)
-            row("Total") { |record| number_to_currency(record.total) }
-            row("Creado") { |record| l(record.created_at, format: :long) }
-            row("Actualizado") { |record| l(record.updated_at, format: :long) }
-          end
+    div class: "grid md:grid-cols-2 gap-4" do
+      panel "Resumen del pedido" do
+        attributes_table_for order do
+          row("Cliente") { |record| record.user&.name || record.user&.email }
+          row("Correo") { |record| record.user&.email }
+          row("Estado") { |record| status_tag(record.status) }
+          row("Pago") { |record| record.payment_status.presence || "sin confirmar" }
+          row("ID de pago", &:payment_id)
+          row("Total") { |record| number_to_currency(record.total) }
+          row("Creado") { |record| l(record.created_at, format: :long) }
+          row("Actualizado") { |record| l(record.updated_at, format: :long) }
         end
       end
 
-      column do
-        panel "Entrega y operación" do
-          attributes_table_for order do
-            row("Dirección") { |record| simple_format(record.display_shipping_address) }
-            row("Cantidad de items") { |record| record.order_items.sum(:quantity) }
-            row("Reserva actual") { |record| record.pending? ? "Reservada" : "Procesada" }
-          end
+      panel "Entrega y operación" do
+        attributes_table_for order do
+          row("Dirección") { |record| simple_format(record.display_shipping_address) }
+          row("Cantidad de items") { |record| record.order_items.sum(:quantity) }
+          row("Reserva actual") { |record| record.pending? ? "Reservada" : "Procesada" }
         end
       end
     end

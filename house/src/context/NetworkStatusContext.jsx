@@ -1,6 +1,14 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 export const NetworkStatusContext = createContext(null);
+
+export const useNetworkStatus = () => {
+  const context = useContext(NetworkStatusContext);
+  if (!context) {
+    throw new Error('useNetworkStatus debe usarse dentro de NetworkStatusProvider');
+  }
+  return context;
+};
 
 export const NetworkStatusProvider = ({ children }) => {
   const [isOnline, setIsOnline] = useState(() => {

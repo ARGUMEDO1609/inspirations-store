@@ -1,6 +1,22 @@
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const CLIENT_INSTANCE_STORAGE_KEY = 'client-instance-id';
+
+export const getClientInstanceId = () => {
+  if (typeof window === 'undefined') {
+    return 'server';
+  }
+
+  let clientInstanceId = window.sessionStorage.getItem(CLIENT_INSTANCE_STORAGE_KEY);
+  if (clientInstanceId) {
+    return clientInstanceId;
+  }
+
+  clientInstanceId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  window.sessionStorage.setItem(CLIENT_INSTANCE_STORAGE_KEY, clientInstanceId);
+  return clientInstanceId;
+};
 
 export const getErrorMessage = (error) => {
   if (!error.response) {
@@ -53,6 +69,8 @@ api.interceptors.request.use((config) => {
   if (token && !isAuthPath) {
     config.headers.Authorization = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
   }
+
+  config.headers['X-Client-Instance-Id'] = getClientInstanceId();
   return config;
 });
 
