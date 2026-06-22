@@ -1,83 +1,75 @@
+require "securerandom"
+
 class Api::V1::WebhooksController < ActionController::Base
   skip_before_action :verify_authenticity_token, raise: false
   skip_before_action :authenticate_user!, raise: false
-  before_action :verify_mercadopago_signature
+  before_action :verify_wompi_signature
 
-  def mercadopago
-    resource_id = params[:id] || params.dig(:data, :id)
-    topic = params[:topic] || params[:type]
+  def wompi
+    raw_body = request.raw_post
+    payload = JSON.parse(raw_body)
+    transaction = payload.dig("data", "transaction") || {}
+    reference = transaction["reference"]
+    order = find_order_by_reference(reference)
+    payment_status = map_wompi_status(transaction["status"])
+    transaction_id = transaction["id"].presence || "wompi-#{reference.presence || SecureRandom.hex(6)}"
 
-    Rails.logger.info "Received Mercado Pago webhook: topic=#{topic}, resource_id=#{resource_id}"
+    Rails.logger.info "Received Wompi event: reference=#{reference.inspect} status=#{transaction['status']}"
 
-    process_payment_notification(resource_id) if topic == "payment" && resource_id.present?
+    if order && payment_status.present?
+      order.transaction do
+        payment = order.payments.find_or_initialize_by(transaction_id: transaction_id)
+        payment.provider = "wompi"
+        payment.status = transaction["status"]
+        payment.save!
+
+        order.apply_payment_update!(
+          payment_id: transaction["id"],
+          payment_status: payment_status
+        )
+      end
+    else
+      Rails.logger.warn(
+        "Could not apply Wompi update: reference=#{reference.inspect} status=#{transaction['status'].inspect} payment_status=#{payment_status.inspect}"
+      )
+    end
 
     render json: { status: "ok" }, status: :ok
+  rescue JSON::ParserError => e
+    Rails.logger.error "Wompi webhook JSON error: #{e.message}"
+    render json: { status: "error", message: "Invalid payload" }, status: :bad_request
   rescue => e
-    Rails.logger.error "Mercadopago webhook processing error: #{e.message}"
+    Rails.logger.error "Wompi webhook processing error: #{e.message}"
     render json: { status: "error", message: "Internal server error" }, status: :internal_server_error
   end
 
   private
 
-  def process_payment_notification(resource_id)
-    Rails.logger.info "Processing Mercado Pago payment notification for resource_id: #{resource_id}"
+  def find_order_by_reference(reference)
+    return nil unless reference.present?
 
-    sdk = Mercadopago::SDK.new(ENV.fetch("MP_ACCESS_TOKEN", nil))
-    payment_response = sdk.payment.get(resource_id)
-    payment = payment_response[:response]
-
-    unless payment
-      Rails.logger.warn "Could not retrieve payment details for resource_id: #{resource_id}"
-      return
-    end
-
-    order = find_order_for_payment(payment)
-    unless order
-      Rails.logger.warn "Could not find order for payment resource_id: #{resource_id}, external_reference: #{payment['external_reference']}"
-      return
-    end
-
-    Rails.logger.info "Updating order #{order.id} with payment status: #{payment['status']}"
-
-    order.apply_payment_update!(
-      payment_id: payment["id"]&.to_s,
-      payment_status: payment["status"]
-    )
-
-    Rails.logger.info "Mercadopago webhook processed successfully for order #{order.id} with payment status #{payment['status']}"
-  rescue => e
-    Rails.logger.error "Mercadopago webhook error processing payment #{resource_id}: #{e.message}"
-    raise e
+    Order.find_by(reference: reference)
   end
 
-  def find_order_for_payment(payment)
-    order_reference = payment["external_reference"]
-    if order_reference.present?
-      order = Order.find_by(id: order_reference)
-      Rails.logger.debug "Found order by external_reference: #{order_reference}" if order
-      return order
+  def map_wompi_status(value)
+    normalized = value.to_s.downcase
+    case normalized
+    when "approved"
+      "approved"
+    when "pending"
+      "pending"
+    when "declined", "error"
+      "rejected"
+    when "voided"
+      "cancelled"
+    else
+      normalized.presence
     end
-
-    order = Order.find_by(payment_id: payment["id"]&.to_s)
-    Rails.logger.debug "Found order by payment_id: #{payment['id']}" if order
-    order
   end
 
-  def verify_mercadopago_signature
-    # For now, we'll accept all requests as we're in development
-    # In production, you should verify the x-signature header
-    # signature = request.headers['x-signature']
-    # # Verify signature using Mercado Pago's secret key
-    # unless valid_mercadopago_signature?(signature, request.raw_post)
-    #   render json: { status: 'error', message: 'Invalid signature' }, status: :unauthorized
-    # end
-    true
+  def verify_wompi_signature
+    unless Wompi::WebhookValidator.valid?(body: request.raw_post, headers: request.headers)
+      render json: { status: "error", message: "Invalid signature" }, status: :unauthorized
+    end
   end
-
-  # This method should be implemented with actual signature verification logic
-  # def valid_mercadopago_signature?(signature, payload)
-  #   # Implementation would go here using Mercado Pago's secret key
-  #   # This is a placeholder for the actual implementation
-  #   true
-  # end
 end

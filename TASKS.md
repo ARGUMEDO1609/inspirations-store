@@ -40,7 +40,7 @@ inspiration-store/
 - React Router
 - Axios
 - Action Cable client
-- Mercado Pago SDK React
+- ePayco Smart Checkout (`checkout-v2.js`)
 
 ### Backend
 
@@ -52,7 +52,7 @@ inspiration-store/
 - ActiveAdmin
 - Action Cable
 - Active Storage
-- Mercado Pago SDK
+- ePayco session service + webhook verifier
 - JSONAPI::Serializer
 - RSpec + FactoryBot
 
@@ -87,10 +87,10 @@ inspiration-store/
 
 ### Pagos
 
-- [x] Integración con Mercado Pago
-- [x] Creación de preferencia de pago
-- [x] Redirección al checkout externo
-- [x] Webhook para notificaciones de pago
+- [x] Integración con ePayco Smart Checkout
+- [x] Creación de sesión con Apify (`login` + `payment/session/create`)
+- [x] Apertura del checkout ePayco desde el frontend con el `sessionId`
+- [x] Webhook para confirmar pagos y actualizar stock
 - [x] Manejo de estados `approved`, `pending` y `cancelled/rejected`
 - [x] Pantallas de retorno de pago: éxito, fallo y pendiente
 - [x] Consulta del estado real del pedido al volver del checkout
@@ -154,7 +154,7 @@ inspiration-store/
 Objetivo: asegurar que el proceso de compra funcione completo y de forma confiable.
 
 - [x] Probar creación de pedido desde carrito con datos reales
-- [x] Verificar redirección correcta a Mercado Pago
+- [x] Verificar que la sesión de ePayco crea el checkout correctamente
 - [x] Implementar pantallas de retorno: éxito, fallo y pendiente
 - [x] Confirmar que el webhook actualiza el pedido correctamente
 - [x] Definir estados operativos del pedido (`pending`, `paid`, `cancelled`, `shipped`, `completed`)
@@ -179,7 +179,7 @@ Objetivo: cubrir lo que hoy sería más costoso romper.
 
 - [x] Añadir tests de autenticación JWT
 - [x] Añadir tests de requests para pagos
-- [x] Añadir tests de webhook de Mercado Pago
+- [x] Añadir tests de webhook de ePayco
 - [x] Añadir tests de policies/autorización
 - [x] Añadir tests de polimorfismo y normalización de direcciones
 - [x] Confirmar cobertura mínima de transición completa de estados de pedido
@@ -199,6 +199,14 @@ Objetivo: hacer que el admin sirva para operar la tienda, no solo para CRUD bás
 
 ### Fase 5 - Preparar proyecto para producción
 
+## Notas recientes
+
+- [x] Se validó la base local de test y la suite de RSpec volvió a correr correctamente.
+- [x] Se corrigió la validación de stock al crear pedidos desde el carrito.
+- [x] Se alinearon los specs de pagos al flujo actual con `Wompi::CheckoutBuilder`.
+- [x] Se eliminó el hardcode temporal de `$20.000 COP` y Wompi volvió a usar el total real de la orden.
+- [x] Se dejó un wrapper raíz `bin/rspec` para correr la suite desde el repo.
+- [x] La suite backend quedó verde: `105 examples, 0 failures`.
 Objetivo: dejar el sistema listo para desplegar sin improvisación.
 
 - [x] Crear documentación de variables de entorno
@@ -246,11 +254,43 @@ Lo siguiente que más conviene hacer, en orden:
 3. Mejorar filtros y operación diaria del admin de pedidos.
 4. Preparar variables de entorno y base documental para despliegue.
 
+## Roadmap De 2 Semanas
+
+### Semana 1 - Blindaje Técnico
+
+Objetivo: cerrar los puntos más caros de romper y dejar una base verificable.
+
+- [ ] Unificar el contrato de respuestas del API para `auth`, `orders`, `checkout` y `cart_items`.
+- [ ] Hacer idempotente el procesamiento de `webhooks/wompi` para eventos repetidos.
+- [ ] Cubrir con tests los flujos críticos: login, signup, current user, checkout, pago y webhook.
+- [ ] Verificar transiciones de estado de `Order` y restauración de stock con casos explícitos.
+- [ ] Revisar el panel de pedidos en ActiveAdmin y dejar filtros operativos más útiles.
+
+### Semana 2 - Operación Y Presentación
+
+Objetivo: mejorar la experiencia de uso y dejar el proyecto listo para enseñar o desplegar.
+
+- [ ] Pulir el checkout para que los errores sean más claros y el retorno al pago sea más guiado.
+- [ ] Mejorar el feedback visual del estado del pedido y del historial post-compra.
+- [ ] Consolidar variables de entorno y checklist de despliegue para backend y frontend.
+- [ ] Añadir capturas, resumen funcional y decisiones técnicas para portafolio.
+- [ ] Ejecutar `bin/ci` como rutina de validación antes de cualquier entrega importante.
+
+## Criterio De Cierre
+
+Se puede considerar esta iteración completa cuando:
+
+- `bin/ci` corre limpio desde la raíz.
+- El webhook no duplica estados ni pagos al recibir eventos repetidos.
+- Los errores del API muestran la misma estructura en los flujos críticos.
+- El checkout y el historial de pedidos quedan entendibles sin revisar código.
+
 ## Riesgos Técnicos Abiertos
 
 - La reserva de stock al crear pedido ya quedó consistente, pero sigue siendo una decisión de negocio a revisar si luego quieres un modelo de descuento solo al aprobar pago.
-- Siguen apareciendo warnings de `devise_for` con Rails 8.2; no están rompiendo funcionalidad, pero conviene revisarlos más adelante.
+- El flujo de Wompi ya usa el total real de la orden otra vez; falta validar en sandbox si existe un mínimo práctico de monto o una validación adicional de negocio para montos bajos.
 - El sistema ya sincroniza `Address` con campos legacy, pero todavía conviven ambos modelos; a futuro conviene elegir una sola fuente de verdad.
+- La advertencia de bundle grande en `vite build` no bloquea el proyecto; queda como mejora opcional de performance si luego quieres optimizar carga inicial.
 
 ## Estado de Testing
 
@@ -264,7 +304,7 @@ Cobertura ya añadida sobre:
 - carrito
 - pedidos
 - pagos
-- webhook de Mercado Pago
+- webhook de ePayco
 - policies
 - polimorfismo
 - normalización de direcciones
@@ -287,6 +327,22 @@ cd house && npm run build
 
 ## Trabajo reciente (31 de marzo de 2026)
 
+## Trabajo reciente (7 de junio de 2026)
+
+- Dejé anotado el roadmap de ejecución de 2 semanas en esta misma sección para que quede claro qué sigue y en qué orden.
+- Hice idempotente el webhook de Wompi y unifiqué respuestas del API para `auth`, `orders`, `products`, `categories`, `users` y `cart_items`.
+- Agregué `OrderSerializer` y ajusté el frontend de pedidos para leer el nuevo formato sin romper el flujo actual.
+- Añadí specs de request para auth, catálogo, pedidos y webhook; el bloque crítico pasó con `32 examples, 0 failures`.
+- Subí `framer-motion` a `^12.18.1`, regeneré `house/package-lock.json` y confirmé `bin/ci` verde.
+- Detecté vulnerabilidades pendientes en dependencias del frontend con `npm audit`, pero no pude revalidarlas en el registry por falta de conectividad.
+- Cerré las alertas del frontend subiendo `axios`, `react-router-dom`, `postcss` y `vite`, y dejé `npm audit` en cero.
+- Validé el frontend con `npm run lint` y `npm run build`; el build sigue con la advertencia habitual de chunks grandes.
+- `bin/ci` volvió a fallar en este entorno por conexión a PostgreSQL en `db:prepare` y por una excepción de `brakeman`, así que ese cierre completo queda pendiente del entorno, no del código.
+- Añadí specs del flujo de negocio en `Orders::CreateFromCart` y del panel de admin para marcar pedidos como enviados o completados.
+- Falta revalidar la suite del backend con PostgreSQL accesible para cerrar por completo el ciclo de `bin/ci`.
+- Moví los datos de soporte a lugares visibles del frontend: footer y una barra/CTA superior con correo, teléfono y WhatsApp.
+- La advertencia de bundle grande en `vite build` sigue siendo una mejora opcional de performance, no un bloqueo.
+
 - Actualicé las dependencias críticas de autenticación en `server/Gemfile:59-60` y reincorporé sus resoluciones en `server/Gemfile.lock:119-539` para usar `devise 5.0.3`, `devise-jwt 0.13.0`, `warden-jwt_auth 0.8.0`, `jwt 2.10.2` y `action_text-trix 2.1.17`.
 - Intenté ejecutar `bundle install` desde `server/`, pero el entorno no podía alcanzar `index.rubygems.org`, así que no se pudieron descargar los paquetes actualizados.
 - Tras restablecer la conectividad, el siguiente intento de `cd server && bundle install` completó exitosamente y dejó instaladas las versiones fijadas, por lo que ya hay gemas disponibles para continuar con `rubocop`, `bundler-audit` y demás comprobaciones.
@@ -299,9 +355,47 @@ cd house && npm run build
 4. Verificar que `bin/ci` o al menos `cd server && bundle exec rspec` se siguen ejecutando sin errores tras la actualización del bundle.
 5. Registrar cualquier incompatibilidad restante antes de seguir con nuevas funcionalidades o despliegues.
 
-### Notas para la próxima sesión
+### Notas para la próxima sesión (15 de abril de 2026)
 
-- Bundle completado con éxito el 31 de marzo de 2026; mañana continuar con los pasos 2-4 de arriba (`rubocop`, `bundler-audit`, `bin/ci`).
+Hoy quedó resuelta la parte crítica de estabilidad local:
+- [x] La base de test quedó accesible otra vez y `bin/rspec` funciona desde la raíz.
+- [x] Se corrigió el fallo de stock insuficiente al crear órdenes.
+- [x] Se actualizaron los specs request de pagos al namespace actual de Wompi.
+- [x] Se limpiaron las deprecaciones de Rails 8 en specs request y rutas de Devise.
+- [x] La suite backend terminó limpia con `105 examples, 0 failures`.
+- [x] Se removió el hardcode temporal de Wompi y `WebCheckoutUrl` vuelve a calcular `amount_in_cents` desde `order.total`.
+
+#### Próximos pasos inmediatos (Mañana)
+1. Validar en sandbox de Wompi un pago completo de punta a punta con el monto real de la orden y confirmar que ya no reaparece el 422 interno.
+2. Verificar si Wompi exige un monto mínimo práctico; si sí, decidir si la regla debe vivir en frontend, backend o ambos.
+3. Ejecutar `bin/ci` completo para incluir también lint y build del frontend antes del siguiente push grande.
+4. Revisar si conviene commitear o limpiar los logs locales y mantener `server/.env` solo como configuración privada.
+
+## Recomendaciones adicionales (20 abril 2026)
+
+### Estado actual (actualizado)
+- Backend: Suite limpia (`108 examples, 0 failures`)
+- Frontend: Lint y build limpios
+- Slug eliminado de productos y categorías
+- Wompi configurado para pagos
+- Variants (tallas/colores) implementado con polimorfismo
+
+### Tareas recomendadas
+
+1. **Limpiar lint del frontend** - ✅ COMPLETADO
+2. **Fix cart_items 500 error** - ✅ COMPLETADO
+3. **Remover slug de productos/categorías** - ✅ COMPLETADO
+4. **Agregar variants (tallas/colores)** - ✅ COMPLETADO
+
+5. **Ejecutar `bin/ci` completo**
+   - Incluir lint + build del frontend antes del siguiente push
+
+6. **Validar pago en sandbox Wompi**
+   - Probar flujo completo (crear pedido → checkout → webhook → retorno)
+
+7. **Fase 5 - Preparar producción**
+   - Documentar variables de entorno
+   - Definir estrategia de despliegue
 
 ## Regla Operativa del Repo
 

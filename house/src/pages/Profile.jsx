@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Loader2, Mail, MapPin, Phone, Save, Shield, User } from 'lucide-react';
 import api from '../api/axios';
-import { useAuth } from '../context/useAuth';
-import { useToast } from '../context/useToast';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import useApiError from '../hooks/useApiError';
 
 const Profile = () => {
