@@ -7,8 +7,9 @@
 # Ignore bundler config.
 /.bundle
 
-# Ignore all environment files.
+# Ignore all environment files (but keep the committed template).
 /.env*
+!/.env.docker.example
 
 # Ignore all logfiles and tempfiles.
 /log/*
@@ -29,7 +30,29 @@
 !/tmp/storage/.keep
 
 /public/assets
+server/app/assets/builds
 
 # Ignore key files for decrypting credentials and more.
 /config/*.key
+
+# Ignore AI assistant / tooling files (do not publish to GitHub).
+CLAUDE.md
+**/CLAUDE.md
+AGENTS.md
+**/AGENTS.md
+.claude/
+**/.claude/
+.grok/
+**/.grok/
+.cursor/
+**/.cursor/
+.cursorrules
+.aider*
+.github/copilot-instructions.md
+.continue/
+.windsurfrules
+.codeium/
+
+# Local deliverables / generated docs (not part of the codebase).
+/Sistema-de-Seeds-Inspiration-Store.pdf
 

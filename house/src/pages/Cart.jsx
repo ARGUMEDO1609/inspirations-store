@@ -1,18 +1,31 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, CreditCard, DollarSign, Loader2, MapPin, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import api from '../api/axios';
-import { Trash2, Plus, Minus, CreditCard, Loader2, ShoppingBag, MapPin, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
+import useApiError from '../hooks/useApiError';
+import { useCartNotification } from '../context/CartNotificationContext';
+import { useCartCount } from '../context/CartCountContext';
+import { formatCOP } from '../utils/formatCurrency';
+import useActionCable from '../api/useActionCable';
+
+const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%23f5f0e8' width='200' height='200'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='16' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E%3C/text%3E%3C/svg%3E";
 
 const Cart = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [cart, setCart] = useState({ items: [], total: 0 });
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [shippingAddress, setShippingAddress] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('card');
   const { toast } = useToast();
+  const { handleError } = useApiError();
+  const { notifyCart } = useCartNotification();
+  const { setCartCount } = useCartCount();
+  const safeTotal = Number(cart.total ?? 0);
 
   useEffect(() => {
     if (user && user.address) {
@@ -23,17 +36,33 @@ const Cart = () => {
   const fetchCart = useCallback(async () => {
     try {
       const response = await api.get('/cart_items');
-      setCart(response.data);
+      const cartData = response.data.data;
+      const items = cartData?.items || [];
+      const totalQuantity = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+      setCart(cartData || { items: [], total: 0 });
+      setCartCount(totalQuantity);
     } catch (error) {
       console.error('Error fetching cart:', error);
+      handleError(error, 'Error cargando carrito');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [handleError, setCartCount]);
 
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
+
+  const cartHandlers = React.useMemo(
+    () => ({
+      CART_UPDATED: () => {
+        fetchCart();
+      }
+    }),
+    [fetchCart]
+  );
+
+  useActionCable({ channel: 'CartChannel' }, cartHandlers, Boolean(user));
 
   const updateQuantity = async (id, newQuantity) => {
     if (newQuantity < 1) return;
@@ -41,14 +70,10 @@ const Cart = () => {
     try {
       await api.put(`/cart_items/${id}`, { quantity: newQuantity });
       await fetchCart();
+      notifyCart('Cantidad actualizada en el carrito.', 'info');
     } catch (error) {
       console.error('Error updating quantity:', error);
-      const errorMessage = error.response?.data?.error || 'No se pudo actualizar la cantidad.';
-      toast({
-        type: 'error',
-        title: 'Límite alcanzado',
-        message: errorMessage
-      });
+      handleError(error, 'Cantidad no válida');
     } finally {
       setProcessingId(null);
     }
@@ -60,202 +85,315 @@ const Cart = () => {
       await api.delete(`/cart_items/${id}`);
       toast({
         type: 'info',
-        title: 'Eliminado',
-        message: 'El producto ha sido removido de tu selección.'
+        title: 'Pieza removida',
+        message: 'La pieza fue retirada de tu selección.'
       });
       await fetchCart();
+      notifyCart('Pieza removida del carrito.', 'info');
     } catch (error) {
       console.error('Error removing item:', error);
+      handleError(error, 'Error removing item');
     } finally {
       setProcessingId(null);
     }
   };
 
-  const handleCheckout = async () => {
-    if (!shippingAddress) {
-      toast({
-        type: 'error',
-        title: 'Dirección Requerida',
-        message: 'Por favor ingresa una dirección de envío.'
-      });
-      return;
-    }
+   const handleCheckout = async () => {
+     const trimmedAddress = shippingAddress.trim();
+     if (!trimmedAddress) {
+       toast({
+         type: 'error',
+         title: 'Dirección requerida',
+         message: 'Ingresa una dirección de envío antes de continuar.'
+       });
+       return;
+     }
 
-    setLoading(true);
-    try {
-      const orderResponse = await api.post('/orders', { 
-        order: { shipping_address: shippingAddress }
-      });
-      const orderId = orderResponse.data.id;
-      
-      const paymentResponse = await api.get(`/orders/${orderId}/pay`);
-      window.location.href = paymentResponse.data.checkout_url;
-    } catch (error) {
-      console.error('Error initiating checkout:', error);
-      const errorMessage = error.response?.data?.error || 'No pudimos iniciar la transacción con Mercado Pago.';
-      toast({
-        type: 'error',
-        title: 'Error de Pago',
-        message: errorMessage
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+     if (cart.items.length === 0) {
+       toast({
+         type: 'error',
+         title: 'Carrito vacío',
+         message: 'Añade productos antes de continuar.'
+       });
+       return;
+     }
 
-  if (loading && cart.items.length === 0) return <div className="flex justify-center items-center py-40"><Loader2 className="animate-spin text-amber-500 w-12 h-12" /></div>;
+     setLoading(true);
+     try {
+       if (paymentMethod === 'cash_on_delivery') {
+         await api.post('/orders', {
+           order: {
+             shipping_address: trimmedAddress,
+             payment_method: paymentMethod
+           }
+         });
+
+         toast({
+           type: 'success',
+           title: 'Pedido confirmado',
+           message: 'El pago se realizará contra entrega.'
+         });
+         setCart({ items: [], total: 0 });
+         navigate('/orders');
+         notifyCart('Pedido confirmado. Revisá tu historial para el seguimiento.', 'success');
+         return;
+       }
+
+       const response = await api.post('/checkout', {
+         checkout: {
+           shipping_address: trimmedAddress
+         }
+       });
+
+       const checkoutUrl = response.data?.data?.checkout_url;
+       if (!checkoutUrl) {
+         throw new Error('No se generó la URL de pago');
+       }
+
+       toast({
+         type: 'info',
+         title: 'Redireccionando',
+         message: 'Serás llevado a Wompi para completar el pago.'
+       });
+
+       window.location.href = checkoutUrl;
+     } catch (error) {
+       console.error('Error initiating checkout:', error);
+       const errorData = error.response?.data;
+
+       console.error('Full error response:', errorData);
+
+       if (errorData?.errors) {
+         const errorMessages = Object.values(errorData.errors).flat();
+         errorMessages.forEach(msg => {
+           toast({
+             type: 'error',
+             title: 'Error de validación',
+             message: msg
+           });
+         });
+       } else if (errorData?.error?.includes('Insufficient stock')) {
+         toast({
+           type: 'error',
+           title: 'Stock insuficiente',
+           message: errorData.error
+         });
+       } else if (errorData?.error?.includes('Cart is empty')) {
+         toast({
+           type: 'error',
+           title: 'Carrito vacío',
+           message: 'Añade productos antes de continuar.'
+         });
+       } else if (errorData?.error?.includes('shipping_address')) {
+         toast({
+           type: 'error',
+           title: 'Dirección inválida',
+           message: errorData.error || 'La dirección de envío no es válida'
+         });
+       } else if (errorData?.error?.includes('blank')) {
+         toast({
+           type: 'error',
+           title: 'Campo requerido',
+           message: 'Por favor completa todos los campos requeridos'
+         });
+       } else if (errorData?.error) {
+         toast({
+           type: 'error',
+           title: 'Error de creación de orden',
+           message: errorData.error
+         });
+       } else {
+         handleError(error, 'Pago no iniciado');
+       }
+     } finally {
+       setLoading(false);
+     }
+   };
+
+  if (loading && cart.items.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-32 sm:py-40">
+        <Loader2 className="h-12 w-12 animate-spin text-[var(--accent)]" />
+      </div>
+    );
+  }
 
   if (cart.items.length === 0) {
     return (
-      <div className="py-40 text-center animate-in fade-in duration-1000">
-        <div className="w-32 h-32 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-10 border border-slate-800">
-          <ShoppingBag className="text-slate-800" size={48} />
+      <div className="py-24 text-center sm:py-32 lg:py-40">
+        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.34)] text-[var(--text-muted)]">
+          <ShoppingBag size={36} />
         </div>
-        <h2 className="text-5xl font-black text-white italic mb-6 tracking-tighter">Tu bolsa está vacía.</h2>
-        <p className="text-slate-500 mb-12 text-xl font-medium">Aún no has curado piezas para tu colección.</p>
-        <Link to="/" className="inline-block bg-white text-slate-950 px-12 py-5 rounded-2xl font-black uppercase text-sm tracking-widest hover:bg-amber-500 transition-all duration-500">
-          Explorar Galería
+        <h2 className="mt-8 font-display text-4xl leading-none text-[var(--text-primary)] sm:text-5xl">
+          Tu selección está vacía.
+        </h2>
+        <p className="mx-auto mt-4 max-w-xl text-base leading-8 text-[var(--text-secondary)]">
+          Cuando añadas piezas desde la colección, aparecerán aquí listas para pasar al checkout.
+        </p>
+        <Link
+          to="/"
+          className="mt-8 inline-flex rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)]"
+        >
+          Volver a la tienda
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="py-20 animate-in fade-in slide-in-from-bottom-5 duration-700">
-      <div className="flex items-center justify-between mb-16">
-        <h1 className="text-6xl font-black text-white italic tracking-tighter">
-          {isCheckingOut ? 'Finalizar Adquisición' : 'Tu Selección'}
-        </h1>
+    <div className="space-y-8 py-8 sm:space-y-10 sm:py-10 lg:space-y-12 lg:py-14">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-[var(--text-muted)]">Selección privada</p>
+          <h1 className="mt-4 font-display text-5xl leading-none text-[var(--text-primary)] sm:text-6xl">
+            {isCheckingOut ? 'Checkout' : 'Tu selección'}
+          </h1>
+        </div>
         {isCheckingOut && (
-          <button 
+          <button
             onClick={() => setIsCheckingOut(false)}
-            className="text-slate-500 hover:text-white flex items-center gap-2 font-black uppercase tracking-widest text-xs transition"
+            className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)] transition hover:text-[var(--accent)]"
           >
-            <ArrowLeft size={16} /> Volver al Carrito
+            <ArrowLeft size={15} /> Volver al carrito
           </button>
         )}
       </div>
-      
-      <div className="flex flex-col lg:flex-row gap-20">
-        <div className="flex-grow space-y-8">
+
+      <div className="grid gap-8 xl:grid-cols-[1fr_380px]">
+        <div className="space-y-5">
           {!isCheckingOut ? (
-            cart.items.map((item) => (
-              <div key={item.id} className={`bg-slate-900/50 backdrop-blur-3xl border border-slate-800 p-8 rounded-[40px] flex flex-col md:flex-row items-center justify-between gap-8 hover:border-amber-500/30 transition-all duration-500 ${processingId === item.id ? 'opacity-50' : ''}`}>
-                <div className="flex items-center gap-10 w-full">
-                  <div className="w-32 h-32 rounded-3xl overflow-hidden bg-slate-950 flex-shrink-0 border border-slate-800">
-                     <img src={item.product.image_url || 'https://via.placeholder.com/200'} alt={item.product.title} className="w-full h-full object-cover opacity-80" />
+            cart.items.map((item, index) => (
+              <article
+                key={item.id}
+                className={`glass-panel animate-fade-up overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.74),rgba(255,248,236,0.52))] transition ${processingId === item.id ? 'opacity-60' : ''}`}
+                style={{ animationDelay: `${index * 70}ms` }}
+              >
+                <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[auto_1fr_auto] lg:items-center">
+                  <div className="h-24 w-24 overflow-hidden rounded-[1.55rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)] sm:h-28 sm:w-28">
+                    <img
+                      src={item.product.image_url || PLACEHOLDER}
+                      alt={item.product.title}
+                      className="h-full w-full object-cover"
+                      onError={(event) => { event.currentTarget.src = PLACEHOLDER; }}
+                    />
                   </div>
-                  <div className="flex-grow">
-                    <h3 className="text-2xl font-black text-white italic tracking-tighter mb-2 leading-none">{item.product.title}</h3>
-                    <div className="text-amber-500 font-mono font-black mb-6 text-sm">${item.product.price} / pieza</div>
-                    
-                    <div className="flex items-center gap-6 bg-slate-950 w-fit px-4 py-2 rounded-2xl ring-1 ring-slate-800">
-                      <button 
-                        disabled={processingId === item.id}
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)} 
-                        className="text-slate-500 hover:text-white transition disabled:opacity-30"
-                      >
-                        <Minus size={18} />
+
+                  <div className="min-w-0">
+                    <h3 className="font-display text-[2rem] leading-none text-[var(--text-primary)] sm:text-[2.2rem]">
+                      {item.product.title}
+                    </h3>
+                    {item.variant && (
+                      <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">Talla: {item.variant.name}</p>
+                    )}
+                    <p className="mt-2 text-sm text-[var(--text-secondary)]">{formatCOP(item.product.price)} por pieza</p>
+                    <div className="mt-5 inline-flex items-center gap-4 rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-4 py-2">
+                      <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={processingId === item.id} className="text-[var(--text-muted)] transition hover:text-[var(--accent)] disabled:opacity-40">
+                        <Minus size={16} />
                       </button>
-                      <span className="text-white font-black w-8 text-center">{item.quantity}</span>
-                      <button 
-                        disabled={processingId === item.id}
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)} 
-                        className="text-slate-500 hover:text-white transition disabled:opacity-30"
-                      >
-                        <Plus size={18} />
+                      <span className="min-w-8 text-center text-sm font-semibold text-[var(--text-primary)]">{item.quantity}</span>
+                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)} disabled={processingId === item.id} className="text-[var(--text-muted)] transition hover:text-[var(--accent)] disabled:opacity-40">
+                        <Plus size={16} />
                       </button>
                     </div>
                   </div>
+
+                  <div className="flex items-center justify-between gap-4 lg:flex-col lg:items-end">
+                    <p className="font-display text-4xl leading-none text-[var(--text-primary)]">{formatCOP(item.product.price * item.quantity)}</p>
+                    <button onClick={() => removeItem(item.id)} disabled={processingId === item.id} className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] text-[var(--danger)] transition hover:border-[var(--danger)] disabled:opacity-40">
+                      {processingId === item.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                    </button>
+                  </div>
                 </div>
-                
-                <div className="flex md:flex-col items-center md:items-end justify-between w-full md:w-auto gap-8">
-                  <span className="text-3xl font-mono font-black text-white leading-none">${(item.product.price * item.quantity).toFixed(2)}</span>
-                  <button 
-                    disabled={processingId === item.id}
-                    onClick={() => removeItem(item.id)}
-                    className="p-4 rounded-2xl bg-slate-950 text-rose-500/50 hover:text-rose-500 hover:bg-rose-500/5 transition-all duration-300 border border-slate-800 disabled:opacity-30"
-                  >
-                    {processingId === item.id ? <Loader2 size={20} className="animate-spin" /> : <Trash2 size={20} />}
-                  </button>
-                </div>
-              </div>
+              </article>
             ))
           ) : (
-            <div className="bg-slate-900/50 backdrop-blur-3xl border border-slate-800 p-12 rounded-[50px] space-y-10 animate-in fade-in slide-in-from-left-5 duration-500">
-              <div>
-                <h3 className="text-2xl font-black text-white italic tracking-tighter mb-8 uppercase flex items-center gap-4">
-                  <MapPin className="text-amber-500" /> Datos de Entrega
-                </h3>
-                <div className="space-y-4">
-                  <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-2">Dirección de Envío Completa</label>
-                  <textarea 
-                    value={shippingAddress}
-                    onChange={(e) => setShippingAddress(e.target.value)}
-                    rows="4"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-3xl px-8 py-5 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all font-medium resize-none"
-                    placeholder="Calle, Número, Ciudad, CP..."
-                  />
-                  <p className="text-[10px] text-slate-500 italic mt-2">Usaremos esta dirección para el envío priority asegurado.</p>
+            <section className="glass-panel animate-fade-up overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.74),rgba(255,248,236,0.52))] p-6 sm:p-8">
+              <div className="mb-6 flex items-center gap-3 text-[var(--text-primary)]">
+                <MapPin size={18} className="text-[var(--accent)]" />
+                <h2 className="font-display text-3xl leading-none text-[var(--text-primary)]">Datos de entrega</h2>
+              </div>
+              <label className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">Dirección completa</label>
+              <textarea
+                value={shippingAddress}
+                onChange={(e) => setShippingAddress(e.target.value)}
+                rows="5"
+                className="w-full rounded-[1.6rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]"
+                placeholder="Calle, número, ciudad, referencia..."
+              />
+
+              <div className="mt-8 border-t border-[var(--border-soft)] pt-6">
+                <label className="mb-3 block text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">Método de pago</label>
+                <div className="grid gap-3">
+                 <label className={`flex cursor-pointer items-center gap-3 rounded-[1.4rem] border p-4 transition ${paymentMethod === 'card' ? 'border-[var(--accent)] bg-[rgba(215,161,74,0.1)]' : 'border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)]'}`}>
+                   <input
+                     type="radio"
+                     name="paymentMethod"
+                     value="card"
+                     checked={paymentMethod === 'card'}
+                     onChange={(e) => setPaymentMethod(e.target.value)}
+                     className="hidden"
+                   />
+                   <CreditCard size={20} className={paymentMethod === 'card' ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'} />
+                   <div className="flex-1">
+                     <p className="text-sm font-semibold text-[var(--text-primary)]">Tarjeta de crédito/débito</p>
+                     <p className="text-xs text-[var(--text-secondary)]">Se abrirá el widget de Wompi para completar el pago</p>
+                   </div>
+                 </label>
+                  <label className={`flex cursor-pointer items-center gap-3 rounded-[1.4rem] border p-4 transition ${paymentMethod === 'cash_on_delivery' ? 'border-[var(--accent)] bg-[rgba(215,161,74,0.1)]' : 'border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)]'}`}>
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="cash_on_delivery"
+                      checked={paymentMethod === 'cash_on_delivery'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="hidden"
+                    />
+                    <DollarSign size={20} className={paymentMethod === 'cash_on_delivery' ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'} />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-[var(--text-primary)]">Contra entrega</p>
+                      <p className="text-xs text-[var(--text-secondary)]">Pagas cuando recibes el pedido</p>
+                    </div>
+                  </label>
+                </div>
+
+                <h3 className="mt-8 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)]">Resumen del pedido</h3>
+                <div className="mt-4 space-y-4">
+                  {cart.items.map((item) => (
+                    <div key={item.id} className="flex items-start justify-between gap-4 text-sm text-[var(--text-secondary)]">
+                      <span>{item.product.title} {item.variant ? `(Talla ${item.variant.name})` : ''} x {item.quantity}</span>
+                      <span className="shrink-0 font-semibold text-[var(--text-primary)]">{formatCOP(item.product.price * item.quantity)}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-
-              <div className="pt-8 border-t border-slate-800">
-                 <h3 className="text-xl font-black text-white italic tracking-tighter mb-6 uppercase">Resumen de Objetos</h3>
-                 <div className="space-y-4">
-                   {cart.items.map(item => (
-                     <div key={item.id} className="flex justify-between items-center text-sm font-medium">
-                       <span className="text-slate-400">{item.product.title} x {item.quantity}</span>
-                       <span className="text-white font-mono">${(item.product.price * item.quantity).toFixed(2)}</span>
-                     </div>
-                   ))}
-                 </div>
-              </div>
-            </div>
+            </section>
           )}
         </div>
 
-        <div className="lg:w-[400px]">
-          <div className="sticky top-32 bg-slate-900 border-2 border-slate-800 p-12 rounded-[50px] shadow-2xl relative overflow-hidden">
-             <div className="absolute -top-20 -right-20 w-60 h-60 bg-amber-500/5 blur-[100px]"></div>
-             
-             <h2 className="text-3xl font-black text-white italic mb-10 tracking-tighter leading-none">Resumen de <br />Inversión</h2>
-             
-             <div className="space-y-6 mb-12">
-                <div className="flex justify-between text-slate-500 text-xs font-black uppercase tracking-[0.2em]">
-                  <span>Subtotal</span>
-                  <span className="text-slate-200">${cart.total.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-slate-500 text-xs font-black uppercase tracking-[0.2em] pb-6 border-b border-slate-800">
-                  <span>Envío Priority</span>
-                  <span className="text-emerald-500 italic">Gratis</span>
-                </div>
-                <div className="flex justify-between pt-6">
-                  <span className="text-3xl font-black text-white italic tracking-tighter">Total</span>
-                  <span className="text-3xl font-mono font-black text-amber-500">${cart.total.toFixed(2)}</span>
-                </div>
-             </div>
+        <aside className="glass-panel animate-fade-up-delay h-fit overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[radial-gradient(circle_at_top_right,rgba(215,161,74,0.18),transparent_32%),linear-gradient(180deg,rgba(255,250,244,0.78),rgba(255,248,236,0.58))] p-6 sm:p-8">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-[var(--text-muted)]">Resumen</p>
+          <h2 className="mt-4 font-display text-4xl leading-none text-[var(--text-primary)]">Totales</h2>
 
-             <button 
-               onClick={() => isCheckingOut ? handleCheckout() : setIsCheckingOut(true)}
-               disabled={loading}
-               className="w-full bg-amber-600 hover:bg-amber-500 text-white py-6 rounded-3xl font-black text-xl uppercase tracking-tight flex items-center justify-center gap-4 shadow-[0_20px_40px_rgba(217,119,6,0.2)] transition-all duration-500 group disabled:opacity-50"
-             >
-               {loading ? (
-                <Loader2 size={24} className="animate-spin" />
-               ) : (
-                <>
-                  <CreditCard size={24} className="group-hover:rotate-12 transition-transform" />
-                  {isCheckingOut ? 'Confirmar y Pagar' : 'Proceder al Checkout'}
-                </>
-               )}
-             </button>
-             
-             <p className="mt-8 text-center text-slate-700 text-[10px] font-black uppercase tracking-widest">
-               Transacción protegida por cifrado SSL 256
-             </p>
+          <div className="mt-8 space-y-5 text-sm text-[var(--text-secondary)]">
+            <div className="flex items-center justify-between">
+              <span>Subtotal</span>
+              <span className="font-semibold text-[var(--text-primary)]">{formatCOP(safeTotal)}</span>
+            </div>
+            <div className="flex items-center justify-between border-b border-[var(--border-soft)] pb-5">
+              <span>Envío</span>
+              <span className="text-[var(--success)]">Gratis</span>
+            </div>
+            <div className="flex items-end justify-between">
+              <span className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)]">Total</span>
+              <span className="font-display text-5xl leading-none text-[var(--text-primary)]">{formatCOP(safeTotal)}</span>
+            </div>
           </div>
-        </div>
+
+          <button onClick={() => (isCheckingOut ? handleCheckout() : setIsCheckingOut(true))} disabled={loading} className="mt-8 inline-flex min-h-[60px] w-full items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-60">
+            {loading ? <Loader2 className="animate-spin" size={18} /> : <CreditCard size={18} />}
+            {isCheckingOut ? 'Confirmar y pagar' : 'Ir al checkout'}
+          </button>
+        </aside>
       </div>
     </div>
   );
