@@ -2,11 +2,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, DollarSign, Loader2, MapPin, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import api from '../api/axios';
-import { useToast } from '../context/useToast';
-import { useAuth } from '../context/useAuth';
+import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import useApiError from '../hooks/useApiError';
 import { useCartNotification } from '../context/CartNotificationContext';
 import { useCartCount } from '../context/CartCountContext';
+import { formatCOP } from '../utils/formatCurrency';
+import useActionCable from '../api/useActionCable';
 
 const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%23f5f0e8' width='200' height='200'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='16' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3E%3C/text%3E%3C/svg%3E";
 
@@ -51,6 +53,17 @@ const Cart = () => {
     fetchCart();
   }, [fetchCart]);
 
+  const cartHandlers = React.useMemo(
+    () => ({
+      CART_UPDATED: () => {
+        fetchCart();
+      }
+    }),
+    [fetchCart]
+  );
+
+  useActionCable({ channel: 'CartChannel' }, cartHandlers, Boolean(user));
+
   const updateQuantity = async (id, newQuantity) => {
     if (newQuantity < 1) return;
     setProcessingId(id);
@@ -86,7 +99,6 @@ const Cart = () => {
   };
 
    const handleCheckout = async () => {
-     // Trim and check if shipping address is empty after trimming
      const trimmedAddress = shippingAddress.trim();
      if (!trimmedAddress) {
        toast({
@@ -97,7 +109,6 @@ const Cart = () => {
        return;
      }
 
-     // Check if we have items in cart before proceeding
      if (cart.items.length === 0) {
        toast({
          type: 'error',
@@ -109,70 +120,49 @@ const Cart = () => {
 
      setLoading(true);
      try {
-       const orderResponse = await api.post('/orders', {
-         order: { 
-           shipping_address: trimmedAddress, // Send trimmed address
-           payment_method: paymentMethod
+       if (paymentMethod === 'cash_on_delivery') {
+         await api.post('/orders', {
+           order: {
+             shipping_address: trimmedAddress,
+             payment_method: paymentMethod
+           }
+         });
+
+         toast({
+           type: 'success',
+           title: 'Pedido confirmado',
+           message: 'El pago se realizará contra entrega.'
+         });
+         setCart({ items: [], total: 0 });
+         navigate('/orders');
+         notifyCart('Pedido confirmado. Revisá tu historial para el seguimiento.', 'success');
+         return;
+       }
+
+       const response = await api.post('/checkout', {
+         checkout: {
+           shipping_address: trimmedAddress
          }
        });
 
-       if (paymentMethod === 'cash_on_delivery') {
-        toast({
-          type: 'success',
-          title: 'Pedido confirmado',
-          message: 'El pago se realizará contra entrega.'
-        });
-        setCart({ items: [], total: 0 });
-        navigate('/orders');
-        notifyCart('Pedido confirmado. Revisá tu historial para el seguimiento.', 'success');
-        return;
+       const checkoutUrl = response.data?.data?.checkout_url;
+       if (!checkoutUrl) {
+         throw new Error('No se generó la URL de pago');
        }
 
-       const orderId = orderResponse.data.data.id;
-       
-       let paymentResponse;
-       try {
-         paymentResponse = await api.get(`/orders/${orderId}/pay`);
-         
-         // Validate that we got a proper checkout URL
-         if (!paymentResponse.data || !paymentResponse.data.data || !paymentResponse.data.data.checkout_url) {
-           throw new Error('Respuesta de pago inválida');
-         }
-         
-         const checkoutUrl = paymentResponse.data.data.checkout_url;
-         if (!checkoutUrl || typeof checkoutUrl !== 'string' || checkoutUrl.trim() === '') {
-           throw new Error('URL de pago no válida o vacía');
-         }
-         
-         // Redirect to Mercado Pago payment page
-         window.location.href = checkoutUrl;
-       } catch (payError) {
-         console.error('Error getting payment URL:', payError);
-         const errorData = payError.response?.data;
-         if (errorData?.error?.includes('not available for payment')) {
-           toast({
-             type: 'warning',
-             title: 'Pedido existente',
-             message: 'Ya tienes un pedido en proceso. Contacta al administrador.'
-           });
-         } else {
-           handleError(payError, 'Error al procesar el pago');
-           // Show specific error for payment URL issues
-           toast({
-             type: 'error',
-             title: 'Error de pago',
-             message: 'No pudimos preparar el pago. Por favor intenta de nuevo o selecciona otro método de pago.'
-           });
-         }
-       }
+       toast({
+         type: 'info',
+         title: 'Redireccionando',
+         message: 'Serás llevado a Wompi para completar el pago.'
+       });
+
+       window.location.href = checkoutUrl;
      } catch (error) {
        console.error('Error initiating checkout:', error);
        const errorData = error.response?.data;
-       
-       // Log the full error for debugging
+
        console.error('Full error response:', errorData);
-       
-       // Show specific validation errors from backend
+
        if (errorData?.errors) {
          const errorMessages = Object.values(errorData.errors).flat();
          errorMessages.forEach(msg => {
@@ -182,9 +172,7 @@ const Cart = () => {
              message: msg
            });
          });
-       } 
-       // Handle specific known errors
-       else if (errorData?.error?.includes('Insufficient stock')) {
+       } else if (errorData?.error?.includes('Insufficient stock')) {
          toast({
            type: 'error',
            title: 'Stock insuficiente',
@@ -200,7 +188,7 @@ const Cart = () => {
          toast({
            type: 'error',
            title: 'Dirección inválida',
-             message: errorData.error || 'La dirección de envío no es válida'
+           message: errorData.error || 'La dirección de envío no es válida'
          });
        } else if (errorData?.error?.includes('blank')) {
          toast({
@@ -282,14 +270,22 @@ const Cart = () => {
               >
                 <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[auto_1fr_auto] lg:items-center">
                   <div className="h-24 w-24 overflow-hidden rounded-[1.55rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)] sm:h-28 sm:w-28">
-                    <img src={item.product.image_url || PLACEHOLDER} alt={item.product.title} className="h-full w-full object-cover" />
+                    <img
+                      src={item.product.image_url || PLACEHOLDER}
+                      alt={item.product.title}
+                      className="h-full w-full object-cover"
+                      onError={(event) => { event.currentTarget.src = PLACEHOLDER; }}
+                    />
                   </div>
 
                   <div className="min-w-0">
                     <h3 className="font-display text-[2rem] leading-none text-[var(--text-primary)] sm:text-[2.2rem]">
                       {item.product.title}
                     </h3>
-                    <p className="mt-2 text-sm text-[var(--text-secondary)]">${item.product.price} por pieza</p>
+                    {item.variant && (
+                      <p className="mt-1 text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">Talla: {item.variant.name}</p>
+                    )}
+                    <p className="mt-2 text-sm text-[var(--text-secondary)]">{formatCOP(item.product.price)} por pieza</p>
                     <div className="mt-5 inline-flex items-center gap-4 rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-4 py-2">
                       <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={processingId === item.id} className="text-[var(--text-muted)] transition hover:text-[var(--accent)] disabled:opacity-40">
                         <Minus size={16} />
@@ -302,7 +298,7 @@ const Cart = () => {
                   </div>
 
                   <div className="flex items-center justify-between gap-4 lg:flex-col lg:items-end">
-                    <p className="font-display text-4xl leading-none text-[var(--text-primary)]">${(item.product.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-display text-4xl leading-none text-[var(--text-primary)]">{formatCOP(item.product.price * item.quantity)}</p>
                     <button onClick={() => removeItem(item.id)} disabled={processingId === item.id} className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] text-[var(--danger)] transition hover:border-[var(--danger)] disabled:opacity-40">
                       {processingId === item.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                     </button>
@@ -340,7 +336,7 @@ const Cart = () => {
                    <CreditCard size={20} className={paymentMethod === 'card' ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'} />
                    <div className="flex-1">
                      <p className="text-sm font-semibold text-[var(--text-primary)]">Tarjeta de crédito/débito</p>
-                     <p className="text-xs text-[var(--text-secondary)]">Serás redirigido a Mercado Pago para ingresar tus datos de tarjeta</p>
+                     <p className="text-xs text-[var(--text-secondary)]">Se abrirá el widget de Wompi para completar el pago</p>
                    </div>
                  </label>
                   <label className={`flex cursor-pointer items-center gap-3 rounded-[1.4rem] border p-4 transition ${paymentMethod === 'cash_on_delivery' ? 'border-[var(--accent)] bg-[rgba(215,161,74,0.1)]' : 'border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)]'}`}>
@@ -364,8 +360,8 @@ const Cart = () => {
                 <div className="mt-4 space-y-4">
                   {cart.items.map((item) => (
                     <div key={item.id} className="flex items-start justify-between gap-4 text-sm text-[var(--text-secondary)]">
-                      <span>{item.product.title} x {item.quantity}</span>
-                      <span className="shrink-0 font-semibold text-[var(--text-primary)]">${(item.product.price * item.quantity).toFixed(2)}</span>
+                      <span>{item.product.title} {item.variant ? `(Talla ${item.variant.name})` : ''} x {item.quantity}</span>
+                      <span className="shrink-0 font-semibold text-[var(--text-primary)]">{formatCOP(item.product.price * item.quantity)}</span>
                     </div>
                   ))}
                 </div>
@@ -381,7 +377,7 @@ const Cart = () => {
           <div className="mt-8 space-y-5 text-sm text-[var(--text-secondary)]">
             <div className="flex items-center justify-between">
               <span>Subtotal</span>
-              <span className="font-semibold text-[var(--text-primary)]">${safeTotal.toFixed(2)}</span>
+              <span className="font-semibold text-[var(--text-primary)]">{formatCOP(safeTotal)}</span>
             </div>
             <div className="flex items-center justify-between border-b border-[var(--border-soft)] pb-5">
               <span>Envío</span>
@@ -389,7 +385,7 @@ const Cart = () => {
             </div>
             <div className="flex items-end justify-between">
               <span className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)]">Total</span>
-              <span className="font-display text-5xl leading-none text-[var(--text-primary)]">${safeTotal.toFixed(2)}</span>
+              <span className="font-display text-5xl leading-none text-[var(--text-primary)]">{formatCOP(safeTotal)}</span>
             </div>
           </div>
 

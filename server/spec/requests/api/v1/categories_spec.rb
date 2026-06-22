@@ -18,6 +18,9 @@ RSpec.describe Api::V1::CategoriesController, type: :controller do
       category
       get :index
       expect(response).to have_http_status(:success)
+
+      parsed = JSON.parse(response.body)
+      expect(parsed.dig('data', 0, 'attributes', 'name')).to eq(category.name)
     end
   end
 
@@ -25,6 +28,9 @@ RSpec.describe Api::V1::CategoriesController, type: :controller do
     it 'returns the category' do
       get :show, params: { id: category.id }
       expect(response).to have_http_status(:success)
+
+      parsed = JSON.parse(response.body)
+      expect(parsed.dig('data', 'attributes', 'name')).to eq(category.name)
     end
   end
 
