@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
-import { Loader2 } from 'lucide-react';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -18,35 +18,36 @@ const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (formData.password !== formData.password_confirmation) {
-      toast({
-        type: 'error',
-        title: 'Validación',
-        message: 'Las contraseñas no coinciden.'
-      });
-      return;
-    }
-    setLoading(true);
-    try {
-      await signup(formData);
-      toast({
-        type: 'success',
-        title: '¡Bienvenido!',
-        message: 'Tu cuenta ha sido creada con éxito.'
-      });
-      navigate('/');
-    } catch (err) {
-      toast({
-        type: 'error',
-        title: 'Error de registro',
-        message: 'Hubo un problema al crear tu cuenta. Intenta con otro email.'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      if (formData.password !== formData.password_confirmation) {
+        toast({
+          type: 'error',
+          title: 'Validación',
+          message: 'Las contraseñas no coinciden.'
+        });
+        return;
+      }
+
+      setLoading(true);
+      try {
+        await signup(formData);
+        toast({
+          type: 'success',
+          title: 'Cuenta creada',
+          message: 'Tu espacio en Inspiration ya está listo.'
+        });
+        navigate('/');
+      } catch {
+        toast({
+          type: 'error',
+          title: 'Registro no completado',
+          message: 'No pudimos crear tu cuenta. Intenta con otro correo.'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
   const handleChange = (e) => {
     setFormData({
@@ -56,58 +57,78 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-[90vh] flex items-center justify-center py-20 px-4">
-      <div className="w-full max-w-2xl bg-slate-900/50 backdrop-blur-3xl border border-slate-800 p-12 rounded-[50px] shadow-2xl">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-black text-white italic tracking-tighter mb-2">Comienza tu Viaje</h2>
-          <p className="text-slate-500 font-medium">Únete a la comunidad de coleccionistas de Inspiration.</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-2">Nombre Completo</label>
-              <input name="name" type="text" required value={formData.name} onChange={handleChange} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50" placeholder="Juan Pérez" />
+    <div className="py-10 sm:py-12 lg:py-16">
+      <section className="mx-auto max-w-6xl overflow-hidden rounded-[2.35rem] border border-[var(--border-soft)] bg-[linear-gradient(135deg,rgba(255,250,244,0.78),rgba(255,248,236,0.56))]">
+        <div className="grid gap-0 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="glass-panel border-b border-[var(--border-soft)] bg-[radial-gradient(circle_at_top_left,rgba(215,161,74,0.2),transparent_42%),var(--bg-elevated)] p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10 xl:p-12">
+            <div className="animate-fade-up">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-[var(--text-muted)]">Creación de miembro</p>
+              <h1 className="mt-5 max-w-sm font-display text-6xl leading-[0.92] text-[var(--text-primary)] text-balance sm:text-7xl">
+                Crea tu acceso privado.
+              </h1>
+              <p className="mt-6 max-w-sm text-base leading-8 text-[var(--text-secondary)]">
+                Guarda tus direcciones, sigue pedidos y convierte la tienda en una experiencia más personal.
+              </p>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-2">Email</label>
-              <input name="email" type="email" required value={formData.email} onChange={handleChange} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50" placeholder="juan@email.com" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-2">Contraseña</label>
-              <input name="password" type="password" required value={formData.password} onChange={handleChange} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50" placeholder="••••••••" />
+            <div className="mt-8 animate-fade-up-delay rounded-[1.7rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.36)] p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">Tu área estará lista para</p>
+              <p className="mt-3 text-sm leading-7 text-[var(--text-secondary)]">
+                completar compras más rápido, revisar pagos y mantener tus datos de contacto actualizados.
+              </p>
             </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-2">Teléfono</label>
-              <input name="phone" type="text" value={formData.phone} onChange={handleChange} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50" placeholder="+54 11..." />
+          <div className="glass-panel p-6 sm:p-8 lg:p-10 xl:p-12">
+            <div className="mb-8 animate-fade-up">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-[var(--text-muted)]">Registro</p>
+              <h2 className="mt-4 font-display text-5xl leading-none text-[var(--text-primary)] sm:text-6xl">
+                Abrir cuenta
+              </h2>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-2">Dirección de Envío</label>
-              <input name="address" type="text" value={formData.address} onChange={handleChange} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50" placeholder="Av. Principal 123..." />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest px-2">Confirmar Contraseña</label>
-              <input name="password_confirmation" type="password" required value={formData.password_confirmation} onChange={handleChange} className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50" placeholder="••••••••" />
-            </div>
-          </div>
 
-          <div className="md:col-span-2 pt-6 text-center">
-            <button 
-              type="submit"
-              disabled={loading}
-              className="w-full bg-slate-100 hover:bg-amber-500 text-slate-950 font-black py-6 rounded-2xl transition duration-500 text-lg uppercase tracking-tight shadow-2xl flex items-center justify-center min-h-[72px]"
-            >
-              {loading ? <Loader2 className="animate-spin text-slate-950" size={28} /> : "Crear Colección de Usuario"}
-            </button>
-            <p className="mt-8 text-center text-slate-500 font-medium text-sm">
-              ¿Ya eres miembro? <Link to="/login" className="text-amber-500 hover:text-amber-400 font-bold ml-1">Inicia sesión</Link>
+            <form onSubmit={handleSubmit} className="grid gap-5 md:grid-cols-2 animate-fade-up-delay">
+              <div>
+                <label className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">Nombre</label>
+                <input name="name" type="text" required value={formData.name} onChange={handleChange} placeholder="Juan Pérez" className="w-full rounded-[1.45rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]" />
+              </div>
+              <div>
+                <label className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">Correo</label>
+                <input name="email" type="email" required value={formData.email} onChange={handleChange} placeholder="juan@email.com" className="w-full rounded-[1.45rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]" />
+              </div>
+              <div>
+                <label className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">Teléfono</label>
+                <input name="phone" type="text" value={formData.phone} onChange={handleChange} placeholder="+57 300..." className="w-full rounded-[1.45rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]" />
+              </div>
+              <div>
+                <label className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">Dirección</label>
+                <input name="address" type="text" value={formData.address} onChange={handleChange} placeholder="Av. Principal 123..." className="w-full rounded-[1.45rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]" />
+              </div>
+              <div>
+                <label className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">Contraseña</label>
+                <input name="password" type="password" required value={formData.password} onChange={handleChange} placeholder="••••••••" className="w-full rounded-[1.45rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]" />
+              </div>
+              <div>
+                <label className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">Confirmar contraseña</label>
+                <input name="password_confirmation" type="password" required value={formData.password_confirmation} onChange={handleChange} placeholder="••••••••" className="w-full rounded-[1.45rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-5 py-4 text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)]" />
+              </div>
+
+              <div className="md:col-span-2">
+                <button type="submit" disabled={loading} className="inline-flex min-h-[60px] w-full items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-60">
+                  {loading ? <Loader2 className="animate-spin" size={18} /> : 'Crear cuenta'}
+                </button>
+              </div>
+            </form>
+
+            <p className="mt-6 text-sm text-[var(--text-secondary)] animate-fade-up-slow">
+              ¿Ya tienes acceso?{' '}
+              <Link to="/login" className="inline-flex items-center gap-2 text-[var(--accent)] transition hover:text-[var(--accent-strong)]">
+                Entrar ahora
+                <ArrowRight size={14} />
+              </Link>
             </p>
           </div>
-        </form>
-      </div>
+        </div>
+      </section>
     </div>
   );
 };
