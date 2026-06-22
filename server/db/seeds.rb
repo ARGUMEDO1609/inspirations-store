@@ -134,10 +134,10 @@ products_data = [
   # Arte Digital
   { title: "Sueño Sintético", category: "Arte Digital", price: cop(450_000), stock: 12,
     description: "Edición digital limitada impresa en papel fine art 300g.",
-    sizes: [ ["Pequeño 30x30", 12], ["Mediano 50x50", 8], ["Grande 70x70", 4] ] },
+    sizes: [ [ "Pequeño 30x30", 12 ], [ "Mediano 50x50", 8 ], [ "Grande 70x70", 4 ] ] },
   { title: "Ruido Cromático", category: "Arte Digital", price: cop(280_000), stock: 20,
     description: "Obra generativa de paleta vibrante, tiraje numerado.",
-    sizes: [ ["Pequeño 30x30", 20], ["Mediano 50x50", 10] ] },
+    sizes: [ [ "Pequeño 30x30", 20 ], [ "Mediano 50x50", 10 ] ] },
   { title: "Horizonte de Datos", category: "Arte Digital", price: cop(150_000), stock: 30,
     description: "Lámina digital de líneas y degradados, lista para enmarcar." },
 
@@ -152,10 +152,10 @@ products_data = [
   # Fotografía
   { title: "Silencio Urbano", category: "Fotografía", price: cop(320_000), stock: 15,
     description: "Serie fotográfica en blanco y negro, impresión de archivo.",
-    sizes: [ ["A3", 15], ["A2", 9], ["A1", 5] ] },
+    sizes: [ [ "A3", 15 ], [ "A2", 9 ], [ "A1", 5 ] ] },
   { title: "Niebla de Páramo", category: "Fotografía", price: cop(240_000), stock: 18,
     description: "Paisaje andino capturado al amanecer, tiraje limitado.",
-    sizes: [ ["A3", 18], ["A2", 8] ] },
+    sizes: [ [ "A3", 18 ], [ "A2", 8 ] ] },
   { title: "Retrato de Barrio", category: "Fotografía", price: cop(180_000), stock: 22,
     description: "Fotografía documental de calle, edición numerada." },
 
@@ -170,10 +170,10 @@ products_data = [
   # Cerámica Artesanal
   { title: "Vasija Terracota", category: "Cerámica Artesanal", price: cop(320_000), stock: 10,
     description: "Vasija de gres torneada a mano, esmalte mate.",
-    colors: [ ["Terracota", 6], ["Arena", 4] ] },
+    colors: [ [ "Terracota", 6 ], [ "Arena", 4 ] ] },
   { title: "Set de Tazas Andinas", category: "Cerámica Artesanal", price: cop(160_000), stock: 16,
     description: "Juego de 4 tazas en porcelana con motivos geométricos.",
-    colors: [ ["Blanco", 8], ["Azul Índigo", 8] ] },
+    colors: [ [ "Blanco", 8 ], [ "Azul Índigo", 8 ] ] },
   { title: "Plato Decorativo Sol", category: "Cerámica Artesanal", price: cop(95_000), stock: 25,
     description: "Plato decorativo pintado a mano, pieza funcional." },
 
@@ -182,15 +182,15 @@ products_data = [
     description: "Tapiz tejido en telar con lana virgen teñida naturalmente." },
   { title: "Manta Wayúu", category: "Textiles y Tapices", price: cop(380_000), stock: 9,
     description: "Tejido tradicional wayúu, hecho a mano en La Guajira.",
-    colors: [ ["Multicolor", 5], ["Tierra", 4] ] },
+    colors: [ [ "Multicolor", 5 ], [ "Tierra", 4 ] ] },
   { title: "Cojín Geométrico", category: "Textiles y Tapices", price: cop(220_000), stock: 14,
     description: "Funda de cojín en algodón con bordado geométrico.",
-    sizes: [ ["40x40", 14], ["50x50", 7] ] },
+    sizes: [ [ "40x40", 14 ], [ "50x50", 7 ] ] },
 
   # Joyería de Autor
   { title: "Anillo Cordillera", category: "Joyería de Autor", price: cop(1_200_000), stock: 4,
     description: "Anillo en plata 925 con esmeralda colombiana.",
-    sizes: [ ["6", 2], ["7", 1], ["8", 1] ] },
+    sizes: [ [ "6", 2 ], [ "7", 1 ], [ "8", 1 ] ] },
   { title: "Aretes Hoja de Latón", category: "Joyería de Autor", price: cop(650_000), stock: 7,
     description: "Aretes esculpidos en latón con baño de oro." },
   { title: "Collar Semilla", category: "Joyería de Autor", price: cop(280_000), stock: 12,
@@ -228,21 +228,21 @@ if Order.count.zero?
   # [customer_email, status, payment_method, payment_status, [[product_title, qty], ...]]
   orders_blueprint = [
     [ "test@coleccionista.com", :completed, :card, "approved",
-      [ ["Silencio Urbano", 2], ["Horizonte de Datos", 1] ] ],
+      [ [ "Silencio Urbano", 2 ], [ "Horizonte de Datos", 1 ] ] ],
     [ "valentina.rios@example.co", :paid, :card, "approved",
-      [ ["Anillo Cordillera", 1] ] ],
+      [ [ "Anillo Cordillera", 1 ] ] ],
     [ "santiago.gomez@example.co", :shipped, :cash_on_delivery, "cash_on_delivery",
-      [ ["Tapiz Telar Mayor", 1], ["Cojín Geométrico", 2] ] ],
+      [ [ "Tapiz Telar Mayor", 1 ], [ "Cojín Geométrico", 2 ] ] ],
     [ "mariana.lopez@example.co", :pending, :card, "pending",
-      [ ["Sueño Sintético", 1] ] ],
+      [ [ "Sueño Sintético", 1 ] ] ],
     [ "andres.castano@example.co", :paid, :card, "approved",
-      [ ["Raíz de Bronce", 1] ] ],
+      [ [ "Raíz de Bronce", 1 ] ] ],
     [ "camila.torres@example.co", :cancelled, :card, "rejected",
-      [ ["Bodegón de Frutas", 1] ] ],
+      [ [ "Bodegón de Frutas", 1 ] ] ],
     [ "sebastian.patino@example.co", :completed, :cash_on_delivery, "cash_on_delivery",
-      [ ["Set de Tazas Andinas", 1], ["Plato Decorativo Sol", 3] ] ],
+      [ [ "Set de Tazas Andinas", 1 ], [ "Plato Decorativo Sol", 3 ] ] ],
     [ "test@coleccionista.com", :paid, :card, "approved",
-      [ ["Manta Wayúu", 1], ["Collar Semilla", 1] ] ]
+      [ [ "Manta Wayúu", 1 ], [ "Collar Semilla", 1 ] ] ]
   ]
 
   orders_blueprint.each do |email, status, method, payment_status, line_items|
