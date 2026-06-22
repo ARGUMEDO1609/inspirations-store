@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { ArrowRight, Loader2, Search, SlidersHorizontal } from 'lucide-react';
 import { motion } from 'framer-motion';
 import styled from '@emotion/styled';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
 import useActionCable from '../api/useActionCable';
-import { useToast } from '../context/useToast';
+import { useToast } from '../context/ToastContext';
 import useApiError from '../hooks/useApiError';
 import { useCartNotification } from '../context/CartNotificationContext';
 import { useCartCount } from '../context/CartCountContext';
@@ -97,7 +97,7 @@ const gridVariants = {
   }
 };
 
-const Hero = ({ filter, setFilter, sort, setSort, categories, productCount }) => {
+const Hero = ({ filter, setFilter, sort, setSort, categories, productCount, searchTerm, setSearchTerm }) => {
   return (
     <HeroSection
       initial="hidden"
@@ -115,37 +115,51 @@ const Hero = ({ filter, setFilter, sort, setSort, categories, productCount }) =>
             className="glass-panel rounded-[1.7rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-4 sm:p-5 lg:p-6"
             variants={heroCardVariants}
           >
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <button
-                onClick={() => {
-                  setFilter('all');
-                  setSort('recent');
-                }}
-                className={`rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] transition ${filter === 'all' && sort !== 'popular' ? 'bg-[var(--accent)] text-[var(--ink)] shadow-[0_14px_30px_rgba(215,161,74,0.2)]' : 'border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] text-[var(--text-primary)] hover:border-[var(--accent)]'}`}
-              >
-                Todas las piezas
-              </button>
-              <div className="relative min-w-[220px] flex-1 sm:flex-none">
-                <select
-                  onChange={(e) => setFilter(e.target.value)}
-                  value={filter === 'all' ? 'all' : filter}
-                  className="w-full appearance-none rounded-full border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] px-5 py-3 pr-12 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] outline-none transition hover:border-[var(--accent)]"
-                >
-                  <option value="all">Curaduría por categoría</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.attributes.name} className="text-black">
-                      {cat.attributes.name}
-                    </option>
-                  ))}
-                </select>
-                <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]">▼</span>
+            <div className="flex flex-col gap-4">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" size={18} />
+                <input
+                  type="text"
+                  placeholder="Buscar piezas exclusivas..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full rounded-full border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] py-3 pl-12 pr-6 text-sm font-medium text-[var(--text-primary)] outline-none transition focus:border-[var(--accent)]"
+                />
               </div>
-              <button
-                onClick={() => setSort('popular')}
-                className={`rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] transition ${sort === 'popular' ? 'bg-[var(--accent)] text-[var(--ink)] shadow-[0_14px_30px_rgba(215,161,74,0.2)]' : 'border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] text-[var(--text-primary)] hover:border-[var(--accent)]'}`}
-              >
-                Más buscadas
-              </button>
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <button
+                  onClick={() => {
+                    setFilter('all');
+                    setSort('recent');
+                    setSearchTerm('');
+                  }}
+                  className={`rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] transition ${filter === 'all' && sort !== 'popular' && !searchTerm ? 'bg-[var(--accent)] text-[var(--ink)] shadow-[0_14px_30px_rgba(215,161,74,0.2)]' : 'border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] text-[var(--text-primary)] hover:border-[var(--accent)]'}`}
+                >
+                  Todas las piezas
+                </button>
+                <div className="relative min-w-[220px] flex-1 sm:flex-none">
+                  <select
+                    onChange={(e) => setFilter(e.target.value)}
+                    value={filter === 'all' ? 'all' : filter}
+                    className="w-full appearance-none rounded-full border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] px-5 py-3 pr-12 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] outline-none transition hover:border-[var(--accent)]"
+                  >
+                    <option value="all">Vista por categoría</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.attributes.name} className="text-black">
+                        {cat.attributes.name}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]">▼</span>
+                </div>
+                <button
+                  onClick={() => setSort('popular')}
+                  className={`rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] transition ${sort === 'popular' ? 'bg-[var(--accent)] text-[var(--ink)] shadow-[0_14px_30px_rgba(215,161,74,0.2)]' : 'border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] text-[var(--text-primary)] hover:border-[var(--accent)]'}`}
+                >
+                  Más buscadas
+                </button>
+              </div>
             </div>
           </motion.div>
 
@@ -156,7 +170,7 @@ const Hero = ({ filter, setFilter, sort, setSort, categories, productCount }) =>
             >
               <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-secondary)]">Estado de la tienda</p>
               <p className="mt-3 font-display text-5xl leading-none text-[var(--text-primary)]">{productCount}</p>
-              <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">Piezas activas en la colección actual.</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">Productos activos</p>
             </motion.div>
             <motion.div
               className="glass-panel flex flex-col justify-between rounded-[1.65rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-5"
@@ -166,7 +180,7 @@ const Hero = ({ filter, setFilter, sort, setSort, categories, productCount }) =>
                 <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-secondary)]">Dirección visual</p>
                 <h2 className="mt-3 font-display text-[2.2rem] leading-none text-[var(--text-primary)]">Boutique de colección</h2>
                 <p className="mt-3 max-w-sm text-sm leading-7 text-[var(--text-primary)] text-balance">
-                  Menos marketplace. Más selección de piezas con carácter propio.
+                  Menos marketplace. Más selección de productos con carácter propio.
                 </p>
               </div>
               <div className="mt-6 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-[var(--accent)]">
@@ -185,6 +199,7 @@ const Gallery = () => {
   const [products, setProducts] = useState([]);
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('recent');
+  const [searchTerm, setSearchTerm] = useState('');
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
@@ -200,15 +215,7 @@ const Gallery = () => {
     }
   });
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    fetchProducts();
-  }, [filter, sort]);
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await api.get('/categories');
       const categoriesData = response.data.data;
@@ -217,18 +224,20 @@ const Gallery = () => {
       console.error('Error fetching categories:', error);
       handleError(error, 'Error cargando categorías');
     }
-  };
+  }, [handleError]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       setProductsError(null);
-      const response = await api.get('/products', {
-        params: {
-          category: filter,
-          sort: sort
-        }
-      });
+      
+      const params = {
+        category: filter,
+        sort: sort,
+        'q[title_cont]': searchTerm
+      };
+
+      const response = await api.get('/products', { params });
       const productsData = response.data.data;
       setProducts(Array.isArray(productsData) ? productsData : productsData?.data || []);
     } catch (error) {
@@ -238,7 +247,19 @@ const Gallery = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter, sort, searchTerm, handleError]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchProducts();
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [fetchProducts]);
 
    const handleAddToCart = async (product) => {
     try {
@@ -249,7 +270,7 @@ const Gallery = () => {
       });
         toast({
           type: 'success',
-          title: 'Pieza añadida',
+          title: 'Producto añadido',
           message: `${product.attributes.title} fue enviada a tu selección.`
         });
         notifyCart(`${product.attributes.title} se agregó al carrito.`, 'success');
@@ -277,7 +298,7 @@ const Gallery = () => {
 
   const showEmptyState = !loading && products.length === 0;
   const emptyMessage =
-    productsError || 'La colección no pudo cargarse. Reintenta en unos segundos.';
+    productsError || 'Los productos no pudieron cargarse. Reintenta en unos segundos.';
 
   return (
     <div className="space-y-10 py-8 sm:space-y-12 sm:py-10 lg:space-y-14 lg:py-14">
@@ -288,6 +309,8 @@ const Gallery = () => {
         setSort={setSort}
         categories={categories}
         productCount={products.length}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
       />
 
       {showEmptyState ? (
@@ -298,7 +321,7 @@ const Gallery = () => {
         >
           <p className="text-base font-semibold text-[var(--text-primary)]">{emptyMessage}</p>
           <p className="mt-2 text-xs uppercase tracking-[0.3em] text-[var(--text-muted)]">
-            Revisa tu conexión o intenta cargar la colección en unos segundos.
+            Revisa tu conexión o intenta cargar los productos en unos segundos.
           </p>
           <button
             onClick={fetchProducts}
@@ -309,7 +332,7 @@ const Gallery = () => {
         </motion.section>
       ) : (
         <motion.section
-          className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 sm:gap-5 xl:gap-6"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-15% 0px -25% 0px' }}

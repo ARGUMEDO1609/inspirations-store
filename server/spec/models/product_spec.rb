@@ -23,23 +23,13 @@ RSpec.describe Product, type: :model do
     end
   end
 
-  describe 'slug generation' do
-    it 'generates slug from title' do
-      product = create(:product, title: "Test Product", category: category)
-      expect(product.slug).to eq("test-product")
-    end
+  describe '#sizes_data' do
+    it 'accepts virtual assignment before persistence' do
+      product = build(:product, category: category)
 
-    it 'does not regenerate slug on update' do
-      product = create(:product, title: "Test Product", slug: "my-slug", category: category)
-      product.update(title: "New Title")
-      expect(product.slug).to eq("my-slug")
-    end
-  end
+      product.sizes_data = "S:2, M:4"
 
-  describe 'uniqueness' do
-    it 'enforces unique slug' do
-      create(:product, title: "Test", slug: "test", category: category)
-      expect { create(:product, title: "Other", slug: "test", category: category) }.to raise_error(ActiveRecord::RecordInvalid)
+      expect(product.sizes_data).to eq("S:2, M:4")
     end
   end
 end

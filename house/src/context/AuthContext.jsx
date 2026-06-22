@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { AuthContext } from './authContext';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../api/axios';
+import { resetCableConsumer } from '../api/cable';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+export const AuthContext = createContext({});
+
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -40,7 +44,10 @@ export const AuthProvider = ({ children }) => {
       throw new Error('No se recibieron datos del usuario del servidor.');
     }
 
-    if (token) localStorage.setItem('token', token);
+    if (token) {
+      resetCableConsumer();
+      localStorage.setItem('token', token);
+    }
     setUser(userData);
     return response.data;
   };
@@ -52,6 +59,7 @@ export const AuthProvider = ({ children }) => {
       // Ignore logout errors
     }
     localStorage.removeItem('token');
+    resetCableConsumer();
     setUser(null);
   };
 
@@ -66,7 +74,10 @@ export const AuthProvider = ({ children }) => {
       throw new Error('No se recibieron datos del registro del servidor.');
     }
 
-    if (token) localStorage.setItem('token', token);
+    if (token) {
+      resetCableConsumer();
+      localStorage.setItem('token', token);
+    }
     setUser(userResponse);
     return response.data;
   };

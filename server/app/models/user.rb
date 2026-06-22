@@ -20,13 +20,13 @@ class User < ApplicationRecord
   end
 
   def self.find_for_jwt_authentication_from_token(token)
-    secret = ENV['DEVISE_JWT_SECRET_KEY'] || 'temporary_secret_for_development_1234567890'
+    secret = ENV["DEVISE_JWT_SECRET_KEY"] || "temporary_secret_for_development_1234567890"
 
     begin
-      decoded = JWT.decode(token, secret, true, algorithm: 'HS256')
+      decoded = JWT.decode(token, secret, true, algorithm: "HS256")
       payload = decoded[0]
-      user_id = payload['sub']
-      jti = payload['jti']
+      user_id = payload["sub"]
+      jti = payload["jti"]
 
       return nil if JwtDenylist.exists?(jti: jti)
 
@@ -37,11 +37,11 @@ class User < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ['created_at', 'email', 'id', 'name', 'role', 'updated_at']
+    [ "created_at", "email", "id", "name", "role", "updated_at" ]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ['cart_items', 'orders']
+    [ "cart_items", "orders" ]
   end
 
   def primary_address_record
@@ -71,7 +71,7 @@ class User < ApplicationRecord
     if existing_address
       existing_address.update!(address_line_1: raw_address)
     else
-      addresses.create!(address_type: :home, address_line_1: raw_address, city: '')
+      addresses.create!(address_type: :home, address_line_1: raw_address, city: "")
     end
   end
 end

@@ -14,6 +14,9 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
       product
       get :index
       expect(response).to have_http_status(:success)
+
+      parsed = JSON.parse(response.body)
+      expect(parsed.dig('data', 0, 'attributes', 'title')).to eq(product.title)
     end
   end
 
@@ -21,6 +24,9 @@ RSpec.describe Api::V1::ProductsController, type: :controller do
     it 'returns the product' do
       get :show, params: { id: product.id }
       expect(response).to have_http_status(:success)
+
+      parsed = JSON.parse(response.body)
+      expect(parsed.dig('data', 'attributes', 'title')).to eq(product.title)
     end
   end
 
