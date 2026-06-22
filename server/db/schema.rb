@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_09_092100) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_21_140306) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -89,17 +89,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_092100) do
     t.integer "quantity", default: 1, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.bigint "variant_id"
     t.index ["product_id"], name: "index_cart_items_on_product_id"
     t.index ["user_id"], name: "index_cart_items_on_user_id"
+    t.index ["variant_id"], name: "index_cart_items_on_variant_id"
   end
 
   create_table "categories", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
-    t.string "name", null: false
-    t.string "slug", null: false
+    t.string "name"
     t.datetime "updated_at", null: false
-    t.index ["slug"], name: "index_categories_on_slug", unique: true
   end
 
   create_table "jwt_denylist", force: :cascade do |t|
@@ -123,42 +123,71 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_092100) do
     t.datetime "created_at", null: false
     t.bigint "order_id", null: false
     t.bigint "product_id", null: false
-    t.integer "quantity", default: 1, null: false
-    t.decimal "unit_price", precision: 10, scale: 2, null: false
+    t.integer "quantity", default: 1
+    t.decimal "unit_price", precision: 10, scale: 2
     t.datetime "updated_at", null: false
+    t.bigint "variant_id"
     t.index ["order_id"], name: "index_order_items_on_order_id"
     t.index ["product_id"], name: "index_order_items_on_product_id"
+    t.index ["variant_id"], name: "index_order_items_on_variant_id"
   end
 
   create_table "orders", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "payment_id"
+    t.integer "payment_method"
     t.string "payment_status"
+    t.string "reference", null: false
     t.text "shipping_address"
     t.integer "status", default: 0
-    t.decimal "total", precision: 10, scale: 2
+    t.decimal "total", precision: 10, scale: 2, default: "0.0"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["reference"], name: "index_orders_on_reference", unique: true
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
 
+  create_table "payments", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "order_id", null: false
+    t.string "provider", null: false
+    t.string "status", null: false
+    t.string "transaction_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_payments_on_order_id"
+    t.index ["transaction_id"], name: "index_payments_on_transaction_id", unique: true
+  end
+
+  create_table "product_variants", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.decimal "price_modifier"
+    t.bigint "product_id", null: false
+    t.string "size"
+    t.string "sku"
+    t.integer "stock"
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_product_variants_on_product_id"
+  end
+
   create_table "products", force: :cascade do |t|
-    t.bigint "category_id", null: false
+    t.bigint "category_id"
     t.datetime "created_at", null: false
     t.text "description"
-    t.decimal "price", precision: 10, scale: 2, null: false
-    t.string "slug", null: false
-    t.integer "stock", default: 0
-    t.string "title", null: false
+    t.string "image"
+    t.string "image_url"
+    t.string "name"
+    t.decimal "price"
+    t.integer "product_type"
+    t.integer "stock"
+    t.string "title"
     t.datetime "updated_at", null: false
     t.index ["category_id"], name: "index_products_on_category_id"
-    t.index ["slug"], name: "index_products_on_slug", unique: true
   end
 
   create_table "reviews", force: :cascade do |t|
     t.text "comment"
     t.datetime "created_at", null: false
-    t.integer "rating", default: 5, null: false
+    t.integer "rating"
     t.bigint "reviewable_id", null: false
     t.string "reviewable_type", null: false
     t.datetime "updated_at", null: false
@@ -168,29 +197,53 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_09_092100) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "address"
+    t.text "address"
     t.datetime "created_at", null: false
+    t.datetime "current_sign_in_at"
+    t.string "current_sign_in_ip"
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
+    t.integer "failed_attempts"
+    t.datetime "last_sign_in_at"
+    t.string "last_sign_in_ip"
+    t.datetime "locked_at"
     t.string "name"
     t.string "phone"
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
-    t.integer "role", default: 0
+    t.integer "role"
+    t.integer "sign_in_count"
+    t.string "unlock_token"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+  end
+
+  create_table "variants", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.integer "stock", default: 0
+    t.datetime "updated_at", null: false
+    t.string "variant_type"
+    t.bigint "variantable_id", null: false
+    t.string "variantable_type", null: false
+    t.index ["variantable_type", "variantable_id", "name"], name: "idx_variant_product_name", unique: true
+    t.index ["variantable_type", "variantable_id"], name: "index_variants_on_variantable"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "cart_items", "products"
   add_foreign_key "cart_items", "users"
+  add_foreign_key "cart_items", "variants"
   add_foreign_key "notes", "admin_users"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
+  add_foreign_key "order_items", "variants"
   add_foreign_key "orders", "users"
+  add_foreign_key "payments", "orders"
+  add_foreign_key "product_variants", "products"
   add_foreign_key "products", "categories"
   add_foreign_key "reviews", "users"
 end
