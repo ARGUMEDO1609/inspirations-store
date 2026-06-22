@@ -43,8 +43,10 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Replace the default in-process memory cache store with a durable alternative.
-  config.cache_store = :solid_cache_store
+  # In-process memory cache: no external cache service required.
+  # For a durable/shared cache across instances, add memcached (gem "dalli",
+  # :mem_cache_store) or solid_cache and point this at it.
+  config.cache_store = :memory_store
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
   config.active_job.queue_adapter = :solid_queue

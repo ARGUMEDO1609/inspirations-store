@@ -5,22 +5,21 @@ Rails.application.routes.draw do
 
   root to: proc { [ 200, { "Content-Type" => "text/html" }, [ '<body style="background: #020617; color: #f59e0b; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;"><h1>Inspiration Store API OK</h1></body>' ] ] }
 
-  # ActiveAdmin Routes
   ActiveAdmin.routes(self)
-
 
   namespace :api do
     namespace :v1 do
-      # Authentication
-      devise_for :users, path: "", path_names: {
-        sign_in: "login",
-        sign_out: "logout",
-        registration: "signup"
-      },
-      controllers: {
-        sessions: "api/v1/users/sessions",
-        registrations: "api/v1/users/registrations"
-      }
+      devise_for :users,
+                 path: "",
+                 path_names: {
+                   sign_in: "login",
+                   sign_out: "logout",
+                   registration: "signup"
+                 },
+                 controllers: {
+                   sessions: "api/v1/users/sessions",
+                   registrations: "api/v1/users/registrations"
+                 }
 
       get "current_user", to: "users#show_current"
       patch "current_user", to: "users#update"
@@ -38,17 +37,18 @@ Rails.application.routes.draw do
         end
       end
 
+      post "checkout", to: "checkouts#create"
+      get "orders/reference/:reference", to: "orders#show_by_reference"
+
       resources :orders, only: [ :index, :show, :create, :update ] do
         member do
           get "pay", to: "payments#create_preference"
         end
       end
 
-      # MercadoPago Webhook
-      post "webhooks/mercadopago", to: "webhooks#mercadopago"
+      post "webhooks/wompi", to: "webhooks#wompi"
     end
   end
 
-  # Catch-all for browser requests (only if not a rails internal route)
   get "*path", to: proc { [ 204, {}, [] ] }, constraints: lambda { |req| !req.path.start_with?("/rails/") }
 end

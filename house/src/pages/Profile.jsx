@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import { Loader2, Mail, MapPin, Phone, Save, Shield, User } from 'lucide-react';
+import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { User, Mail, MapPin, Phone, Shield, Save, Loader2 } from 'lucide-react';
-import api from '../api/axios';
+import useApiError from '../hooks/useApiError';
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
   const { toast } = useToast();
+  const { handleError } = useApiError();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -19,140 +21,95 @@ const Profile = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await api.patch('/current_user', { 
+      const response = await api.patch('/current_user', {
         user: {
           name: formData.name,
           address: formData.address,
           phone: formData.phone
         }
       });
-      updateUser(response.data.data);
+      updateUser(response.data.data?.attributes || response.data.data);
       toast({
         type: 'success',
-        title: 'Perfil Actualizado',
-        message: 'Tus datos han sido guardados correctamente.'
+        title: 'Perfil actualizado',
+        message: 'Tus datos quedaron guardados.'
       });
     } catch (error) {
-      const errorMessage = error.response?.data?.error || 'No se pudo actualizar el perfil.';
-      toast({
-        type: 'error',
-        title: 'Error',
-        message: errorMessage
-      });
+      handleError(error, 'Error actualizando perfil');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="py-20 animate-in fade-in slide-in-from-bottom-5 duration-700">
-      <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-8">
+    <div className="space-y-8 py-8 sm:space-y-10 sm:py-10 lg:space-y-12 lg:py-14">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-6xl font-black text-white italic tracking-tighter mb-4">Tu Perfil</h1>
-          <p className="text-slate-500 font-medium text-xl">Gestiona tu identidad en Inspiration Store.</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-[var(--text-muted)]">Perfil privado</p>
+          <h1 className="mt-4 font-display text-5xl leading-none text-[var(--text-primary)] sm:text-6xl">
+            Tu perfil
+          </h1>
         </div>
-        <div className="bg-amber-500/10 border border-amber-500/20 px-6 py-3 rounded-2xl flex items-center gap-3">
-          <Shield className="text-amber-500" size={20} />
-          <span className="text-amber-500 font-black text-xs uppercase tracking-widest">Cuenta Protegida</span>
+        <div className="inline-flex w-fit items-center gap-3 rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-secondary)]">
+          <Shield size={15} className="text-[var(--accent)]" />
+          Cuenta protegida
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Left Column: Avatar & Summary */}
-        <div className="lg:col-span-1 space-y-8">
-          <div className="bg-slate-900 border border-slate-800 p-12 rounded-[50px] text-center relative overflow-hidden">
-            <div className="absolute -top-20 -left-20 w-40 h-40 bg-amber-500/5 blur-[80px]"></div>
-            <div className="w-32 h-32 bg-slate-950 border-4 border-slate-800 rounded-full flex items-center justify-center mx-auto mb-8 text-amber-500 shadow-2xl relative">
-              <User size={64} strokeWidth={1.5} />
-              <div className="absolute bottom-0 right-0 w-8 h-8 bg-emerald-500 rounded-full border-4 border-slate-900 animate-pulse"></div>
-            </div>
-            <h2 className="text-3xl font-black text-white italic tracking-tighter mb-2">{user?.name}</h2>
-            <p className="text-slate-500 font-mono text-sm tracking-tighter lowercase mb-8">{user?.email}</p>
-            <div className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] border-t border-slate-800 pt-8">
+      <div className="grid gap-8 lg:grid-cols-[340px_1fr]">
+        <section className="glass-panel animate-fade-up overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[radial-gradient(circle_at_top_left,rgba(215,161,74,0.18),transparent_35%),linear-gradient(180deg,rgba(255,250,244,0.78),rgba(255,248,236,0.58))] p-6 sm:p-8">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] text-[var(--accent)]">
+            <User size={42} />
+          </div>
+          <h2 className="mt-6 font-display text-4xl leading-none text-[var(--text-primary)]">
+            {user?.name}
+          </h2>
+          <p className="mt-3 break-all text-sm text-[var(--text-secondary)]">{user?.email}</p>
+          <div className="mt-8 rounded-[1.5rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.34)] p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">
               Miembro desde {new Date().getFullYear()}
+            </p>
+            <p className="mt-3 text-sm leading-6 text-[var(--text-secondary)]">
+              Aquí puedes mantener actualizados tus datos para checkout, pedidos y contacto.
+            </p>
+          </div>
+        </section>
+
+        <form onSubmit={handleSubmit} className="glass-panel animate-fade-up-delay overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.74),rgba(255,248,236,0.52))] p-6 sm:p-8 lg:p-10">
+          <div className="grid gap-5 md:grid-cols-2">
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">
+                <User size={12} className="text-[var(--accent)]" /> Nombre
+              </label>
+              <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-5 py-4 text-[var(--text-primary)] outline-none transition focus:border-[var(--accent)]" />
+            </div>
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">
+                <Mail size={12} className="text-[var(--accent)]" /> Correo
+              </label>
+              <input type="email" value={formData.email} readOnly className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.24)] px-5 py-4 text-[var(--text-muted)]" />
+            </div>
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">
+                <Phone size={12} className="text-[var(--accent)]" /> Teléfono
+              </label>
+              <input type="text" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-5 py-4 text-[var(--text-primary)] outline-none transition focus:border-[var(--accent)]" />
+            </div>
+            <div>
+              <label className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">
+                <MapPin size={12} className="text-[var(--accent)]" /> Dirección
+              </label>
+              <input type="text" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} className="w-full rounded-[1.4rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] px-5 py-4 text-[var(--text-primary)] outline-none transition focus:border-[var(--accent)]" />
             </div>
           </div>
 
-          <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-[40px] space-y-6">
-            <h3 className="text-xs font-black text-white uppercase tracking-[0.2em] mb-4">Estadísticas</h3>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Colecciones</span>
-              <span className="text-white font-mono font-black text-xl">04</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Reseñas</span>
-              <span className="text-white font-mono font-black text-xl">12</span>
-            </div>
+          <div className="mt-8 flex justify-end border-t border-[var(--border-soft)] pt-6">
+            <button type="submit" disabled={loading} className="inline-flex min-h-[56px] items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-60">
+              {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+              Guardar cambios
+            </button>
           </div>
-        </div>
-
-        {/* Right Column: Edit Form */}
-        <div className="lg:col-span-2">
-          <form onSubmit={handleSubmit} className="bg-slate-900 border border-slate-800 p-12 rounded-[50px] space-y-10 shadow-2xl relative overflow-hidden">
-            <div className="absolute -bottom-20 -right-20 w-60 h-60 bg-amber-500/5 blur-[100px]"></div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <div className="space-y-4">
-                <label className="flex items-center gap-3 text-xs font-black text-slate-500 uppercase tracking-widest px-2">
-                  <User size={14} className="text-amber-500" /> Nombre Completo
-                </label>
-                <input 
-                  type="text" 
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-3xl px-8 py-5 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all font-medium"
-                />
-              </div>
-
-              <div className="space-y-4">
-                <label className="flex items-center gap-3 text-xs font-black text-slate-500 uppercase tracking-widest px-2">
-                  <Mail size={14} className="text-amber-500" /> Email
-                </label>
-                <input 
-                  type="email" 
-                  value={formData.email}
-                  readOnly
-                  className="w-full bg-slate-900/50 border border-slate-800 rounded-3xl px-8 py-5 text-slate-500 cursor-not-allowed font-medium"
-                />
-              </div>
-
-              <div className="space-y-4">
-                <label className="flex items-center gap-3 text-xs font-black text-slate-500 uppercase tracking-widest px-2">
-                  <Phone size={14} className="text-amber-500" /> Teléfono
-                </label>
-                <input 
-                  type="text" 
-                  value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-3xl px-8 py-5 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all font-medium"
-                />
-              </div>
-
-              <div className="space-y-4">
-                <label className="flex items-center gap-3 text-xs font-black text-slate-500 uppercase tracking-widest px-2">
-                  <MapPin size={14} className="text-amber-500" /> Dirección Principal
-                </label>
-                <input 
-                  type="text" 
-                  value={formData.address}
-                  onChange={(e) => setFormData({...formData, address: e.target.value})}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-3xl px-8 py-5 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all font-medium"
-                />
-              </div>
-            </div>
-
-            <div className="pt-8 border-t border-slate-800 flex justify-end">
-              <button 
-                type="submit"
-                disabled={loading}
-                className="bg-amber-600 hover:bg-amber-500 text-white px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] transition-all duration-300 shadow-xl shadow-amber-900/20 flex items-center gap-4 disabled:opacity-50"
-              >
-                {loading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                Guardar Cambios
-              </button>
-            </div>
-          </form>
-        </div>
+        </form>
       </div>
     </div>
   );
