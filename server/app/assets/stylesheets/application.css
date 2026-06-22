@@ -1,5 +1,7 @@
 /*
+ * active_admin.css is built by Tailwind (npm run build:css) into app/assets/builds.
+ * Avoid require_tree here so Sprockets/SassC does not try to compile the raw
+ * Tailwind source (active_admin.source.css), which it cannot parse.
  *= require active_admin
- *= require_tree .
  *= require_self
  */

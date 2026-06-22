@@ -1,8 +1,8 @@
 class InspirationAdminController < ActionController::Base
   protect_from_forgery with: :exception
-  
-  # Ensure session-related modules are available
+
+  # Session handling is provided by middleware on ActionController::Base; there is
+  # no ActionController::Session module to include (it raised on eager load in prod).
   include ActionController::Cookies
-  include ActionController::Session
   include ActionController::Flash
 end
