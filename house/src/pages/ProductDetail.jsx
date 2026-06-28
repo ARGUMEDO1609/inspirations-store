@@ -144,7 +144,7 @@ const ProductDetail = () => {
   }
 
   return (
-    <Motion.div className="space-y-8 py-8 sm:space-y-10 sm:py-10 lg:space-y-12 lg:py-14" initial="hidden" animate="visible" variants={pageVariants}>
+    <Motion.div className="space-y-7 py-7 sm:space-y-9 sm:py-9 lg:space-y-10 lg:py-12" initial="hidden" animate="visible" variants={pageVariants}>
       <button
         onClick={() => navigate('/')}
         className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)] transition hover:text-[var(--accent)]"
@@ -152,25 +152,25 @@ const ProductDetail = () => {
         <ArrowLeft size={15} /> Volver a la colección
       </button>
 
-      <Motion.section className="grid gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:gap-10 xl:gap-12" variants={sectionVariants}>
-        <Motion.div className="glass-panel relative overflow-hidden rounded-[2.35rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)]" variants={panelVariants}>
+      <Motion.section className="grid gap-7 lg:grid-cols-[1.08fr_0.92fr] lg:gap-9 xl:gap-10" variants={sectionVariants}>
+        <Motion.div className="glass-panel relative overflow-hidden rounded-[2.1rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)]" variants={panelVariants}>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,161,74,0.22),transparent_28%)]" />
           <Motion.img
             src={product.image_url || PLACEHOLDER}
             alt={product.title}
-            className="relative aspect-[4/4.7] w-full object-cover"
+            className="relative aspect-[4/4.55] w-full object-cover"
             initial={{ scale: 1.02 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.7, ease: 'easeOut' }}
             onError={(event) => { event.currentTarget.src = PLACEHOLDER; }}
           />
-          <div className="absolute left-5 top-5 rounded-full border border-[rgba(255,248,236,0.24)] bg-[rgba(46,31,19,0.52)] px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-[#fff1da] backdrop-blur-md sm:left-6 sm:top-6">
+          <div className="absolute left-4 top-4 rounded-full border border-[rgba(255,248,236,0.24)] bg-[rgba(46,31,19,0.52)] px-3 py-1.5 text-[9px] uppercase tracking-[0.28em] text-[#fff1da] backdrop-blur-md sm:left-5 sm:top-5 sm:text-[10px]">
             Selección actual
           </div>
         </Motion.div>
 
         <Motion.div
-          className="glass-panel flex flex-col justify-between gap-8 rounded-[2.35rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.74),rgba(255,248,236,0.56))] p-6 sm:p-8 lg:p-10"
+          className="glass-panel flex flex-col justify-between gap-7 rounded-[2.1rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.74),rgba(255,248,236,0.56))] p-5 sm:p-7 lg:p-8"
           variants={panelVariants}
         >
           <div>
@@ -180,16 +180,16 @@ const ProductDetail = () => {
               <span>{product.stock} piezas</span>
             </div>
 
-            <h1 className="mt-5 max-w-xl font-display text-5xl leading-[0.92] text-[var(--text-primary)] text-balance sm:text-6xl xl:text-7xl">
+            <h1 className="mt-4 max-w-xl font-display text-[2.8rem] leading-[0.94] text-[var(--text-primary)] text-balance sm:text-5xl xl:text-[4.25rem]">
               {product.title}
             </h1>
 
-            <p className="mt-6 max-w-xl text-base leading-8 text-[var(--text-secondary)] sm:text-lg">
+            <p className="mt-5 max-w-xl text-[0.98rem] leading-7 text-[var(--text-secondary)] sm:text-base">
               {product.description}
             </p>
 
             {product.variants?.length > 0 && (
-              <div className="mt-6">
+              <div className="mt-5">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)] mb-3">Selecciona talla</p>
                 <div className="flex flex-wrap gap-2">
                   {product.variants.map((variant) => (
@@ -198,7 +198,7 @@ const ProductDetail = () => {
                       onClick={() => {
                         setSelectedSize(variant.id);
                       }}
-                      className={`rounded-full border px-5 py-2 text-sm font-semibold uppercase tracking-[0.16em] transition ${
+                      className={`rounded-full border px-4 py-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.16em] transition ${
                         selectedSize === variant.id
                           ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--ink)]'
                           : 'border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] text-[var(--text-primary)] hover:border-[var(--accent)]'
@@ -211,11 +211,11 @@ const ProductDetail = () => {
               </div>
             )}
 
-            <div className="mt-8 rounded-[1.8rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] p-5 sm:p-6">
+            <div className="mt-7 rounded-[1.6rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] p-4 sm:p-5">
               <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)]">Precio de colección</p>
-              <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <p className="font-display text-5xl leading-none text-[var(--text-primary)] sm:text-6xl">{formatCOP(product.price)}</p>
-                <p className="max-w-xs text-sm leading-7 text-[var(--text-secondary)]">
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <p className="font-display text-[2.65rem] leading-none text-[var(--text-primary)] sm:text-5xl">{formatCOP(product.price)}</p>
+                <p className="max-w-xs text-[0.9rem] leading-6 text-[var(--text-secondary)]">
                   Pago seguro, confirmación por webhook y seguimiento desde tu cuenta.
                 </p>
               </div>
@@ -226,22 +226,22 @@ const ProductDetail = () => {
             <button
               onClick={handleAddToCart}
               disabled={adding || product.stock <= 0 || (product.has_variants && !selectedSize)}
-              className="inline-flex min-h-[64px] w-full items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-60"
+              className="inline-flex min-h-[58px] w-full items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-5 py-3.5 text-[0.82rem] font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-60"
             >
               {adding ? <Loader2 className="animate-spin" size={18} /> : <ShoppingCart size={18} />}
               {product.stock > 0 ? 'Añadir a selección' : 'Sin disponibilidad'}
             </button>
 
-            <Motion.div className="grid gap-3 sm:grid-cols-3" variants={sectionVariants}>
+            <Motion.div className="grid gap-2.5 sm:grid-cols-3" variants={sectionVariants}>
               {assuranceItems.map((item) => (
                 <Motion.div
                   key={item.label}
-                  className="glass-panel rounded-[1.5rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.34)] p-4"
+                  className="glass-panel rounded-[1.35rem] border border-[var(--border-soft)] bg-[rgba(255,255,255,0.34)] p-3.5"
                   variants={assuranceCardVariants}
                 >
-                  <item.icon size={18} className="text-[var(--accent)]" />
-                  <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--text-primary)]">{item.label}</p>
-                  <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{item.description}</p>
+                  <item.icon size={17} className="text-[var(--accent)]" />
+                  <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-primary)]">{item.label}</p>
+                  <p className="mt-1.5 text-[0.88rem] leading-6 text-[var(--text-secondary)]">{item.description}</p>
                 </Motion.div>
               ))}
             </Motion.div>

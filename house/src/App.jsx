@@ -241,20 +241,20 @@ const SupportBar = () => (
 );
 
 const Footer = () => (
-  <footer className="mt-24 border-t border-[var(--border-strong)] bg-[var(--bg-elevated)] py-14 sm:mt-32 sm:py-20">
+  <footer id="seleccion-con-proposito" className="mt-24 scroll-mt-28 border-t border-[var(--border-strong)] bg-[var(--bg-elevated)] py-14 sm:mt-32 sm:py-20">
     <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1.35fr_1fr_1fr] lg:px-8">
       <div>
         <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--text-muted)]">Inspiration Store</p>
         <h2 className="mt-3 max-w-md font-display text-4xl leading-none tracking-[0.04em] text-[var(--text-primary)] sm:text-5xl">
-          Una tienda con ritmo más curado que masivo.
+         Cada pieza elegida por algo más que verse bien
         </h2>
       </div>
       <div>
         <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--text-muted)]">Explora</p>
         <div className="mt-4 flex flex-col gap-3 text-sm text-[var(--text-secondary)]">
-          <a href="#" className="transition hover:text-[var(--accent)]">Colección</a>
-          <a href="#" className="transition hover:text-[var(--accent)]">Selección semanal</a>
-          <a href="#" className="transition hover:text-[var(--accent)]">Piezas destacadas</a>
+          <a href="/#coleccion-semanal" className="transition hover:text-[var(--accent)]">Colección semanal</a>
+          <a href="/#piezas-destacadas" className="transition hover:text-[var(--accent)]">Piezas destacadas</a>
+         
         </div>
       </div>
       <div>
@@ -272,6 +272,11 @@ const Footer = () => (
           </a>
         </div>
       </div>
+    </div>
+    <div className="mx-auto mt-10 max-w-7xl border-t border-[var(--border-soft)] px-4 pt-6 sm:px-6 lg:px-8">
+      <p className="text-center text-[11px] uppercase tracking-[0.22em] text-[var(--text-muted)]">
+        &copy; {new Date().getFullYear()} Inspiration Store. Todos los derechos reservados.
+      </p>
     </div>
   </footer>
 );
