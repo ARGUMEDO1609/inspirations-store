@@ -55,7 +55,7 @@ ActiveAdmin.register Order do
     end
 
     column("Estado") do |order|
-      status_tag order.status
+      status_tag order.status.to_s
     end
 
     column("Pago") do |order|
@@ -108,7 +108,7 @@ ActiveAdmin.register Order do
         attributes_table_for order do
           row("Cliente") { |record| record.user&.name || record.user&.email }
           row("Correo") { |record| record.user&.email }
-          row("Estado") { |record| status_tag(record.status) }
+          row("Estado") { |record| status_tag(record.status.to_s) }
           row("Pago") { |record| record.payment_status.presence || "sin confirmar" }
           row("ID de pago", &:payment_id)
           row("Total") { |record| number_to_currency(record.total) }

@@ -54,7 +54,7 @@ ActiveAdmin.register_page "Dashboard" do
               table_for recent_orders do
                 column("Pedido") { |order| link_to "##{order.id.to_s.rjust(6, '0')}", admin_order_path(order) }
                 column("Cliente") { |order| order.user&.name || order.user&.email || "Sin cliente" }
-                column("Estado") { |order| status_tag order.status }
+                column("Estado") { |order| status_tag order.status.to_s }
                 column("Pago") { |order| order.payment_status.presence || "sin confirmar" }
                 column("Total") { |order| helpers.number_to_currency(order.total) }
                 column("Fecha") { |order| l(order.created_at, format: :short) }
@@ -69,9 +69,9 @@ ActiveAdmin.register_page "Dashboard" do
               table_for pending_payment_orders do
                 column("Pedido") { |order| link_to "##{order.id}", admin_order_path(order) }
                 column("Cliente") { |order| order.user&.email || "Sin correo" }
-                column("Estado") { |order| status_tag(order.status) }
+                column("Estado") { |order| status_tag(order.status.to_s) }
                 column("Pago") { |order| order.payment_status.presence || "pendiente" }
-                column("Dirección") { |order| truncate(order.shipping_address, length: 42) }
+                column("Dirección") { |order| (order.shipping_address.to_s[0, 42] || "") }
               end
             else
               para "No hay pagos pendientes de revisión en este momento."
