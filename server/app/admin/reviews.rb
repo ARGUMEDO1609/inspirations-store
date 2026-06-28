@@ -20,7 +20,7 @@ ActiveAdmin.register Review do
       end
       div("##{review.reviewable_id}", style: "color:#6b7280; font-size:12px;")
     end
-    column("Rating") { |review| status_tag(review.rating, class: review.rating.to_i >= 4 ? "ok" : "warning") }
+    column("Rating") { |review| status_tag(review.rating.to_s, class: review.rating.to_i >= 4 ? "ok" : "warning") }
     column("Comentario") { |review| truncate(review.comment, length: 80) }
     column("Creada") { |review| l(review.created_at, format: :short) }
     actions

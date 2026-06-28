@@ -12,7 +12,7 @@ ActiveAdmin.register User do
       div user.email, style: "color:#6b7280; font-size:12px; margin-top:4px;"
     end
 
-    column("Rol") { |user| status_tag user.role }
+    column("Rol") { |user| status_tag user.role.to_s }
     column("Teléfono", &:phone)
     column("Dirección") { |user| truncate(user.display_address, length: 44) }
     column("Pedidos") { |user| user.orders.count }
