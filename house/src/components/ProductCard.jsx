@@ -10,13 +10,13 @@ const cardVariants = {
   hidden: {
     opacity: 0,
     y: 60,
-    scale: 0.88,
+    scale: 0.9,
     filter: 'blur(1.5px)'
   },
   visible: (idx) => ({
     opacity: 1,
     y: 0,
-    scale: 0.87,
+    scale: 0.95,
     filter: 'blur(0px)',
     transition: {
       opacity: { duration: 0.5, ease: 'easeOut' },
@@ -54,27 +54,27 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
           variants={imageVariants}
           transition={{ duration: 0.8, ease: 'easeOut' }}
         />
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(46,31,19,0.78)] via-[rgba(46,31,19,0.22)] to-transparent p-5 sm:p-6">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(46,31,19,0.78)] via-[rgba(46,31,19,0.22)] to-transparent p-4 sm:p-5">
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-[10px] uppercase tracking-[0.32em] text-[#f1dfc7]">Pieza curada</p>
-              <h3 className="mt-2 font-display text-[2rem] leading-none text-[#fff7eb] sm:text-[2.3rem]">
+              <h3 className="mt-2 font-display text-[1.9rem] leading-none text-[#fff7eb] sm:text-[2.15rem]">
                 {product.title}
               </h3>
             </div>
-            <span className="rounded-full border border-[rgba(255,248,236,0.24)] bg-[rgba(255,248,236,0.18)] px-3 py-2 text-sm font-semibold text-[#fff7eb] sm:text-base">
+            <span className="rounded-full border border-[rgba(255,248,236,0.24)] bg-[rgba(255,248,236,0.18)] px-2.5 py-1.5 text-[0.82rem] font-semibold text-[#fff7eb] sm:text-sm">
               {formatCOP(product.price)}
             </span>
           </div>
         </div>
       </Motion.div>
 
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
         <p className="line-clamp-3 text-sm leading-7 text-[var(--text-secondary)]">
           {product.description}
         </p>
 
-        <div className="mt-6 flex items-center justify-between border-t border-[var(--border-soft)] pt-5 text-[11px] uppercase tracking-[0.24em] text-[var(--text-muted)]">
+        <div className="mt-5 flex items-center justify-between border-t border-[var(--border-soft)] pt-4 text-[11px] uppercase tracking-[0.24em] text-[var(--text-muted)]">
           <span className="inline-flex items-center gap-2">
             <span className={`h-2 w-2 rounded-full ${product.stock > 0 ? 'bg-[var(--success)]' : 'bg-[var(--danger)]'}`}></span>
             {product.stock > 0 ? 'Disponible' : 'Sin stock'}
@@ -82,10 +82,10 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
           <span>{product.stock} piezas</span>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-3">
+        <div className="mt-5 grid grid-cols-2 gap-2.5">
           <Link
             to={`/product/${product.id}`}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] px-3 py-2.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
           >
             Ver producto
             <ArrowUpRight size={15} />
@@ -93,7 +93,7 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
           <button
             onClick={onAddToCart}
             disabled={isProcessing}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--accent)] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-70"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--accent)] px-3 py-2.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-70"
           >
             {isProcessing ? <Loader2 size={15} className="animate-spin" /> : <ShoppingCart size={15} />}
             Añadir
