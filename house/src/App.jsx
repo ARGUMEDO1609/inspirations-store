@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import { ShoppingCart, User, LogOut, Loader2, X } from 'lucide-react';
 import Login from './pages/Login';
@@ -135,9 +135,22 @@ const CartLink = ({ className = '', ariaLabel = 'Abrir carrito' }) => {
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--border-strong)] bg-[rgba(251,245,238,0.74)] backdrop-blur-2xl">
+    <header
+      className={`sticky top-0 z-50 border-b border-[var(--border-strong)] backdrop-blur-2xl transition-colors duration-300 ${
+        scrolled
+          ? 'bg-[rgba(251,245,238,0.48)]'
+          : 'bg-[rgba(251,245,238,0.88)]'
+      }`}
+    >
       <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
         <div className="flex items-center justify-between gap-4">
           <Link to="/" className="flex flex-col leading-none transition hover:opacity-85">
