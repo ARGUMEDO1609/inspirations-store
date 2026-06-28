@@ -100,6 +100,8 @@ const gridVariants = {
 const Hero = ({ filter, setFilter, sort, setSort, categories, productCount, searchTerm, setSearchTerm }) => {
   return (
     <HeroSection
+      id="coleccion-semanal"
+      className="scroll-mt-28"
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.35 }}
@@ -332,7 +334,8 @@ const Gallery = () => {
         </motion.section>
       ) : (
         <motion.section
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 sm:gap-5 xl:gap-6"
+          id="piezas-destacadas"
+          className="scroll-mt-28 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 sm:gap-4 xl:gap-5"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-15% 0px -25% 0px' }}
