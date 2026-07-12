@@ -34,7 +34,7 @@ module Wompi
     attr_reader :order, :frontend_url
 
     def reference
-      "order-#{order.id}"
+      order.reference
     end
 
     def amount_in_cents
