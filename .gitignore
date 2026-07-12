@@ -7,9 +7,11 @@
 # Ignore bundler config.
 /.bundle
 
-# Ignore all environment files (but keep the committed template).
-/.env*
-!/.env.docker.example
+# Ignore all environment files (but keep the committed templates).
+# Sin slash inicial: cubre cualquier .env* en cualquier subdirectorio (server/.env, house/.env, etc.).
+.env*
+!.env.docker.example
+!.env.example
 
 # Ignore all logfiles and tempfiles.
 /log/*
