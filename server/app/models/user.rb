@@ -20,7 +20,11 @@ class User < ApplicationRecord
   end
 
   def self.find_for_jwt_authentication_from_token(token)
+<<<<<<< HEAD
     secret = ENV.fetch("DEVISE_JWT_SECRET_KEY")
+=======
+    secret = ENV["DEVISE_JWT_SECRET_KEY"] || "temporary_secret_for_development_1234567890"
+>>>>>>> d9971c091c9c570e3e7dc6a97d17bfeb88f50b4a
 
     begin
       decoded = JWT.decode(token, secret, true, algorithm: "HS256")
