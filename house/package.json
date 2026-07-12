@@ -14,7 +14,7 @@
     "@emotion/styled": "^11.14.1",
     "@rails/actioncable": "^8.1.300",
     "axios": "^1.18.1",
-    "framer-motion": "^12.42.0",
+    "framer-motion": "^12.42.2",
     "lucide-react": "^1.23.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
