@@ -13,7 +13,11 @@ module Wompi
         return false if provided_checksum.blank?
 
         timestamp = signature["timestamp"].to_s
+<<<<<<< HEAD
         begin; secret = ENV.fetch("WOMPI_EVENT_SECRET"); rescue KeyError; return false; end
+=======
+        secret = ENV.fetch("WOMPI_EVENT_SECRET")
+>>>>>>> d9971c091c9c570e3e7dc6a97d17bfeb88f50b4a
         expected_checksum = Digest::SHA256.hexdigest(
           "#{concatenate_properties(signature["properties"], payload["data"])}#{timestamp}#{secret}"
         )
