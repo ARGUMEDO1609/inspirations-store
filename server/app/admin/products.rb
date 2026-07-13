@@ -106,7 +106,7 @@ ActiveAdmin.register Product do
     column("Pieza") do |product|
       div style: "display:flex; gap:12px; align-items:center;" do
         if product.image.attached?
-          image_tag rails_storage_proxy_url(product.image, only_path: true), style: "width:64px; height:64px; object-fit:cover; border-radius:16px; border:1px solid #e5e7eb;"
+          image_tag rails_blob_path(product.image), style: "width:64px; height:64px; object-fit:cover; border-radius:16px; border:1px solid #e5e7eb;"
         else
           div "Sin imagen", style: "width:64px; height:64px; display:flex; align-items:center; justify-content:center; background:#f3f4f6; border-radius:16px; color:#6b7280; font-size:11px;"
         end
@@ -222,7 +222,7 @@ ActiveAdmin.register Product do
       panel "Vista de producto" do
         if product.image.attached?
           div style: "margin-bottom:16px;" do
-            image_tag rails_storage_proxy_url(product.image, only_path: true), style: "width:100%; max-width:460px; border-radius:24px; border:1px solid #e5e7eb;"
+            image_tag rails_blob_path(product.image), style: "width:100%; max-width:460px; border-radius:24px; border:1px solid #e5e7eb;"
           end
         end
 
