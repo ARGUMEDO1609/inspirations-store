@@ -335,7 +335,7 @@ const Gallery = () => {
       ) : (
         <motion.section
           id="piezas-destacadas"
-          className="scroll-mt-28 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 sm:gap-4 xl:gap-5"
+          className="scroll-mt-28 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 sm:gap-3 xl:gap-4"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-15% 0px -25% 0px' }}
