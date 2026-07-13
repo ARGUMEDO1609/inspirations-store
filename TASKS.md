@@ -29,6 +29,8 @@ inspiration-store/
 ✅ **Admin:** ActiveAdmin with order management, products, categories, users  
 ✅ **Payments:** Wompi integration (checkout session + webhook validation)  
 ✅ **Polymorphic associations:** Reviews, Notes, Addresses on User/Order/Product  
+✅ **Security hardening:** Rack::Attack, CSP, file validation, XSS sanitization  
+✅ **Stimulus refresh fix:** ActiveAdmin Turbo navigation works correctly  
 ✅ **All tests passing:** 116 RSpec examples, 0 failures  
 ✅ **CI green:** rubocop, brakeman, rspec, eslint, vite build
 
@@ -86,6 +88,11 @@ inspiration-store/
 - [x] JSONAPI serializers
 - [x] Rack::Attack rate limiting
 - [x] Security headers middleware
+- [x] **File upload validation** (images: jpeg/png/webp <5MB; 3D models: glb/gltf <15MB)
+- [x] **Content Security Policy** (CSP, COOP, CORP, frame-ancestors:none)
+- [x] **XSS sanitization** on reviews (Rails Html SafeListSanitizer)
+- [x] **Stimulus refresh fix** for ActiveAdmin Turbo navigation
+- [x] Rate limit responses with Retry-After + X-RateLimit-* headers
 
 ---
 
@@ -126,6 +133,10 @@ inspiration-store/
 | Error tracking (Sentry/Honeybadger) | ⬜ | |
 | CDN for Active Storage | ⬜ | Configure CloudFront/S3 |
 | SSL/TLS termination | ⬜ | Handled by platform (Heroku/Railway/Render) |
+| **Rack::Attack hardening** | ✅ | Login 5/min, signup 3/10min, cart 30/min, checkout 10/5min |
+| **Security headers (CSP, COOP, CORP)** | ✅ | Frame-ancestors:none, strict referrer-policy |
+| **File upload validation** | ✅ | Images <5MB, 3D <15MB, type checking |
+| **XSS sanitization** | ✅ | Reviews sanitized with SafeListSanitizer |
 
 ### Phase 2 - Operational Excellence (ongoing)
 **Goal:** Reduce manual ops, improve observability
@@ -162,6 +173,8 @@ inspiration-store/
 | **Order serializer** | N+1 on order_items → product | Medium - add `includes` in controller |
 | **Action Cable** | No connection recovery logging | Low - add reconnect attempts counter |
 | **Admin CSS** | Tailwind + ActiveAdmin asset pipeline friction | Medium - consider ViewComponent migration |
+| **Rate limiting** | Only IP-based, no user-ID based for auth endpoints | Medium - add user-based limits |
+| **Idempotency keys** | Not implemented on webhooks | Medium - add to prevent duplicate processing |
 
 ---
 
@@ -236,3 +249,4 @@ VITE_API_URL=http://localhost:3000
 
 *Last updated: 2025-07-13*
 *All CI checks passing: rspec (116), rubocop, brakeman, eslint, vite build*
+*Security hardening: Rack::Attack, CSP, file validation, XSS sanitization, Stimulus fix*
