@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Globe, Loader2, ShieldCheck, ShoppingCart, Zap } from 'lucide-react';
+import { ArrowLeft, Globe, Loader2, ShieldCheck, ShoppingCart, Zap, Box } from 'lucide-react';
 import { motion as Motion } from 'framer-motion';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 import useApiError from '../hooks/useApiError';
 import { formatCOP } from '../utils/formatCurrency';
+
+const Product3DViewer = lazy(() => import('../components/Product3DViewer').then(m => ({ default: m.default })));
 
 const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800' viewBox='0 0 800 800'%3E%3Crect fill='%23f5f0e8' width='800' height='800'/%3E%3Ctext fill='%23a99' font-family='sans-serif' font-size='32' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3EImagen no disponible%3C/text%3E%3C/svg%3E";
 
@@ -70,6 +72,7 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [show3D, setShow3D] = useState(false);
   const { toast } = useToast();
   const { handleError } = useApiError();
 
@@ -155,15 +158,39 @@ const ProductDetail = () => {
       <Motion.section className="grid gap-7 lg:grid-cols-[1.08fr_0.92fr] lg:gap-9 xl:gap-10" variants={sectionVariants}>
         <Motion.div className="glass-panel relative overflow-hidden rounded-[2.1rem] border border-[var(--border-soft)] bg-[var(--bg-elevated)]" variants={panelVariants}>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(215,161,74,0.22),transparent_28%)]" />
-          <Motion.img
-            src={product.image_url || PLACEHOLDER}
-            alt={product.title}
-            className="relative aspect-[4/4.55] w-full object-cover"
-            initial={{ scale: 1.02 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.7, ease: 'easeOut' }}
-            onError={(event) => { event.currentTarget.src = PLACEHOLDER; }}
-          />
+          
+          {show3D && product?.model_url ? (
+            <Suspense fallback={<div className="w-full h-full flex items-center justify-center glass-panel"><Loader2 className="h-12 w-12 animate-spin text-[var(--accent)]" /></div>}>
+              <Product3DViewer 
+                modelUrl={product.model_url}
+                fallbackImage={product.image_url}
+                className="w-full h-full min-h-[500px]"
+                rotation={[0, -0.3, 0]}
+                scale={1.2}
+              />
+            </Suspense>
+          ) : (
+            <>
+              <Motion.img
+                src={product.image_url || PLACEHOLDER}
+                alt={product.title}
+                className="relative aspect-[4/4.55] w-full object-cover"
+                initial={{ scale: 1.02 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.7, ease: 'easeOut' }}
+                onError={(event) => { event.currentTarget.src = PLACEHOLDER; }}
+              />
+              <div className="absolute bottom-4 right-4">
+                <button
+                  onClick={() => setShow3D(!show3D)}
+                  className="glass-panel rounded-full p-2 shadow-lg hover:bg-[rgba(255,255,255,0.5)] transition"
+                  aria-label={show3D ? 'Ver imagen' : 'Ver en 3D'}
+                >
+                  <Box size={20} className="text-[var(--accent)]" />
+                </button>
+              </div>
+            </>
+          )}
           <div className="absolute left-4 top-4 rounded-full border border-[rgba(255,248,236,0.24)] bg-[rgba(46,31,19,0.52)] px-3 py-1.5 text-[9px] uppercase tracking-[0.28em] text-[#fff1da] backdrop-blur-md sm:left-5 sm:top-5 sm:text-[10px]">
             Selección actual
           </div>

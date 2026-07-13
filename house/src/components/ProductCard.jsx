@@ -34,19 +34,19 @@ const imageVariants = {
 const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
   return (
     <Motion.article
-      className="glass-panel hover-lift group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.72),rgba(255,248,236,0.52))] transition duration-500 hover:border-[var(--accent)]/60 hover:shadow-[0_24px_50px_rgba(38,24,12,0.14)]"
+      className="glass-panel hover-lift group relative flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.72),rgba(255,248,236,0.52))] transition duration-500 hover:border-[var(--accent)]/60 hover:shadow-[0_16px_32px_rgba(38,24,12,0.1)]"
       variants={cardVariants}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: '-25% 0px -25% 0px' }}
       custom={index}
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.015 }}
       whileTap={{ scale: 0.99 }}
       layout
     >
-      <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-[var(--glow)] blur-3xl transition duration-700 group-hover:scale-125" />
+      <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-[var(--glow)] blur-3xl transition duration-700 group-hover:scale-125" />
 
-      <Motion.div className="relative aspect-[4/4.8] overflow-hidden border-b border-[var(--border-soft)] bg-[var(--bg-elevated)]">
+      <Motion.div className="relative aspect-[4/4.3] overflow-hidden border-b border-[var(--border-soft)] bg-[var(--bg-elevated)]">
         <Motion.img
           src={product.image_url || PLACEHOLDER}
           alt={product.title}
@@ -54,11 +54,11 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
           variants={imageVariants}
           transition={{ duration: 0.8, ease: 'easeOut' }}
         />
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(46,31,19,0.78)] via-[rgba(46,31,19,0.22)] to-transparent p-4 sm:p-5">
-          <div className="flex items-end justify-between gap-4">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(46,31,19,0.78)] via-[rgba(46,31,19,0.22)] to-transparent p-3 sm:p-4">
+          <div className="flex items-end justify-between gap-3">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[#f1dfc7]">Pieza curada</p>
-              <h3 className="mt-2 font-display text-[1.9rem] leading-none text-[#fff7eb] sm:text-[2.15rem]">
+              <p className="text-[9px] uppercase tracking-[0.32em] text-[#f1dfc7]">Pieza curada</p>
+              <h3 className="mt-1.5 font-display text-[1.6rem] leading-none text-[#fff7eb] sm:text-[1.85rem]">
                 {product.title}
               </h3>
             </div>
@@ -69,33 +69,33 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
         </div>
       </Motion.div>
 
-      <div className="flex flex-1 flex-col p-4 sm:p-5">
-        <p className="line-clamp-3 text-sm leading-7 text-[var(--text-secondary)]">
+      <div className="flex flex-1 flex-col p-3 sm:p-4">
+        <p className="line-clamp-2 text-[0.85rem] leading-6 text-[var(--text-secondary)]">
           {product.description}
         </p>
 
-        <div className="mt-5 flex items-center justify-between border-t border-[var(--border-soft)] pt-4 text-[11px] uppercase tracking-[0.24em] text-[var(--text-muted)]">
-          <span className="inline-flex items-center gap-2">
-            <span className={`h-2 w-2 rounded-full ${product.stock > 0 ? 'bg-[var(--success)]' : 'bg-[var(--danger)]'}`}></span>
+        <div className="mt-4 flex items-center justify-between border-t border-[var(--border-soft)] pt-3 text-[10px] uppercase tracking-[0.24em] text-[var(--text-muted)]">
+          <span className="inline-flex items-center gap-1.5">
+            <span className={`h-1.5 w-1.5 rounded-full ${product.stock > 0 ? 'bg-[var(--success)]' : 'bg-[var(--danger)]'}`}></span>
             {product.stock > 0 ? 'Disponible' : 'Sin stock'}
           </span>
           <span>{product.stock} piezas</span>
         </div>
 
-        <div className="mt-5 grid grid-cols-2 gap-2.5">
+        <div className="mt-4 grid grid-cols-2 gap-2">
           <Link
             to={`/product/${product.id}`}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] px-3 py-2.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] px-2.5 py-2 text-[9px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
           >
             Ver producto
-            <ArrowUpRight size={15} />
+            <ArrowUpRight size={13} />
           </Link>
           <button
             onClick={onAddToCart}
             disabled={isProcessing}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--accent)] px-3 py-2.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-70"
+            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[var(--accent)] px-2.5 py-2 text-[9px] font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-70"
           >
-            {isProcessing ? <Loader2 size={15} className="animate-spin" /> : <ShoppingCart size={15} />}
+            {isProcessing ? <Loader2 size={13} className="animate-spin" /> : <ShoppingCart size={13} />}
             Añadir
           </button>
         </div>
