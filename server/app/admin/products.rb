@@ -1,6 +1,6 @@
 ActiveAdmin.register Product do
   menu priority: 3, label: "Productos"
-  permit_params :title, :description, :price, :stock, :category_id, :image, :sizes_data
+  permit_params :title, :description, :price, :stock, :category_id, :image, :model_url, :sizes_data
 
   controller do
     def create
@@ -170,6 +170,10 @@ ActiveAdmin.register Product do
       f.input :image,
               as: :file,
               label: "Subir imagen principal"
+      f.input :model_url,
+              as: :file,
+              label: "Modelo 3D (.glb/.gltf)",
+              hint: "Archivo .glb o .gltf para vista 3D en tienda (máx. 15 MB)"
     end
 
     f.inputs "Tallas" do
