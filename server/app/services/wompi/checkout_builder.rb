@@ -34,11 +34,7 @@ module Wompi
     attr_reader :order, :frontend_url
 
     def reference
-<<<<<<< HEAD
       order.reference
-=======
-      "order-#{order.id}"
->>>>>>> d9971c091c9c570e3e7dc6a97d17bfeb88f50b4a
     end
 
     def amount_in_cents

@@ -12,15 +12,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      checkUser();
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
   const checkUser = async () => {
     try {
       const response = await api.get('/current_user');
@@ -32,6 +23,15 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      checkUser();
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
   const login = async (email, password) => {
     const response = await api.post('/login', {
