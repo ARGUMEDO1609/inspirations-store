@@ -3,6 +3,7 @@ class Product < ApplicationRecord
 
   belongs_to :category
   has_one_attached :image
+  has_one_attached :model_url
   has_many :order_items
   has_many :cart_items
   has_many :reviews, as: :reviewable, dependent: :destroy
@@ -14,6 +15,9 @@ class Product < ApplicationRecord
   validates :title, presence: true
   validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :stock, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+
+  validate :acceptable_image
+  validate :acceptable_model_url
 
   def sizes
     variants.where(variant_type: "size")
@@ -47,5 +51,29 @@ class Product < ApplicationRecord
       action: action,
       product: ProductSerializer.new(self).serializable_hash[:data]
     })
+  end
+
+  def acceptable_image
+    return unless image.attached?
+
+    unless image.content_type.in?(%w[image/jpeg image/png image/webp])
+      errors.add(:image, "debe ser JPEG, PNG o WebP")
+    end
+
+    if image.byte_size > 5.megabytes
+      errors.add(:image, "es demasiado grande (máx. 5 MB)")
+    end
+  end
+
+  def acceptable_model_url
+    return unless model_url.attached?
+
+    unless model_url.content_type.in?(%w[model/gltf-binary model/gltf+json application/octet-stream])
+      errors.add(:model_url, "debe ser un archivo .glb o .gltf")
+    end
+
+    if model_url.byte_size > 15.megabytes
+      errors.add(:model_url, "es demasiado grande (máx. 15 MB)")
+    end
   end
 end
