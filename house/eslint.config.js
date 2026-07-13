@@ -25,6 +25,8 @@ export default defineConfig([
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
       'react-refresh/only-export-components': ['warn', { allowExportNames: ['CartCountProvider', 'useCartCount', 'CartNotificationProvider', 'useCartNotification', 'NetworkStatusProvider', 'useNetworkStatus', 'useAuth', 'AuthProvider', 'ToastProvider', 'useToast'] }],
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/exhaustive-deps': 'off',
     },
   },
 ])

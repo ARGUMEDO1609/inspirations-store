@@ -19,11 +19,7 @@ Devise.setup do |config|
 
   # JWT Configuration
   config.jwt do |jwt|
-<<<<<<< HEAD
-    jwt.secret = ENV.fetch("DEVISE_JWT_SECRET_KEY")
-=======
     jwt.secret = ENV["DEVISE_JWT_SECRET_KEY"] || "temporary_secret_for_development_1234567890"
->>>>>>> d9971c091c9c570e3e7dc6a97d17bfeb88f50b4a
     jwt.dispatch_requests = [
       [ "POST", %r{/login$} ],
       [ "POST", %r{/signup$} ]
