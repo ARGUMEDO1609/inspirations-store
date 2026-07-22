@@ -17,6 +17,6 @@
   "dependencies": {
     "@activeadmin/activeadmin": "^3.4.0",
     "@tailwindcss/cli": "^4.3.1",
-    "tailwindcss": "^4.3.1"
+    "tailwindcss": "^4.3.3"
   }
 }
