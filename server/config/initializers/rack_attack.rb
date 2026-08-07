@@ -113,7 +113,7 @@ class Rack::Attack
       retry_after: retry_after
     }
 
-    [429, headers, [body.to_json]]
+    [ 429, headers, [ body.to_json ] ]
   end
 
   self.blocklisted_responder = lambda do |_request|
@@ -123,6 +123,6 @@ class Rack::Attack
       error_code: "BLOCKED"
     }
 
-    [403, { "Content-Type" => "application/json" }, [body.to_json]]
+    [ 403, { "Content-Type" => "application/json" }, [ body.to_json ] ]
   end
 end

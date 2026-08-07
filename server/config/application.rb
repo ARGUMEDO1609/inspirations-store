@@ -31,6 +31,10 @@ module Server
     # To support ActiveAdmin's UI, we must allow views and helpers
     config.api_only = false
 
+    # Use ImageMagick (via mini_magick) instead of libvips for ActiveStorage
+    # variants, since libvips on this system is too old (8.13+ required).
+    config.active_storage.variant_processor = :mini_magick
+
 
     # ActiveAdmin requires sessions, cookies, and flash
     config.middleware.use ActionDispatch::Cookies
