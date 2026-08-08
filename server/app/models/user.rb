@@ -14,29 +14,6 @@ class User < ApplicationRecord
 
   after_commit :sync_primary_address_from_legacy!, if: :saved_change_to_address?
 
-  # Devise-jwt is no longer registered as a Warden strategy (the API now uses a
-  # HttpOnly cookie session). We keep this decoder helper for two reasons:
-  # (1) the legacy Bearer token is still accepted by ApiController as a last
-  #     resort during the migration window;
-  # (2) the request specs forge tokens with ENV["DEVISE_JWT_SECRET_KEY"].
-  # It will be removed once both sides move off the bearer token.
-  def self.find_for_jwt_authentication_from_token(token)
-    secret = ENV.fetch("DEVISE_JWT_SECRET_KEY")
-
-    begin
-      decoded = JWT.decode(token, secret, true, algorithm: "HS256")
-      payload = decoded[0]
-      user_id = payload["sub"]
-      jti = payload["jti"]
-
-      return nil if JwtDenylist.exists?(jti: jti)
-
-      find_by(id: user_id) if user_id
-    rescue JWT::DecodeError
-      nil
-    end
-  end
-
   def self.ransackable_attributes(auth_object = nil)
     [ "created_at", "email", "id", "name", "role", "updated_at" ]
   end

@@ -1,22 +1,17 @@
 require 'rails_helper'
-require 'jwt'
-require 'securerandom'
 
-RSpec.describe Api::V1::OrdersController, type: :controller do
+RSpec.describe 'API V1 Orders', type: :request do
   let(:user) { create(:user) }
   let(:product) { create(:product) }
-  let(:jwt_secret) { ENV['DEVISE_JWT_SECRET_KEY'] || 'temporary_secret_for_development_1234567890' }
-  let(:token_payload) { { sub: user.id, jti: SecureRandom.uuid } }
-  let(:token) { JWT.encode(token_payload, jwt_secret, 'HS256') }
 
   before do
-    request.headers['Authorization'] = "Bearer #{token}"
+    allow_any_instance_of(Api::V1::ApiController).to receive(:current_user).and_return(user)
   end
 
-  describe 'GET #index' do
+  describe 'GET /api/v1/orders' do
     it 'returns orders for current user as serialized resources' do
       order = create(:order, user: user)
-      get :index
+      get '/api/v1/orders'
 
       expect(response).to have_http_status(:success)
 
@@ -25,11 +20,11 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
     end
   end
 
-  describe 'GET #show' do
+  describe 'GET /api/v1/orders/:id' do
     let(:order) { create(:order, user: user) }
 
     it 'returns the order as a serialized resource' do
-      get :show, params: { id: order.id }
+      get "/api/v1/orders/#{order.id}"
 
       expect(response).to have_http_status(:success)
 
@@ -38,41 +33,41 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
     end
   end
 
-   describe 'POST #create' do
-     context 'with items in cart' do
-       let!(:cart_item) { create(:cart_item, user: user, product: product, quantity: 2) }
+  describe 'POST /api/v1/orders' do
+    context 'with items in cart' do
+      let!(:cart_item) { create(:cart_item, user: user, product: product, quantity: 2) }
 
-       it 'creates an order' do
-         post :create, params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
-         expect(response).to have_http_status(:created)
-         expect(Order.count).to eq(1)
+      it 'creates an order' do
+        post '/api/v1/orders', params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
+        expect(response).to have_http_status(:created)
+        expect(Order.count).to eq(1)
 
-         parsed = JSON.parse(response.body)
-         expect(parsed.dig('data', 'attributes', 'reference')).to be_present
-       end
+        parsed = JSON.parse(response.body)
+        expect(parsed.dig('data', 'attributes', 'reference')).to be_present
+      end
 
-       it 'marks payment as pending' do
-         post :create, params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
-         expect(Order.last.payment_status).to eq('pending')
-       end
+      it 'marks payment as pending' do
+        post '/api/v1/orders', params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
+        expect(Order.last.payment_status).to eq('pending')
+      end
 
-       it 'clears the cart' do
-         post :create, params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
-         expect(user.cart_items.count).to eq(0)
-       end
+      it 'clears the cart' do
+        post '/api/v1/orders', params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
+        expect(user.cart_items.count).to eq(0)
+      end
 
-       it 'deducts stock to reserve inventory' do
-         original_stock = product.stock
-         post :create, params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
-         expect(product.reload.stock).to eq(original_stock - 2)
-       end
+      it 'deducts stock to reserve inventory' do
+        original_stock = product.stock
+        post '/api/v1/orders', params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
+        expect(product.reload.stock).to eq(original_stock - 2)
+      end
     end
 
-     context 'with empty cart' do
-       it 'returns error' do
-         post :create, params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
-         expect(response).to have_http_status(:unprocessable_content)
-       end
+    context 'with empty cart' do
+      it 'returns error' do
+        post '/api/v1/orders', params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
+        expect(response).to have_http_status(:unprocessable_content)
+      end
     end
 
     context 'with insufficient stock' do
@@ -82,20 +77,21 @@ RSpec.describe Api::V1::OrdersController, type: :controller do
         product.update!(stock: 1)
       end
 
-       it 'returns error' do
-         post :create, params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
-         expect(response).to have_http_status(:unprocessable_content)
-       end
+      it 'returns error' do
+        post '/api/v1/orders', params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
+        expect(response).to have_http_status(:unprocessable_content)
+      end
     end
   end
 
-   describe 'Order state transitions' do
-     let!(:cart_item) { create(:cart_item, user: user, product: product, quantity: 1) }
-     let(:order) { Order.last }
+  describe 'Order state transitions' do
+    let!(:cart_item) { create(:cart_item, user: user, product: product, quantity: 1) }
 
-     before do
-       post :create, params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
-     end
+    before do
+      post '/api/v1/orders', params: { order: { shipping_address: '123 Test St', payment_method: 'card' } }
+    end
+
+    let(:order) { Order.last }
 
     it 'starts with pending status' do
       expect(order.status).to eq('pending')

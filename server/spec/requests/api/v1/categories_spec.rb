@@ -1,22 +1,14 @@
 require 'rails_helper'
-require 'jwt'
-require 'securerandom'
 
-RSpec.describe Api::V1::CategoriesController, type: :controller do
+RSpec.describe 'API V1 Categories', type: :request do
   let(:user) { create(:user) }
   let(:admin) { create(:admin_user) }
   let(:category) { create(:category) }
-  let(:jwt_secret) { ENV['DEVISE_JWT_SECRET_KEY'] || 'temporary_secret_for_development_1234567890' }
 
-  def jwt_for(user_record)
-    payload = { sub: user_record.id, jti: SecureRandom.uuid }
-    JWT.encode(payload, jwt_secret, 'HS256')
-  end
-
-  describe 'GET #index' do
+  describe 'GET /api/v1/categories' do
     it 'returns all categories' do
       category
-      get :index
+      get '/api/v1/categories'
       expect(response).to have_http_status(:success)
 
       parsed = JSON.parse(response.body)
@@ -24,9 +16,9 @@ RSpec.describe Api::V1::CategoriesController, type: :controller do
     end
   end
 
-  describe 'GET #show' do
+  describe 'GET /api/v1/categories/:id' do
     it 'returns the category' do
-      get :show, params: { id: category.id }
+      get "/api/v1/categories/#{category.id}"
       expect(response).to have_http_status(:success)
 
       parsed = JSON.parse(response.body)
@@ -34,25 +26,25 @@ RSpec.describe Api::V1::CategoriesController, type: :controller do
     end
   end
 
-  describe 'POST #create' do
+  describe 'POST /api/v1/categories' do
     context 'as admin' do
       before do
-        request.headers['Authorization'] = "Bearer #{jwt_for(admin)}"
+        allow_any_instance_of(Api::V1::ApiController).to receive(:current_user).and_return(admin)
       end
 
       it 'creates a category' do
-        post :create, params: { category: { name: 'New Category' } }
+        post '/api/v1/categories', params: { category: { name: 'New Category' } }
         expect(response).to have_http_status(:created)
       end
     end
 
     context 'as regular user' do
       before do
-        request.headers['Authorization'] = "Bearer #{jwt_for(user)}"
+        allow_any_instance_of(Api::V1::ApiController).to receive(:current_user).and_return(user)
       end
 
       it 'returns forbidden' do
-        post :create, params: { category: { name: 'New Category' } }
+        post '/api/v1/categories', params: { category: { name: 'New Category' } }
         expect(response).to have_http_status(:forbidden)
       end
     end

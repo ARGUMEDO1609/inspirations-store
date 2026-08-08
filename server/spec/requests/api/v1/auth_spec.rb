@@ -1,23 +1,18 @@
 require 'rails_helper'
-require 'jwt'
-require 'securerandom'
 
 RSpec.describe 'API V1 Auth', type: :request do
   let(:user) { create(:user, password: 'password123', password_confirmation: 'password123') }
-  let(:jwt_secret) { ENV['DEVISE_JWT_SECRET_KEY'] || 'temporary_secret_for_development_1234567890' }
-  let(:token_payload) { { sub: user.id, jti: SecureRandom.uuid } }
-  let(:token) { JWT.encode(token_payload, jwt_secret, 'HS256') }
 
   describe 'POST /api/v1/login' do
     it 'logs in with valid credentials' do
-      post '/api/v1/login', params: { user: { email: user.email, password: 'password123' } }
+      post '/api/v1/login', params: { user: { email: user.email, password: 'password123' } }, as: :json
 
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body).dig('data', 'attributes', 'email')).to eq(user.email)
     end
 
     it 'rejects invalid credentials' do
-      post '/api/v1/login', params: { user: { email: user.email, password: 'wrong-password' } }
+      post '/api/v1/login', params: { user: { email: user.email, password: 'wrong-password' } }, as: :json
 
       expect(response).to have_http_status(:unauthorized)
     end
@@ -34,7 +29,7 @@ RSpec.describe 'API V1 Auth', type: :request do
           address: '123 Main St',
           phone: '1234567890'
         }
-      }
+      }, as: :json
 
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body).dig('data', 'attributes', 'email')).to eq('new-user@example.com')
@@ -42,16 +37,28 @@ RSpec.describe 'API V1 Auth', type: :request do
   end
 
   describe 'GET /api/v1/current_user' do
-    it 'returns the current user for a valid token' do
-      get '/api/v1/current_user', headers: { 'Authorization' => "Bearer #{token}" }
+    it 'returns an empty session when no user is signed in' do
+      get '/api/v1/current_user', as: :json
 
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body).dig('data', 'attributes', 'email')).to eq(user.email)
+      expect(JSON.parse(response.body)).to eq('success' => true, 'data' => nil)
     end
+  end
 
-    it 'returns an empty session when no user is signed in' do
-      get '/api/v1/current_user'
+  describe 'DELETE /api/v1/logout' do
+    it 'logs out the current user' do
+      # Login first
+      post '/api/v1/login', params: { user: { email: user.email, password: 'password123' } }, as: :json
+      expect(response).to have_http_status(:ok)
 
+      # Logout
+      delete '/api/v1/logout', as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to eq('success' => true, 'message' => 'Logged out successfully')
+
+      # Verify session is cleared
+      get '/api/v1/current_user', as: :json
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)).to eq('success' => true, 'data' => nil)
     end

@@ -1,14 +1,9 @@
 require 'rails_helper'
-require 'jwt'
-require 'securerandom'
 
-RSpec.describe Api::V1::PaymentsController, type: :controller do
+RSpec.describe 'API V1 Payments', type: :request do
   let(:user) { create(:user) }
   let(:product) { create(:product) }
   let(:order) { create(:order, user: user, status: :pending, payment_status: 'pending') }
-  let(:jwt_secret) { ENV['DEVISE_JWT_SECRET_KEY'] || 'temporary_secret_for_development_1234567890' }
-  let(:token_payload) { { sub: user.id, jti: SecureRandom.uuid } }
-  let(:token) { JWT.encode(token_payload, jwt_secret, 'HS256') }
   let(:checkout_response) do
     {
       reference: order.reference,
@@ -22,14 +17,14 @@ RSpec.describe Api::V1::PaymentsController, type: :controller do
   end
 
   before do
-    request.headers['Authorization'] = "Bearer #{token}"
+    allow_any_instance_of(Api::V1::ApiController).to receive(:current_user).and_return(user)
     order.order_items.create!(product: product, quantity: 1, unit_price: product.price)
     allow(Wompi::CheckoutBuilder).to receive(:build).and_return(checkout_response)
   end
 
-  describe 'GET #create_preference' do
+  describe 'GET /api/v1/orders/:id/pay' do
     it 'returns a checkout payload for a pending order' do
-      get :create_preference, params: { id: order.id }
+      get "/api/v1/orders/#{order.id}/pay"
 
       expect(response).to have_http_status(:ok)
       parsed = JSON.parse(response.body)
@@ -38,7 +33,7 @@ RSpec.describe Api::V1::PaymentsController, type: :controller do
     end
 
     it 'calls the checkout builder with the current order' do
-      get :create_preference, params: { id: order.id }
+      get "/api/v1/orders/#{order.id}/pay"
 
       expect(Wompi::CheckoutBuilder).to have_received(:build).with(
         hash_including(order: order, frontend_url: anything)
@@ -48,7 +43,7 @@ RSpec.describe Api::V1::PaymentsController, type: :controller do
     it 'rejects orders without items' do
       empty_order = create(:order, user: user, status: :pending, payment_status: 'pending')
 
-      get :create_preference, params: { id: empty_order.id }
+      get "/api/v1/orders/#{empty_order.id}/pay"
 
       expect(response).to have_http_status(:unprocessable_content)
     end
@@ -56,7 +51,7 @@ RSpec.describe Api::V1::PaymentsController, type: :controller do
     it 'rejects orders that are not pending' do
       order.update!(status: :paid, payment_status: 'approved')
 
-      get :create_preference, params: { id: order.id }
+      get "/api/v1/orders/#{order.id}/pay"
 
       expect(response).to have_http_status(:unprocessable_content)
     end

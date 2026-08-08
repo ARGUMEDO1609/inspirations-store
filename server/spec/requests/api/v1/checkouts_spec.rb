@@ -1,34 +1,27 @@
 require 'rails_helper'
-require 'jwt'
-require 'securerandom'
 
-RSpec.describe Api::V1::CheckoutsController, type: :controller do
+RSpec.describe 'API V1 Checkouts', type: :request do
   let(:user) { create(:user) }
   let(:product) { create(:product) }
   let(:cart_item) { create(:cart_item, user: user, product: product, quantity: 1) }
-  let(:jwt_secret) { ENV['DEVISE_JWT_SECRET_KEY'] || 'temporary_secret_for_development_1234567890' }
-  let(:token_payload) { { sub: user.id, jti: SecureRandom.uuid } }
-  let(:token) { JWT.encode(token_payload, jwt_secret, 'HS256') }
 
   before do
-    request.headers['Authorization'] = "Bearer #{token}"
+    allow_any_instance_of(Api::V1::ApiController).to receive(:current_user).and_return(user)
+    ENV['WOMPI_PUBLIC_KEY'] = 'pk_test_checkouts'
+    ENV['WOMPI_INTEGRITY_KEY'] = 'integrity_test_checkouts'
   end
 
-  describe 'POST #create' do
-    context 'with cart items' do
-      before do
-        cart_item
-        ENV['WOMPI_PUBLIC_KEY'] = 'pk_test_checkouts'
-        ENV['WOMPI_INTEGRITY_KEY'] = 'integrity_test_checkouts'
-      end
+  after do
+    ENV.delete('WOMPI_PUBLIC_KEY')
+    ENV.delete('WOMPI_INTEGRITY_KEY')
+  end
 
-      after do
-        ENV.delete('WOMPI_PUBLIC_KEY')
-        ENV.delete('WOMPI_INTEGRITY_KEY')
-      end
+  describe 'POST /api/v1/checkout' do
+    context 'with cart items' do
+      before { cart_item }
 
       it 'builds an order and returns a checkout URL' do
-        post :create, params: { checkout: { shipping_address: 'Calle 123' } }, as: :json
+        post '/api/v1/checkout', params: { checkout: { shipping_address: 'Calle 123' } }, as: :json
 
         expect(response).to have_http_status(:created)
         parsed = JSON.parse(response.body)
@@ -43,7 +36,7 @@ RSpec.describe Api::V1::CheckoutsController, type: :controller do
 
     context 'with empty cart' do
       it 'returns an error' do
-        post :create, params: { checkout: { shipping_address: 'Calle 123' } }, as: :json
+        post '/api/v1/checkout', params: { checkout: { shipping_address: 'Calle 123' } }, as: :json
 
         expect(response).to have_http_status(:unprocessable_content)
         parsed = JSON.parse(response.body)
@@ -59,7 +52,7 @@ RSpec.describe Api::V1::CheckoutsController, type: :controller do
       end
 
       it 'returns a configuration error' do
-        post :create, params: { checkout: { shipping_address: 'Calle 123' } }, as: :json
+        post '/api/v1/checkout', params: { checkout: { shipping_address: 'Calle 123' } }, as: :json
 
         expect(response).to have_http_status(:unprocessable_content)
         parsed = JSON.parse(response.body)

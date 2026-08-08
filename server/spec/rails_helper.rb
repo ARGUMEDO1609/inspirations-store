@@ -5,6 +5,7 @@ require_relative '../config/environment'
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'rspec/rails'
 require 'factory_bot_rails'
+require_relative 'support/auth_helper'
 
 begin
   ActiveRecord::Migration.maintain_test_schema!
@@ -20,6 +21,7 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   config.include FactoryBot::Syntax::Methods if defined?(FactoryBot)
   config.include Devise::Test::ControllerHelpers, type: :controller
+  config.include AuthHelper, type: :request
 end
 
 Shoulda::Matchers.configure do |config|

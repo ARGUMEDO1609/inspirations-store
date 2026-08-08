@@ -19,34 +19,17 @@ class Api::V1::ApiController < ActionController::API
 
   private
 
-  # Auth flow:
-  #   1. Look for a Warden session user (set by Devise via the HttpOnly cookie).
-  #   2. Fall back to a short-lived WebSocket bearer token from /cable_token
-  #      (single-use, signed, 60s) so ActionCable can authenticate cross-origin.
-  #   3. As a last resort, accept the legacy Authorization: Bearer header used by
-  #      tests during migration.
+  # Auth flow: Warden session user (set by Devise via the HttpOnly cookie).
   def authenticate_user!
     return if current_user.present?
 
     user = warden_user
-    user ||= begin
-      token = extract_token_from_header
-      token.present? ? User.find_for_jwt_authentication_from_token(token) : nil
-    end
-
     if user
       @current_user = user
       return
     end
 
     render_unauthorized
-  end
-
-  def extract_token_from_header
-    header = request.headers["Authorization"]
-    return nil unless header.present?
-
-    header.split(" ").last if header.start_with?("Bearer ")
   end
 
   def current_user
