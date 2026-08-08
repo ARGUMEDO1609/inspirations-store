@@ -248,7 +248,7 @@ module.exports = plugin(
         '@apply relative overflow-x-auto': {}
       },
       '.data-table': {
-        '@apply w-full text-sm text-gray-800 dark:text-gray-300': {}
+        '@apply w-full min-w-max text-sm text-gray-800 dark:text-gray-300': {}
       },
       '.data-table :where(thead > tr > th)': {
         '@apply px-3 py-3.5 font-semibold text-start text-xs uppercase border-b border-gray-200 text-gray-700 bg-gray-50 dark:bg-gray-950/50 dark:border-gray-800 dark:text-white': {}
@@ -272,7 +272,13 @@ module.exports = plugin(
         '@apply px-3 py-4': {}
       },
       '.data-table-resource-actions': {
-        '@apply flex gap-2': {}
+        '@apply flex flex-wrap gap-2': {}
+      },
+      '.admin-responsive-table': {
+        '@apply -mx-3 overflow-x-auto px-3': {}
+      },
+      '.admin-responsive-table > .data-table': {
+        '@apply min-w-[36rem]': {}
       },
       '.filters-form': {
         '@apply text-sm mb-6': {}
@@ -284,7 +290,7 @@ module.exports = plugin(
         '@apply block mb-1.5 text-sm': {}
       },
       '.filters-form-input-group': {
-        '@apply grid grid-cols-2 gap-2': {}
+        '@apply grid grid-cols-1 gap-2 sm:grid-cols-2': {}
       },
       '.filters-form-field': {
         '@apply mb-4': {}
@@ -293,7 +299,7 @@ module.exports = plugin(
         '@apply flex gap-2 items-center mb-1': {}
       },
       '.filters-form-buttons': {
-        '@apply flex gap-2 items-center': {}
+        '@apply flex flex-wrap gap-2 items-center': {}
       },
       '.filters-form-submit': {
         '@apply min-w-24 font-bold text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-hidden focus:ring-blue-300 rounded-md px-3 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer': {}
@@ -332,7 +338,7 @@ module.exports = plugin(
         '@apply py-5 px-3': {}
       },
       '.attributes-table': {
-        '@apply overflow-hidden mb-6 border border-gray-200 rounded-md shadow-xs dark:border-gray-800': {}
+        '@apply overflow-x-auto mb-6 border border-gray-200 rounded-md shadow-xs dark:border-gray-800': {}
       },
       '.attributes-table > :where(table)': {
         '@apply w-full text-sm text-gray-800 dark:text-gray-300': {}
@@ -344,7 +350,7 @@ module.exports = plugin(
         '@apply w-32 sm:w-40 text-start text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-950/50 dark:text-gray-300': {}
       },
       '.attributes-table :where(tbody > tr > th, tbody > tr > td)': {
-        '@apply p-3': {}
+        '@apply break-words p-3': {}
       },
       '.attributes-table-empty-value': {
         '@apply text-gray-400/50 dark:text-gray-600/50 text-xs uppercase font-semibold': {}
@@ -405,7 +411,7 @@ module.exports = plugin(
         '@apply mt-3': {}
       },
       '.formtastic :where(.actions > ol)': {
-        '@apply flex items-center gap-6': {}
+        '@apply flex flex-wrap items-center gap-4 sm:gap-6': {}
       },
       '.formtastic :where([type=submit], [type=button], button)': {
         '@apply font-bold text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-hidden focus:ring-blue-300 rounded-lg px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer': {}
@@ -418,6 +424,15 @@ module.exports = plugin(
       },
       '.formtastic :where(.has-many-fields)': {
         '@apply ps-3 border-s-4 border-s-gray-200 dark:border-s-gray-700': {}
+      },
+      '.admin-dashboard-content-grid': {
+        '@apply grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]': {}
+      },
+      '.admin-dashboard-hero': {
+        '@apply rounded-[28px] p-5 sm:p-8': {}
+      },
+      '.admin-dashboard-heading': {
+        '@apply text-3xl sm:text-[40px]': {}
       }
     });
   }

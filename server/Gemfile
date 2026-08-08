@@ -59,6 +59,9 @@ end
 
 gem "devise", ">= 5.0.3", "< 6"
 gem "devise-jwt", "~> 0.13.0"
+# Keep JWT on the patched release line. It authenticates legacy API requests
+# and short-lived ActionCable tickets, so it is a production dependency.
+gem "jwt", ">= 3.2.0", "< 4"
 gem "rack-cors", "~> 3.0"
 gem "pundit", "~> 2.5"
 gem "rack-attack", "~> 6.7"

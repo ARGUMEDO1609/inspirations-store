@@ -7,21 +7,28 @@ const useActionCable = (channel, handlers, enabled = true) => {
       return undefined;
     }
 
-    const consumer = getCableConsumer();
-    if (!consumer) {
-      return undefined;
-    }
+    let subscription;
+    let active = true;
 
-    const subscription = consumer.subscriptions.create(channel, {
-      received(data) {
-        if (handlers[data.type]) {
-          handlers[data.type](data);
-        }
+    (async () => {
+      const consumer = await getCableConsumer();
+      if (!consumer || !active) {
+        return;
       }
-    });
+      subscription = consumer.subscriptions.create(channel, {
+        received(data) {
+          if (handlers[data.type]) {
+            handlers[data.type](data);
+          }
+        }
+      });
+    })();
 
     return () => {
-      subscription.unsubscribe();
+      active = false;
+      if (subscription) {
+        subscription.unsubscribe();
+      }
     };
   }, [channel, handlers, enabled]);
 };

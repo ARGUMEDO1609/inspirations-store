@@ -21,9 +21,9 @@ ActiveAdmin.register_page "Dashboard" do
                                   .limit(5)
 
     div style: "display:grid; gap: 28px;" do
-      div style: "padding: 30px; border-radius: 28px; background: linear-gradient(135deg, #111827, #1f2937 54%, #9f7aea 140%); color: #f9fafb; box-shadow: 0 24px 60px rgba(17,24,39,0.24);" do
+      div class: "admin-dashboard-hero", style: "background: linear-gradient(135deg, #111827, #1f2937 54%, #9f7aea 140%); color: #f9fafb; box-shadow: 0 24px 60px rgba(17,24,39,0.24);" do
         para "INSPIRATION STORE ADMIN", style: "margin:0 0 10px; font-size:11px; letter-spacing:0.34em; color:#cbd5e1;"
-        h2 "Operación de tienda", style: "margin:0; font-size:40px; line-height:1; color:#ffffff;"
+        h2 "Operación de tienda", class: "admin-dashboard-heading", style: "margin:0; line-height:1; color:#ffffff;"
         para "Vista rápida de pedidos, stock, clientes y actividad reciente.", style: "margin:14px 0 0; max-width: 720px; color:#e5e7eb; font-size:15px; line-height:1.8;"
       end
 
@@ -47,17 +47,19 @@ ActiveAdmin.register_page "Dashboard" do
         end
       end
 
-      div style: "display:grid; grid-template-columns:2fr 1fr; gap:20px;" do
+      div class: "admin-dashboard-content-grid" do
         div style: "display:grid; gap:20px;" do
           panel "Pedidos recientes" do
             if recent_orders.any?
-              table_for recent_orders do
-                column("Pedido") { |order| link_to "##{order.id.to_s.rjust(6, '0')}", admin_order_path(order) }
-                column("Cliente") { |order| order.user&.name || order.user&.email || "Sin cliente" }
-                column("Estado") { |order| status_tag order.status.to_s }
-                column("Pago") { |order| order.payment_status.presence || "sin confirmar" }
-                column("Total") { |order| helpers.number_to_currency(order.total) }
-                column("Fecha") { |order| l(order.created_at, format: :short) }
+              div class: "admin-responsive-table" do
+                table_for recent_orders do
+                  column("Pedido") { |order| link_to "##{order.id.to_s.rjust(6, '0')}", admin_order_path(order) }
+                  column("Cliente") { |order| order.user&.name || order.user&.email || "Sin cliente" }
+                  column("Estado") { |order| status_tag order.status.to_s }
+                  column("Pago") { |order| order.payment_status.presence || "sin confirmar" }
+                  column("Total") { |order| helpers.number_to_currency(order.total) }
+                  column("Fecha") { |order| l(order.created_at, format: :short) }
+                end
               end
             else
               para "Aún no hay pedidos registrados."
@@ -66,12 +68,14 @@ ActiveAdmin.register_page "Dashboard" do
 
           panel "Pagos por revisar" do
             if pending_payment_orders.any?
-              table_for pending_payment_orders do
-                column("Pedido") { |order| link_to "##{order.id}", admin_order_path(order) }
-                column("Cliente") { |order| order.user&.email || "Sin correo" }
-                column("Estado") { |order| status_tag(order.status.to_s) }
-                column("Pago") { |order| order.payment_status.presence || "pendiente" }
-                column("Dirección") { |order| (order.shipping_address.to_s[0, 42] || "") }
+              div class: "admin-responsive-table" do
+                table_for pending_payment_orders do
+                  column("Pedido") { |order| link_to "##{order.id}", admin_order_path(order) }
+                  column("Cliente") { |order| order.user&.email || "Sin correo" }
+                  column("Estado") { |order| status_tag(order.status.to_s) }
+                  column("Pago") { |order| order.payment_status.presence || "pendiente" }
+                  column("Dirección") { |order| (order.shipping_address.to_s[0, 42] || "") }
+                end
               end
             else
               para "No hay pagos pendientes de revisión en este momento."
@@ -99,10 +103,12 @@ ActiveAdmin.register_page "Dashboard" do
 
           panel "Clientes recientes" do
             if recent_users.any?
-              table_for recent_users do
-                column("Nombre") { |user| link_to(user.name, admin_user_path(user)) }
-                column("Correo", &:email)
-                column("Alta") { |user| l(user.created_at, format: :short) }
+              div class: "admin-responsive-table" do
+                table_for recent_users do
+                  column("Nombre") { |user| link_to(user.name, admin_user_path(user)) }
+                  column("Correo", &:email)
+                  column("Alta") { |user| l(user.created_at, format: :short) }
+                end
               end
             else
               para "Aún no hay clientes registrados."
@@ -111,10 +117,12 @@ ActiveAdmin.register_page "Dashboard" do
 
           panel "Últimas reseñas" do
             if recent_reviews.any?
-              table_for recent_reviews do
-                column("Cliente") { |review| review.user&.name || review.user&.email || "Sin usuario" }
-                column("Puntaje", &:rating)
-                column("Comentario") { |review| truncate(review.comment.to_s, length: 70) }
+              div class: "admin-responsive-table" do
+                table_for recent_reviews do
+                  column("Cliente") { |review| review.user&.name || review.user&.email || "Sin usuario" }
+                  column("Puntaje", &:rating)
+                  column("Comentario") { |review| truncate(review.comment.to_s, length: 70) }
+                end
               end
             else
               para "Todavía no hay reseñas publicadas."

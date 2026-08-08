@@ -53,8 +53,12 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "localhost") }
+  # Use explicit hosts in production. Do not accept arbitrary subdomains.
+  production_hosts = ENV.fetch("APP_HOST").split(",").map(&:strip).reject(&:blank?)
+  config.action_mailer.default_url_options = {
+    host: ENV.fetch("MAILER_HOST", production_hosts.first),
+    protocol: "https"
+  }
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via bin/rails credentials:edit.
   # config.action_mailer.smtp_settings = {
@@ -76,8 +80,11 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # Production hosts come from APP_HOST env var (comma-separated) or sensible
-  # defaults; subdomains of those hosts are also allowed.
-  config.hosts = ENV.fetch("APP_HOST", "localhost,127.0.0.1").split(",").map { |h| /.*\.?#{Regexp.escape(h.strip)}\z/ }
+  # APP_HOST is a comma-separated allowlist of exact host names.
+  config.hosts = production_hosts
   config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+
+  # The frontend must be an explicit HTTPS origin. This protects ActionCable
+  # upgrade requests in addition to the API's Rack::Cors policy.
+  config.action_cable.allowed_request_origins = [ ENV.fetch("FRONTEND_URL") ]
 end

@@ -2,8 +2,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../api/axios';
 import { resetCableConsumer } from '../api/cable';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
 export const AuthContext = createContext({});
 
 export const useAuth = () => useContext(AuthContext);
@@ -16,49 +14,44 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.get('/current_user');
       const userData = response.data.data;
-      setUser(userData?.attributes || userData || response.data);
+      setUser(userData?.attributes || userData || null);
     } catch {
-      localStorage.removeItem('token');
+      setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
+  // On mount: validate the session cookie against /current_user. The cookie is
+  // attached automatically because axios has withCredentials:true. No
+  // localStorage token lookup anymore.
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      checkUser();
-    } else {
-      setLoading(false);
-    }
+    checkUser();
   }, []);
 
   const login = async (email, password) => {
     const response = await api.post('/login', {
       user: { email, password }
     });
-    const token = response.headers.authorization;
     const userData = response.data.data?.attributes || response.data.data || response.data;
 
     if (!userData) {
       throw new Error('No se recibieron datos del usuario del servidor.');
     }
 
-    if (token) {
-      resetCableConsumer();
-      localStorage.setItem('token', token);
-    }
+    // The server Set-Cookie response header establishes the session; nothing
+    // to persist client-side.
+    resetCableConsumer();
     setUser(userData);
     return response.data;
   };
 
   const logout = async () => {
     try {
-      await api.delete('/logout', { baseURL: `${API_URL}/api/v1` });
+      await api.delete('/logout');
     } catch {
       // Ignore logout errors
     }
-    localStorage.removeItem('token');
     resetCableConsumer();
     setUser(null);
   };
@@ -67,17 +60,13 @@ export const AuthProvider = ({ children }) => {
     const response = await api.post('/signup', {
       user: userData
     });
-    const token = response.headers.authorization;
     const userResponse = response.data.data?.attributes || response.data.data || response.data;
 
     if (!userResponse) {
       throw new Error('No se recibieron datos del registro del servidor.');
     }
 
-    if (token) {
-      resetCableConsumer();
-      localStorage.setItem('token', token);
-    }
+    resetCableConsumer();
     setUser(userResponse);
     return response.data;
   };

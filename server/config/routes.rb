@@ -26,7 +26,10 @@ Rails.application.routes.draw do
 
       get "current_user", to: "users#show_current"
       patch "current_user", to: "users#update"
-      put "current_user", to: "users#update"
+      put   "current_user", to: "users#update"
+
+      # Short-lived single-use token for ActionCable WebSocket auth.
+      post "cable_token", to: "cable_tokens#create"
 
       resources :categories do
         resources :products, only: [ :index ]

@@ -21,10 +21,14 @@ cp server/.env.example server/.env
 | `WOMPI_EVENT_SECRET` | Secreto usado para validar el checksum de los webhooks de eventos |
 | `WOMPI_CURRENCY` | Moneda usada por defecto (COP) |
 | `WOMPI_FAKE_MODE` | `true` activa un checkout simulado para desarrollo cuando aún no tienes las claves reales |
-| `FRONTEND_URL` | URL del frontend en producción |
-| `BACKEND_URL` | URL del backend en producción |
+| `FRONTEND_URL` | Origen HTTPS exacto del frontend en producción, por ejemplo `https://app.example.com` |
+| `BACKEND_URL` | URL HTTPS pública del backend, por ejemplo `https://api.example.com` |
+| `CORS_ORIGINS` | Origen(es) HTTPS exactos, separados por coma; incluye el frontend y ningún comodín/localhost |
+| `APP_HOST` | Hostname(s) exactos aceptados por Rails, sin protocolo, por ejemplo `api.example.com` |
+| `REDIS_URL` | Redis compartido para rate limiting; obligatorio en producción |
+| `SERVER_DATABASE_PASSWORD` | Contraseña de la base productiva configurada en `config/database.yml` |
 
-En entornos de desarrollo sin claves reales de Wompi puedes activar `WOMPI_FAKE_MODE=true`. Esto evita que Rails intente validar firmas o llamar a la API y genera un payload genérico para que el frontend abra el widget (usa los valores `WOMPI_FAKE_PUBLIC_KEY` y `WOMPI_FAKE_INTEGRITY_KEY`).
+En entornos de desarrollo sin claves reales de Wompi puedes activar `WOMPI_FAKE_MODE=true`. Esto evita que Rails intente validar firmas o llamar a la API y genera un payload genérico para que el frontend abra el widget (usa los valores `WOMPI_FAKE_PUBLIC_KEY` y `WOMPI_FAKE_INTEGRITY_KEY`). En producción debe ser literalmente `false`; el backend no arrancará si detecta modo simulado o variables críticas faltantes.
 
 ## Despliegue del Backend (Rails)
 
@@ -33,7 +37,7 @@ En entornos de desarrollo sin claves reales de Wompi puedes activar `WOMPI_FAKE_
 
 ```bash
 cd server
-RAILS_ENV=production rails db:create db:migrate db:seed
+RAILS_ENV=production rails db:create db:migrate
 ```
 
 3. Compila los assets:
@@ -53,7 +57,8 @@ RAILS_ENV=production rails server -p 3000
 1. Configura la URL del API en `house/.env`:
 
 ```bash
-VITE_API_URL=https://tu-backend-production.com/api/v1
+VITE_API_URL=https://api.tu-dominio.com
+VITE_CABLE_URL=wss://api.tu-dominio.com/cable
 ```
 
 2. Build de producción:
@@ -85,13 +90,18 @@ npm run build
 - ePayco requiere URLs públicas para las respuestas y confirmaciones del checkout y webhooks
 - Action Cable usa WebSockets para tiempo real
 
-## Checklist de despliegue del backend
+## Checklist de despliegue verificable
 
-1. Confirma que `server/.env` está sincronizado con el entorno (no subir el archivo a git y solo compartir variables necesarias).
-2. Ejecuta los checks antes de release: `bin/ci` desde la raíz incluye `bundle exec rspec`, `bin/rubocop`, `npm run lint`, etc.
-3. Prepara la base de datos productiva (crea, migra, seed) y vuelve a correr `rails db:migrate` si hay cambios pendientes.
-4. Compila assets con `RAILS_ENV=production rails assets:precompile`.
-5. Arranca la app con Puma o tu gestor (`RAILS_ENV=production bin/thrust` usa Thruster para subir el backend a la plataforma que elijas).
+No publiques si cualquiera de estos comandos falla.
+
+1. Inyecta secretos desde el gestor de secretos de la plataforma; nunca copies `server/.env` al contenedor ni al repositorio. Configura `WOMPI_FAKE_MODE=false`, dominios HTTPS reales, Redis y base de datos.
+2. Ejecuta `bin/ci` desde la raíz.
+3. Ejecuta `cd server && bundle exec brakeman -q && bundle exec bundle-audit check`.
+4. Ejecuta `cd house && npm audit --omit=dev && npm run build` con `VITE_API_URL=https://api.tu-dominio.com` y `VITE_CABLE_URL=wss://api.tu-dominio.com/cable`.
+5. Ejecuta `cd server && RAILS_ENV=production bundle exec rails runner 'puts "production boot OK"'`. Este paso valida las variables obligatorias, HTTPS, CORS y Redis configurado.
+6. Ejecuta únicamente `RAILS_ENV=production rails db:migrate`. No corras `db:seed`: contiene datos y usuarios de demostración.
+7. Tras desplegar, comprueba HTTPS, `GET /up`, login/logout, checkout real de prueba, recepción de webhook Wompi, carga de archivos y WebSocket con un usuario autenticado.
+8. Confirma que Active Storage usa un volumen persistente con backups o un bucket S3/R2/GCS. El almacenamiento local sin backup no es suficiente.
 
 ## Build y publicación del frontend
 

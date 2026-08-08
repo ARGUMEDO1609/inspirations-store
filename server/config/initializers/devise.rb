@@ -12,21 +12,10 @@ Devise.setup do |config|
   config.sign_out_via = :delete
   config.navigational_formats = [ :html, :json ]
   config.authentication_keys = [ :email ]
-  config.case_insensitive_keys = [ :email ]
-  config.strip_whitespace_keys = [ :email ]
-  config.skip_session_storage = [ :http_auth ]
 
-
-  # JWT Configuration
-  config.jwt do |jwt|
-    jwt.secret = ENV.fetch("DEVISE_JWT_SECRET_KEY")
-    jwt.dispatch_requests = [
-      [ "POST", %r{/login$} ],
-      [ "POST", %r{/signup$} ]
-    ]
-    jwt.revocation_requests = [
-      [ "DELETE", %r{/logout$} ]
-    ]
-    jwt.expiration_time = 1.day.to_i
-  end
+  # Authentication now uses a HttpOnly+Secure+SameSite cookie session (see
+  # config/initializers/session_store.rb). Do NOT skip session storage for
+  # :http_auth/JSON — that was the old devise-jwt behavior that prevented
+  # Warden from persisting the user and the cookie from being set.
+  config.skip_session_storage = []
 end

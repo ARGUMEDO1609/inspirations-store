@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { ArrowRight, Loader2, Search, SlidersHorizontal } from 'lucide-react';
 import { motion } from 'framer-motion';
 import styled from '@emotion/styled';
@@ -9,6 +9,7 @@ import { useToast } from '../context/ToastContext';
 import useApiError from '../hooks/useApiError';
 import { useCartNotification } from '../context/CartNotificationContext';
 import { useCartCount } from '../context/CartCountContext';
+import { useAuth } from '../context/AuthContext';
 
 const HeroSection = styled(motion.section)`
   position: relative;
@@ -210,12 +211,7 @@ const Gallery = () => {
   const { handleError } = useApiError();
   const { notifyCart } = useCartNotification();
   const { refreshCartCount } = useCartCount();
-
-  useActionCable('StoreChannel', {
-    PRODUCT_CHANGE: () => {
-      fetchProducts();
-    }
-  });
+  const { user } = useAuth();
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -250,6 +246,18 @@ const Gallery = () => {
       setLoading(false);
     }
   }, [filter, sort, searchTerm, handleError]);
+
+  const storeHandlers = useMemo(
+    () => ({
+      PRODUCT_CHANGE: fetchProducts
+    }),
+    [fetchProducts]
+  );
+
+  // The WebSocket token is issued only to authenticated users. Avoid opening
+  // a connection for visitors, which otherwise produces a 401 and could
+  // trigger a full-page navigation while Home is loading.
+  useActionCable('StoreChannel', storeHandlers, Boolean(user));
 
   useEffect(() => {
     fetchCategories();

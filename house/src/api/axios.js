@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const configuredApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+// VITE_API_URL is the API origin, not its versioned path. Normalizing here
+// prevents an accidental /api/v1/api/v1 URL when a deploy variable includes it.
+const API_URL = configuredApiUrl.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
 const CLIENT_INSTANCE_STORAGE_KEY = 'client-instance-id';
 
 export const getClientInstanceId = () => {
@@ -59,30 +62,13 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json'
   },
-  timeout: 15000
+  timeout: 15000,
+  withCredentials: true
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  const isAuthPath = config.url.endsWith('/login') || config.url.endsWith('/signup');
-  
-  if (token && !isAuthPath) {
-    config.headers.Authorization = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
-  }
-
   config.headers['X-Client-Instance-Id'] = getClientInstanceId();
   return config;
 });
-
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
 
 export default api;

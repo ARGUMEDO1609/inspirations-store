@@ -1,7 +1,6 @@
 class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable,
-         :jwt_authenticatable, jwt_revocation_strategy: JwtDenylist
+         :recoverable, :rememberable, :validatable
 
   enum :role, { customer: 0, admin: 1 }
 
@@ -15,10 +14,12 @@ class User < ApplicationRecord
 
   after_commit :sync_primary_address_from_legacy!, if: :saved_change_to_address?
 
-  def self.find_for_jwt_authentication(sub)
-    find_by(id: sub)
-  end
-
+  # Devise-jwt is no longer registered as a Warden strategy (the API now uses a
+  # HttpOnly cookie session). We keep this decoder helper for two reasons:
+  # (1) the legacy Bearer token is still accepted by ApiController as a last
+  #     resort during the migration window;
+  # (2) the request specs forge tokens with ENV["DEVISE_JWT_SECRET_KEY"].
+  # It will be removed once both sides move off the bearer token.
   def self.find_for_jwt_authentication_from_token(token)
     secret = ENV.fetch("DEVISE_JWT_SECRET_KEY")
 

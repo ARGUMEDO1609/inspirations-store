@@ -49,10 +49,11 @@ RSpec.describe 'API V1 Auth', type: :request do
       expect(JSON.parse(response.body).dig('data', 'attributes', 'email')).to eq(user.email)
     end
 
-    it 'rejects missing tokens' do
+    it 'returns an empty session when no user is signed in' do
       get '/api/v1/current_user'
 
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to eq('success' => true, 'data' => nil)
     end
   end
 end

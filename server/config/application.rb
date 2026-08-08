@@ -36,9 +36,11 @@ module Server
     config.active_storage.variant_processor = :mini_magick
 
 
-    # ActiveAdmin requires sessions, cookies, and flash
+    # ActiveAdmin requires sessions, cookies, and flash. The cookie session
+    # store itself is configured in config/initializers/session_store.rb
+    # (HttpOnly + Secure + SameSite). These middleware inserts ensure cookies
+    # and flash are available on the API too, and play well with ActiveAdmin.
     config.middleware.use ActionDispatch::Cookies
-    config.middleware.use ActionDispatch::Session::CookieStore
     config.middleware.use ActionDispatch::Flash
     config.middleware.use Rack::MethodOverride
   end

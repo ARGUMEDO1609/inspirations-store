@@ -11,8 +11,12 @@
 # falling back to the local Vite dev server. This keeps the frontend URL
 # configurable per environment (Docker dev, production, etc.).
 allowed_origins =
-  ENV["CORS_ORIGINS"].presence&.split(",")&.map(&:strip) ||
-  [ ENV["FRONTEND_URL"].presence, "http://localhost:5173", "http://127.0.0.1:5173" ].compact
+  if Rails.env.production?
+    ENV.fetch("CORS_ORIGINS").split(",").map(&:strip).reject(&:blank?)
+  else
+    ENV["CORS_ORIGINS"].presence&.split(",")&.map(&:strip) ||
+      [ ENV["FRONTEND_URL"].presence, "http://localhost:5173", "http://127.0.0.1:5173" ].compact
+  end
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
@@ -20,7 +24,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
 
     resource "*",
       headers: :any,
-      expose: [ "Authorization" ],
+      credentials: true,
       methods: [ :get, :post, :put, :patch, :delete, :options, :head ]
   end
 end

@@ -19,8 +19,7 @@ export const CartCountProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const refreshCartCount = useCallback(async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    if (!user) {
       setCartCount(0);
       setLoading(false);
       return 0;
@@ -37,7 +36,7 @@ export const CartCountProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (!user) {

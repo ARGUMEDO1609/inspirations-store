@@ -2,7 +2,15 @@
 
 class Rack::Attack
   ### Configure Cache ###
-  if Rails.env.test?
+  if Rails.env.production?
+    # Rate limits must be shared and durable in production. Falling back to an
+    # in-process cache would let attackers bypass limits across instances.
+    Rack::Attack.cache.store = ActiveSupport::Cache::RedisCacheStore.new(
+      url: ENV.fetch("REDIS_URL"),
+      pool_size: 5,
+      pool_timeout: 5
+    )
+  elsif Rails.env.test?
     Rack::Attack.cache.store = ActiveSupport::Cache::MemoryStore.new
   else
     Rack::Attack.cache.store = ActiveSupport::Cache::RedisCacheStore.new(
