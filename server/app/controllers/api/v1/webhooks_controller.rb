@@ -1,5 +1,9 @@
 require "securerandom"
 
+# Receives Wompi payment webhook events. This controller intentionally skips
+# CSRF and JWT auth: third-party webhook senders cannot provide a CSRF token or
+# a user JWT. Authentication is enforced via verify_wompi_signature, which
+# validates the request against WOMPI_EVENT_SECRET.
 class Api::V1::WebhooksController < ActionController::Base
   skip_before_action :verify_authenticity_token, raise: false
   skip_before_action :authenticate_user!, raise: false

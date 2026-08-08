@@ -3,6 +3,9 @@ Rails.application.routes.draw do
   devise_for :admin_users, ActiveAdmin::Devise.config
   get "up" => "rails/health#show", as: :rails_health_check
 
+  # Collect CSP violation reports sent by the browser (see security_headers.rb).
+  post "csp-report", to: "csp_reports#create"
+
   root to: proc { [ 200, { "Content-Type" => "text/html" }, [ '<body style="background: #020617; color: #f59e0b; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;"><h1>Inspiration Store API OK</h1></body>' ] ] }
 
   ActiveAdmin.routes(self)

@@ -18,7 +18,11 @@ export const getCableConsumer = () => {
     return null;
   }
 
-  cachedConsumer = createConsumer(`${cableUrl}?token=${token}`);
+  // Pass the JWT via the Sec-WebSocket-Protocol subprotocol (`Bearer.<token>`)
+  // instead of a `?token=` query parameter. Query strings leak into web server
+  // access logs, proxy logs, and the Referer header. The subprotocol field is
+  // not logged and not leaked via Referer.
+  cachedConsumer = createConsumer(cableUrl, [`actioncable-v1-json`, `Bearer.${token}`]);
   return cachedConsumer;
 };
 

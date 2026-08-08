@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Devise.setup do |config|
-  config.mailer_sender = "please-change-me@at-example.com"
+  config.mailer_sender = ENV.fetch("MAILER_FROM", "no-reply@inspirationstore.co")
 
   require "devise/orm/active_record"
 
@@ -19,7 +19,7 @@ Devise.setup do |config|
 
   # JWT Configuration
   config.jwt do |jwt|
-    jwt.secret = ENV["DEVISE_JWT_SECRET_KEY"] || "temporary_secret_for_development_1234567890"
+    jwt.secret = ENV.fetch("DEVISE_JWT_SECRET_KEY")
     jwt.dispatch_requests = [
       [ "POST", %r{/login$} ],
       [ "POST", %r{/signup$} ]

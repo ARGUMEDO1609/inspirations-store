@@ -80,10 +80,16 @@ class Rack::Attack
   ### Block Suspicious Requests ###
   blocklist("block-bad-requests") do |req|
     Rack::Attack::Fail2Ban.filter("pentesters-#{req.ip}", maxretry: 5, findtime: 10.minutes, bantime: 1.hour) do
+      body_match = false
+      begin
+        body_match = req.body.read(10000).match?(/union\s+select|select\s+.*\s+from|drop\s+table|insert\s+into|xp_cmdshell/i)
+      ensure
+        req.body.rewind
+      end
       CGI.unescape(req.query_string.to_s) =~ %r{/etc/passwd} ||
         req.path.include?("..") ||
         req.path.match?(%r{\A/(wp-admin|wp-login|phpmyadmin|\.git|\.env)}) ||
-        req.body.read(10000).match?(/union\s+select|select\s+.*\s+from|drop\s+table|insert\s+into|xp_cmdshell/i)
+        body_match
     end
   end
 

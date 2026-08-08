@@ -33,14 +33,23 @@ end
 # ─────────────────────────────────────────────────────────────────────────────
 # 1. Administradores
 # ─────────────────────────────────────────────────────────────────────────────
+# Los passwords se generan aleatoriamente en cada ejecucion fresca y se imprimen
+# una sola vez en la consola. Si el AdminUser ya existe (re-seed), no se cambia.
+# Alternativa: fijarlos via ENV (ADMIN_EMAIL / ADMIN_PASSWORD) para CD.
 puts "Creating admin users..."
 [
-  { email: "noslenque931@gmail.com", password: "123456" },
-  { email: "curaduria@inspirationstore.co", password: "Admin2024!" }
+  { email: ENV.fetch("ADMIN_EMAIL", "admin@inspirationstore.co") },
+  { email: ENV.fetch("ADMIN2_EMAIL", "curaduria@inspirationstore.co") }
 ].each do |attrs|
-  AdminUser.find_or_create_by!(email: attrs[:email]) do |u|
-    u.password = attrs[:password]
-    u.password_confirmation = attrs[:password]
+  password = ENV.fetch("#{attrs[:email].split("@").first.upcase}_PASSWORD") do
+    SecureRandom.alphanumeric(16)
+  end
+  created = AdminUser.find_or_create_by!(email: attrs[:email]) do |u|
+    u.password = password
+    u.password_confirmation = password
+  end
+  if created.valid? && created.persisted? && created.password == password
+    puts "  AdminUser #{attrs[:email]} -> password: #{password}"
   end
 end
 
@@ -49,33 +58,44 @@ end
 # ─────────────────────────────────────────────────────────────────────────────
 puts "Creating users..."
 
+# Helper: genera o reutiliza password aleatorio por email.
+# Para el admin de API, permitir override via ENV para tests/CD.
+def user_password_for(email)
+  env_key = "USER_#{email.split('@').first.split('.').join('_').upcase}_PASSWORD"
+  ENV.fetch(env_key) { SecureRandom.alphanumeric(16) }
+end
+
 users_data = [
-  { name: "Administrador", email: "noslenque931@gmail.com", password: "123456", role: :admin,
+  { name: "Administrador", email: "noslenque931@gmail.com", role: :admin,
     phone: "+57 320 111 2233", address: { line: "Calle 93 #11-27, Oficina 502", city: "Bogotá", state: "Cundinamarca", zip: "110221" } },
-  { name: "Coleccionista de Prueba", email: "test@coleccionista.com", password: "UserPassword2024!", role: :customer,
+  { name: "Coleccionista de Prueba", email: "test@coleccionista.com", role: :customer,
     phone: "+57 300 555 8899", address: { line: "Carrera 43A #1-50, Torre Norte Apto 1203", city: "Medellín", state: "Antioquia", zip: "050021" } },
-  { name: "Valentina Ríos", email: "valentina.rios@example.co", password: "Cliente2024!", role: :customer,
+  { name: "Valentina Ríos", email: "valentina.rios@example.co", role: :customer,
     phone: "+57 311 204 7766", address: { line: "Carrera 70 #45-12", city: "Cali", state: "Valle del Cauca", zip: "760042" } },
-  { name: "Santiago Gómez", email: "santiago.gomez@example.co", password: "Cliente2024!", role: :customer,
+  { name: "Santiago Gómez", email: "santiago.gomez@example.co", role: :customer,
     phone: "+57 314 880 3321", address: { line: "Calle 72 #10-34, Apto 801", city: "Bogotá", state: "Cundinamarca", zip: "110231" } },
-  { name: "Mariana López", email: "mariana.lopez@example.co", password: "Cliente2024!", role: :customer,
+  { name: "Mariana López", email: "mariana.lopez@example.co", role: :customer,
     phone: "+57 318 442 1190", address: { line: "Carrera 53 #79-220", city: "Barranquilla", state: "Atlántico", zip: "080020" } },
-  { name: "Andrés Castaño", email: "andres.castano@example.co", password: "Cliente2024!", role: :customer,
+  { name: "Andrés Castaño", email: "andres.castano@example.co", role: :customer,
     phone: "+57 301 667 5410", address: { line: "Calle del Arsenal #8-15, Getsemaní", city: "Cartagena", state: "Bolívar", zip: "130001" } },
-  { name: "Camila Torres", email: "camila.torres@example.co", password: "Cliente2024!", role: :customer,
+  { name: "Camila Torres", email: "camila.torres@example.co", role: :customer,
     phone: "+57 313 559 2048", address: { line: "Carrera 27 #36-44", city: "Bucaramanga", state: "Santander", zip: "680003" } },
-  { name: "Sebastián Patiño", email: "sebastian.patino@example.co", password: "Cliente2024!", role: :customer,
+  { name: "Sebastián Patiño", email: "sebastian.patino@example.co", role: :customer,
     phone: "+57 312 770 9912", address: { line: "Carrera 35 #8A-23, Provenza", city: "Medellín", state: "Antioquia", zip: "050022" } }
 ]
 
 users = {}
 users_data.each do |data|
+  password = user_password_for(data[:email])
   user = User.find_or_create_by!(email: data[:email]) do |u|
     u.name = data[:name]
     u.role = data[:role]
     u.phone = data[:phone]
-    u.password = data[:password]
-    u.password_confirmation = data[:password]
+    u.password = password
+    u.password_confirmation = password
+  end
+  if user.valid? && user.persisted? && user.password == password
+    puts "  User #{data[:email]} (#{data[:role]}) -> password: #{password}"
   end
 
   addr = data[:address]

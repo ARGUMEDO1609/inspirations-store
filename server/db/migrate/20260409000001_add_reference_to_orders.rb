@@ -37,8 +37,7 @@ class AddReferenceToOrders < ActiveRecord::Migration[8.1]
   def generate_reference
     loop do
       token = "order-#{SecureRandom.hex(6)}"
-      # Usar SQL directo o verificar si el modelo responde
-      return token unless ActiveRecord::Base.connection.execute("SELECT 1 FROM orders WHERE reference = '#{token}'").any?
+      return token unless Order.exists?(reference: token)
     end
   end
 end

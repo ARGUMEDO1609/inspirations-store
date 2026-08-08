@@ -17,7 +17,7 @@ Rails.application.config.content_security_policy do |policy|
   policy.img_src     :self, :https, :data, :blob
   policy.object_src  :none
   policy.script_src  :self, :https
-  policy.style_src   :self, :https, :unsafe_inline
+  policy.style_src   :self, :https
   policy.connect_src :self, :https, :wss
   policy.frame_src   :none
   policy.base_uri    :self

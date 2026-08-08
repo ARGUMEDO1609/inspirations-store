@@ -1,6 +1,8 @@
 ActiveAdmin.register User do
   menu priority: 5, label: "Clientes"
-  permit_params :email, :name, :role, :address, :phone, :password, :password_confirmation
+  # No se permite editar el rol desde este panel para evitar escalamiento de
+  # privilegios. Los cambios de rol deben hacerse via consola o migración.
+  permit_params :email, :name, :address, :phone, :password, :password_confirmation
 
   index title: "Clientes" do
     selectable_column
@@ -29,7 +31,6 @@ ActiveAdmin.register User do
     f.inputs "Perfil" do
       f.input :email
       f.input :name
-      f.input :role, as: :select, collection: User.roles.keys
       f.input :phone
       f.input :address
       if f.object.new_record?

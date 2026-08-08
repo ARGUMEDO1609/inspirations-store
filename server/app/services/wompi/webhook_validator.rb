@@ -13,13 +13,13 @@ module Wompi
         return false if provided_checksum.blank?
 
         timestamp = signature["timestamp"].to_s
-        secret = ENV.fetch("WOMPI_EVENT_SECRET")
+        secret = ENV["WOMPI_EVENT_SECRET"]
+        return false if secret.blank?
         expected_checksum = Digest::SHA256.hexdigest(
           "#{concatenate_properties(signature["properties"], payload["data"])}#{timestamp}#{secret}"
         )
 
-        expected_checksum.length == provided_checksum.to_s.length &&
-          ActiveSupport::SecurityUtils.secure_compare(provided_checksum.to_s, expected_checksum)
+        ActiveSupport::SecurityUtils.secure_compare(provided_checksum.to_s, expected_checksum)
       rescue JSON::ParserError
         false
       end
