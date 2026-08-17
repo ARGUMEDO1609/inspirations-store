@@ -8,7 +8,7 @@ class Api::V1::Users::RegistrationsController < Devise::RegistrationsController
     build_resource(sign_up_params)
 
     if resource.save
-      sign_in(resource)
+      sign_in(:api_v1_user, resource)
 
       render_success(
         data: UserSerializer.new(resource).serializable_hash[:data],

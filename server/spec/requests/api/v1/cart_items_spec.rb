@@ -22,6 +22,34 @@ RSpec.describe 'API V1 Cart Items', type: :request do
       post '/api/v1/cart_items', params: { product_id: product.id, quantity: 1 }, as: :json
       expect(response).to have_http_status(:created)
     end
+
+    it 'creates a cart item with a selected variant' do
+      variant = create(:variant, variantable: product)
+
+      post '/api/v1/cart_items', params: { product_id: product.id, variant_id: variant.id, quantity: 1 }, as: :json
+
+      expect(response).to have_http_status(:created)
+      expect(JSON.parse(response.body).dig('data', 'variant', 'id')).to eq(variant.id)
+    end
+
+    it 'requires a variant for products that have variants' do
+      create(:variant, variantable: product)
+
+      post '/api/v1/cart_items', params: { product_id: product.id, quantity: 1 }, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body)['error']).to include('seleccionarse')
+    end
+
+    it 'rejects variants from another product' do
+      other_product = create(:product)
+      variant = create(:variant, variantable: other_product)
+
+      post '/api/v1/cart_items', params: { product_id: product.id, variant_id: variant.id, quantity: 1 }, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body)['error']).to include('no pertenece')
+    end
   end
 
   describe 'PUT /api/v1/cart_items/:id' do

@@ -32,6 +32,10 @@ const imageVariants = {
 };
 
 const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
+  const availableStock = product.has_variants
+    ? (product.variants || []).reduce((sum, variant) => sum + Number(variant.stock || 0), 0)
+    : Number(product.stock || 0);
+
   return (
     <Motion.article
       className="glass-panel hover-lift group relative flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-[var(--border-soft)] bg-[linear-gradient(180deg,rgba(255,250,244,0.72),rgba(255,248,236,0.52))] transition duration-500 hover:border-[var(--accent)]/60 hover:shadow-[0_16px_32px_rgba(38,24,12,0.1)]"
@@ -76,10 +80,10 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
 
         <div className="mt-4 flex items-center justify-between border-t border-[var(--border-soft)] pt-3 text-[10px] uppercase tracking-[0.24em] text-[var(--text-muted)]">
           <span className="inline-flex items-center gap-1.5">
-            <span className={`h-1.5 w-1.5 rounded-full ${product.stock > 0 ? 'bg-[var(--success)]' : 'bg-[var(--danger)]'}`}></span>
-            {product.stock > 0 ? 'Disponible' : 'Sin stock'}
+            <span className={`h-1.5 w-1.5 rounded-full ${availableStock > 0 ? 'bg-[var(--success)]' : 'bg-[var(--danger)]'}`}></span>
+            {availableStock > 0 ? 'Disponible' : 'Sin stock'}
           </span>
-          <span>{product.stock} piezas</span>
+          <span>{availableStock} piezas</span>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-2">
@@ -92,11 +96,11 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
           </Link>
           <button
             onClick={onAddToCart}
-            disabled={isProcessing}
+            disabled={isProcessing || availableStock <= 0}
             className="inline-flex items-center justify-center gap-1.5 rounded-full bg-[var(--accent)] px-2.5 py-2 text-[9px] font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-70"
           >
             {isProcessing ? <Loader2 size={13} className="animate-spin" /> : <ShoppingCart size={13} />}
-            Añadir
+            {availableStock > 0 ? 'Añadir' : 'Agotado'}
           </button>
         </div>
       </div>

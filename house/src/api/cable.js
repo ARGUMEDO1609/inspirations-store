@@ -1,7 +1,8 @@
 import { createConsumer } from '@rails/actioncable';
-import api from './axios';
+import api, { API_URL } from './axios';
 
-const cableUrl = import.meta.env.VITE_CABLE_URL || 'ws://127.0.0.1:3000/cable';
+const defaultCableUrl = () => API_URL.replace(/^http/, 'ws') + '/cable';
+const cableUrl = import.meta.env.VITE_CABLE_URL || defaultCableUrl();
 let cachedConsumer = null;
 
 // Fetch a short-lived token from POST /cable_token (the session cookie is sent

@@ -4,6 +4,7 @@ class CartItem < ApplicationRecord
   belongs_to :variant, optional: true
 
   validates :quantity, presence: true, numericality: { greater_than: 0 }
+  validate :validate_variant_selection
   validate :validate_stock_availability
 
   def self.ransackable_attributes(auth_object = nil)
@@ -23,6 +24,19 @@ class CartItem < ApplicationRecord
   end
 
   private
+
+  def validate_variant_selection
+    return if product.nil?
+
+    if product.has_variants? && variant.nil?
+      errors.add(:variant, "debe seleccionarse para este producto")
+      return
+    end
+
+    if variant.present? && variant.variantable != product
+      errors.add(:variant, "no pertenece al producto seleccionado")
+    end
+  end
 
   def validate_stock_availability
     return if product.nil? || quantity.nil?

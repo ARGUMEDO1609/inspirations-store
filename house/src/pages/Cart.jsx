@@ -14,7 +14,7 @@ const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg
 
 const Cart = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [cart, setCart] = useState({ items: [], total: 0 });
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
@@ -34,6 +34,17 @@ const Cart = () => {
   }, [user]);
 
   const fetchCart = useCallback(async () => {
+    if (authLoading) {
+      return;
+    }
+
+    if (!user) {
+      setCart({ items: [], total: 0 });
+      setCartCount(0);
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await api.get('/cart_items');
       const cartData = response.data.data;
@@ -47,7 +58,7 @@ const Cart = () => {
     } finally {
       setLoading(false);
     }
-  }, [handleError, setCartCount]);
+  }, [authLoading, handleError, setCartCount, user]);
 
   useEffect(() => {
     fetchCart();
@@ -210,10 +221,32 @@ const Cart = () => {
      }
    };
 
-  if (loading && cart.items.length === 0) {
+  if ((authLoading || loading) && cart.items.length === 0) {
     return (
       <div className="flex items-center justify-center py-32 sm:py-40">
         <Loader2 className="h-12 w-12 animate-spin text-[var(--accent)]" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="py-24 text-center sm:py-32 lg:py-40">
+        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[rgba(255,255,255,0.34)] text-[var(--text-muted)]">
+          <ShoppingBag size={36} />
+        </div>
+        <h2 className="mt-8 font-display text-4xl leading-none text-[var(--text-primary)] sm:text-5xl">
+          Inicia sesión para ver tu selección.
+        </h2>
+        <p className="mx-auto mt-4 max-w-xl text-base leading-8 text-[var(--text-secondary)]">
+          Tu carrito está asociado a tu cuenta. Entra para continuar comprando o revisar tus piezas guardadas.
+        </p>
+        <Link
+          to="/login"
+          className="mt-8 inline-flex rounded-full bg-[var(--accent)] px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)]"
+        >
+          Entrar
+        </Link>
       </div>
     );
   }

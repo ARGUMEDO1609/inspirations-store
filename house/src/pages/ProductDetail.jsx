@@ -4,6 +4,7 @@ import { ArrowLeft, Globe, Loader2, ShieldCheck, ShoppingCart, Zap, Box } from '
 import { motion as Motion } from 'framer-motion';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 import useApiError from '../hooks/useApiError';
 import { formatCOP } from '../utils/formatCurrency';
 
@@ -74,7 +75,12 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [show3D, setShow3D] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
   const { handleError } = useApiError();
+  const selectedVariant = product?.variants?.find((variant) => variant.id === selectedSize);
+  const availableStock = product?.has_variants
+    ? (selectedVariant?.stock ?? (product.variants || []).reduce((sum, variant) => sum + Number(variant.stock || 0), 0))
+    : Number(product?.stock || 0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -94,8 +100,23 @@ const ProductDetail = () => {
 
   const handleAddToCart = async () => {
     if (!product) return;
+    if (!user) {
+      toast({
+        type: 'error',
+        title: 'Acción no disponible',
+        message: 'Debes iniciar sesión para añadir productos al carrito.'
+      });
+      navigate('/login');
+      return;
+    }
+
     if (product.has_variants && !selectedSize) {
       toast({ type: 'error', title: 'Selecciona una talla', message: 'Elige tu talla antes de añadir.' });
+      return;
+    }
+
+    if (availableStock <= 0) {
+      toast({ type: 'error', title: 'Sin disponibilidad', message: 'Esta opción está agotada.' });
       return;
     }
 
@@ -204,7 +225,7 @@ const ProductDetail = () => {
             <div className="flex flex-wrap items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-[var(--text-muted)]">
               <span>REF {product.id}</span>
               <span className="h-1 w-1 rounded-full bg-[var(--text-muted)]"></span>
-              <span>{product.stock} piezas</span>
+              <span>{availableStock} piezas</span>
             </div>
 
             <h1 className="mt-4 max-w-xl font-display text-[2.8rem] leading-[0.94] text-[var(--text-primary)] text-balance sm:text-5xl xl:text-[4.25rem]">
@@ -219,21 +240,27 @@ const ProductDetail = () => {
               <div className="mt-5">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[var(--text-muted)] mb-3">Selecciona talla</p>
                 <div className="flex flex-wrap gap-2">
-                  {product.variants.map((variant) => (
+                  {product.variants.map((variant) => {
+                    const variantStock = Number(variant.stock || 0);
+                    const isSoldOut = variantStock <= 0;
+
+                    return (
                     <button
                       key={variant.id}
                       onClick={() => {
                         setSelectedSize(variant.id);
                       }}
+                      disabled={isSoldOut}
                       className={`rounded-full border px-4 py-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.16em] transition ${
                         selectedSize === variant.id
                           ? 'border-[var(--accent)] bg-[var(--accent)] text-[var(--ink)]'
-                          : 'border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] text-[var(--text-primary)] hover:border-[var(--accent)]'
+                          : 'border-[var(--border-soft)] bg-[rgba(255,255,255,0.38)] text-[var(--text-primary)] hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-45'
                       }`}
                     >
-                      {variant.name}
+                      {isSoldOut ? `${variant.name} agotada` : variant.name}
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -252,11 +279,11 @@ const ProductDetail = () => {
           <div className="space-y-5">
             <button
               onClick={handleAddToCart}
-              disabled={adding || product.stock <= 0 || (product.has_variants && !selectedSize)}
+              disabled={adding || availableStock <= 0 || (product.has_variants && !selectedSize)}
               className="inline-flex min-h-[58px] w-full items-center justify-center gap-3 rounded-full bg-[var(--accent)] px-5 py-3.5 text-[0.82rem] font-semibold uppercase tracking-[0.22em] text-[var(--ink)] transition hover:bg-[var(--accent-strong)] disabled:opacity-60"
             >
               {adding ? <Loader2 className="animate-spin" size={18} /> : <ShoppingCart size={18} />}
-              {product.stock > 0 ? 'Añadir a selección' : 'Sin disponibilidad'}
+              {availableStock > 0 ? 'Añadir a selección' : 'Sin disponibilidad'}
             </button>
 
             <Motion.div className="grid gap-2.5 sm:grid-cols-3" variants={sectionVariants}>

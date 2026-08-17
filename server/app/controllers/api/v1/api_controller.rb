@@ -39,7 +39,7 @@ class Api::V1::ApiController < ActionController::API
   end
 
   def warden_user
-    request&.env && request.env["warden"]&.user
+    request&.env && request.env["warden"]&.user(:api_v1_user)
   end
 
   def user_not_authorized
