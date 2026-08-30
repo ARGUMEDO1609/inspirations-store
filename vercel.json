@@ -2,10 +2,6 @@
   "version": 2,
   "builds": [
     {
-      "src": "server/Dockerfile.vercel",
-      "use": "@vercel/docker"
-    },
-    {
       "src": "house/package.json",
       "use": "@vercel/static-build",
       "config": {
@@ -16,28 +12,8 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/server/Dockerfile.vercel"
-    },
-    {
-      "src": "/admin/(.*)",
-      "dest": "/server/Dockerfile.vercel"
-    },
-    {
-      "src": "/up",
-      "dest": "/server/Dockerfile.vercel"
-    },
-    {
-      "src": "/cable",
-      "dest": "/server/Dockerfile.vercel"
-    },
-    {
-      "src": "/webhooks/(.*)",
-      "dest": "/server/Dockerfile.vercel"
-    },
-    {
-      "src": "/users/(.*)",
-      "dest": "/server/Dockerfile.vercel"
+      "src": "/assets/(.*)",
+      "dest": "/house/dist/assets/$1"
     },
     {
       "src": "/(.*\\.(js|css|png|jpg|svg|ico|woff|woff2|ttf|eot))$",
