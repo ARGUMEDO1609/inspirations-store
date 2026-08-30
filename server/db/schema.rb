@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_21_140306) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_30_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -91,6 +91,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_21_140306) do
     t.bigint "user_id", null: false
     t.bigint "variant_id"
     t.index ["product_id"], name: "index_cart_items_on_product_id"
+    t.index ["user_id", "product_id", "variant_id"], name: "idx_cart_items_user_product_variant"
     t.index ["user_id"], name: "index_cart_items_on_user_id"
     t.index ["variant_id"], name: "index_cart_items_on_variant_id"
   end
@@ -144,6 +145,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_21_140306) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["reference"], name: "index_orders_on_reference", unique: true
+    t.index ["user_id", "created_at"], name: "idx_orders_user_created_at"
+    t.index ["user_id", "status"], name: "idx_orders_user_status"
     t.index ["user_id"], name: "index_orders_on_user_id"
   end
 
@@ -230,6 +233,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_21_140306) do
     t.string "variantable_type", null: false
     t.index ["variantable_type", "variantable_id", "name"], name: "idx_variant_product_name", unique: true
     t.index ["variantable_type", "variantable_id"], name: "index_variants_on_variantable"
+  end
+
+  create_table "webhook_events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "event_key", null: false
+    t.datetime "processed_at", null: false
+    t.string "provider", null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider", "event_key"], name: "idx_webhook_events_provider_event_key", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

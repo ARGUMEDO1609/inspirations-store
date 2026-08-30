@@ -53,6 +53,8 @@ Rails.application.routes.draw do
       end
 
       post "webhooks/wompi", to: "webhooks#wompi"
+
+      get "health", to: "health#show"
     end
   end
 

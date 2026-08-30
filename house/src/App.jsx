@@ -1,14 +1,6 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, Suspense, lazy } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import { ShoppingCart, User, LogOut, Loader2, X } from 'lucide-react';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Gallery from './pages/Gallery';
-import Cart from './pages/Cart';
-import ProductDetail from './pages/ProductDetail';
-import Profile from './pages/Profile';
-import Orders from './pages/Orders';
-import PaymentResult from './pages/PaymentResult';
 import { useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { useToast } from './context/ToastContext';
@@ -16,6 +8,7 @@ import { NetworkStatusProvider } from './context/NetworkStatusContext';
 import { useNetworkStatus } from './context/NetworkStatusContext';
 import { CartNotificationProvider } from './context/CartNotificationContext';
 import CartNotificationList from './components/CartNotificationList';
+import ErrorBoundary from './components/ErrorBoundary';
 import {
   CartCountProvider,
   useCartCount
@@ -23,6 +16,15 @@ import {
 import useActionCable from './api/useActionCable';
 import { getClientInstanceId } from './api/axios';
 import { useCartNotification } from './context/CartNotificationContext';
+
+const Login = lazy(() => import('./pages/Login'));
+const Signup = lazy(() => import('./pages/Signup'));
+const Gallery = lazy(() => import('./pages/Gallery'));
+const Cart = lazy(() => import('./pages/Cart'));
+const ProductDetail = lazy(() => import('./pages/ProductDetail'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Orders = lazy(() => import('./pages/Orders'));
+const PaymentResult = lazy(() => import('./pages/PaymentResult'));
 
 const NotificationListener = ({ children }) => {
   const { toast } = useToast();
@@ -315,19 +317,29 @@ const App = () => {
                   <>
                     <Navbar />
                     <main className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8 lg:pb-32">
-                      <Routes>
-                        <Route path="/" element={<Gallery />} />
-                        <Route path="/product/:id" element={<ProductDetail />} />
-                        <Route path="/cart" element={<Cart />} />
-                        <Route path="/profile" element={<Profile />} />
-                        <Route path="/orders" element={<Orders />} />
-                        <Route path="/payment/success" element={<PaymentResult variant="success" />} />
-                        <Route path="/payment/failure" element={<PaymentResult variant="failure" />} />
-                        <Route path="/payment/pending" element={<PaymentResult variant="pending" />} />
-                        <Route path="/payment/result" element={<PaymentResult />} />
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/signup" element={<Signup />} />
-                      </Routes>
+                      <ErrorBoundary>
+                        <Suspense
+                          fallback={
+                            <div className="flex min-h-[70vh] items-center justify-center py-28">
+                              <Loader2 className="h-12 w-12 animate-spin text-[var(--accent)]" />
+                            </div>
+                          }
+                        >
+                          <Routes>
+                            <Route path="/" element={<Gallery />} />
+                            <Route path="/product/:id" element={<ProductDetail />} />
+                            <Route path="/cart" element={<Cart />} />
+                            <Route path="/profile" element={<Profile />} />
+                            <Route path="/orders" element={<Orders />} />
+                            <Route path="/payment/success" element={<PaymentResult variant="success" />} />
+                            <Route path="/payment/failure" element={<PaymentResult variant="failure" />} />
+                            <Route path="/payment/pending" element={<PaymentResult variant="pending" />} />
+                            <Route path="/payment/result" element={<PaymentResult />} />
+                            <Route path="/login" element={<Login />} />
+                            <Route path="/signup" element={<Signup />} />
+                          </Routes>
+                        </Suspense>
+                      </ErrorBoundary>
                     </main>
                     <Footer />
                   </>

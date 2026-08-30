@@ -23,7 +23,7 @@ RSpec.describe Api::V1::WebhooksController, type: :controller do
       expect(order.payments.last.provider).to eq('wompi')
     end
 
-    it 'is idempotent for repeated approved events' do
+    it 'is idempotent for repeated approved events (same event_key)' do
       payload = webhook_payload(status: 'APPROVED')
 
       post :wompi, params: payload, as: :json
@@ -33,6 +33,21 @@ RSpec.describe Api::V1::WebhooksController, type: :controller do
       expect(order.reload.status).to eq('paid')
       expect(order.payment_status).to eq('approved')
       expect(product.reload.stock).to eq(6)
+      expect(order.payments.count).to eq(1)
+      expect(WebhookEvent.where(provider: "wompi").count).to eq(1)
+    end
+
+    it 'skips already-processed events without re-applying side effects' do
+      payload = webhook_payload(status: 'DECLINED')
+
+      post :wompi, params: payload, as: :json
+      expect(order.reload.status).to eq('cancelled')
+      expect(product.reload.stock).to eq(8)
+
+      post :wompi, params: payload, as: :json
+      expect(response).to have_http_status(:ok)
+      expect(order.reload.status).to eq('cancelled')
+      expect(product.reload.stock).to eq(8)
       expect(order.payments.count).to eq(1)
     end
 

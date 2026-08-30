@@ -15,7 +15,7 @@ inspiration-store/
 
 **Stack:**
 - **Frontend:** React 19, Vite 8, Tailwind CSS 4, React Router 7, Framer Motion, Axios, Action Cable client
-- **Backend:** Rails 8.1, PostgreSQL, Devise + JWT, Pundit, ActiveAdmin, Action Cable, Active Storage, Wompi payments
+- **Backend:** Rails 8.1, PostgreSQL, Devise + cookie HttpOnly, Pundit, ActiveAdmin, Action Cable, Active Storage, Wompi payments
 - **Testing:** RSpec, FactoryBot, Shoulda Matchers
 - **CI:** bin/ci runs rubocop, brakeman, rspec, eslint, vite build
 
@@ -31,7 +31,7 @@ inspiration-store/
 ✅ **Polymorphic associations:** Reviews, Notes, Addresses on User/Order/Product  
 ✅ **Security hardening:** Rack::Attack, CSP, file validation, XSS sanitization  
 ✅ **Stimulus refresh fix:** ActiveAdmin Turbo navigation works correctly  
-✅ **All tests passing:** 116 RSpec examples, 0 failures  
+✅ **All tests passing:** 127 RSpec examples, 0 failures  
 ✅ **CI green:** rubocop, brakeman, rspec, eslint, vite build
 
 ---
@@ -45,7 +45,7 @@ inspiration-store/
 - [x] Responsive Tailwind UI with custom design system
 
 ### Authentication & User
-- [x] Signup / Login with JWT (Devise + devise-jwt)
+- [x] Signup / Login with HttpOnly cookie session (Devise)
 - [x] Token revocation on logout (JwtDenylist)
 - [x] Current user endpoint with auto-refresh
 - [x] Profile page with editable name, phone, address
@@ -105,14 +105,12 @@ inspiration-store/
 - [ ] E2E smoke test: full checkout flow with fake Wompi
 
 ### Frontend Polish
-- [ ] Optimize bundle size (516KB JS gzipped → consider code splitting)
-- [ ] Add React Error Boundaries for graceful degradation
+- [x] Optimize bundle size — code split by route (React.lazy), main bundle 516KB→79KB gzipped
+- [x] Add React Error Boundaries for graceful degradation
 - [ ] Improve loading skeletons on Gallery/ProductDetail
 - [ ] Accessibility audit (ARIA labels, focus management)
 
 ### Backend Hardening
-- [ ] Add database indexes for common queries (orders by user+status, cart_items by user)
-- [ ] Implement idempotency keys on webhook processing
 - [ ] Add request logging correlation IDs
 - [ ] Review and tune Rack::Attack thresholds for production
 
@@ -128,8 +126,8 @@ inspiration-store/
 | Environment configs (staging/production) | ⬜ | `.env.production` templates in `server/.env.example` |
 | Database migration strategy | ✅ | `rails db:migrate` works clean |
 | Asset compilation (ActiveAdmin CSS) | ✅ | `npm run build:css` in server/ |
-| Health check endpoint | ⬜ | `/up` exists, add custom `/health` |
-| Structured logging (JSON) | ⬜ | Replace default Rails logger |
+| Health check endpoint | ✅ | `/api/v1/health` with DB check, version info, timestamp |
+| Structured logging (JSON) | ✅ | JSON formatter in production with request context tags |
 | Error tracking (Sentry/Honeybadger) | ⬜ | |
 | CDN for Active Storage | ⬜ | Configure CloudFront/S3 |
 | SSL/TLS termination | ⬜ | Handled by platform (Heroku/Railway/Render) |
@@ -137,6 +135,8 @@ inspiration-store/
 | **Security headers (CSP, COOP, CORP)** | ✅ | Frame-ancestors:none, strict referrer-policy |
 | **File upload validation** | ✅ | Images <5MB, 3D <15MB, type checking |
 | **XSS sanitization** | ✅ | Reviews sanitized with SafeListSanitizer |
+| **Idempotency keys (webhooks)** | ✅ | `webhook_events` table with unique constraint, claim/release pattern |
+| **Composite DB indexes** | ✅ | orders(user_id, status), orders(user_id, created_at), cart_items(user_id, product_id, variant_id) |
 
 ### Phase 2 - Operational Excellence (ongoing)
 **Goal:** Reduce manual ops, improve observability
@@ -167,14 +167,12 @@ inspiration-store/
 
 | Area | Issue | Priority |
 |------|-------|----------|
-| **Frontend bundle** | 516KB gzipped single chunk | Medium - code split by route |
+| **Frontend bundle** | ~~516KB gzipped single chunk~~ → 79KB main + lazy pages | ✅ Resolved |
 | **CartContext** | setState in useEffect warnings (eslint disabled) | Low - refactor to useReducer |
 | **Wompi fake mode** | Hardcoded test keys in checkout_builder | Low - use env vars only |
-| **Order serializer** | N+1 on order_items → product | Medium - add `includes` in controller |
 | **Action Cable** | No connection recovery logging | Low - add reconnect attempts counter |
 | **Admin CSS** | Tailwind + ActiveAdmin asset pipeline friction | Medium - consider ViewComponent migration |
 | **Rate limiting** | Only IP-based, no user-ID based for auth endpoints | Medium - add user-based limits |
-| **Idempotency keys** | Not implemented on webhooks | Medium - add to prevent duplicate processing |
 
 ---
 
@@ -220,7 +218,7 @@ bin/thrust  # → Vercel
 ```bash
 # Required
 DATABASE_URL=postgresql://...
-DEVISE_JWT_SECRET_KEY=...
+DEVISE_JWT_SECRET_KEY=...  # Solo para tokens de ActionCable
 WOMPI_PUBLIC_KEY=pub_...
 WOMPI_INTEGRITY_KEY=...
 WOMPI_EVENT_SECRET=...
@@ -247,6 +245,6 @@ VITE_API_URL=http://localhost:3000
 
 ---
 
-*Last updated: 2025-07-13*
-*All CI checks passing: rspec (116), rubocop, brakeman, eslint, vite build*
-*Security hardening: Rack::Attack, CSP, file validation, XSS sanitization, Stimulus fix*
+*Last updated: 2026-08-30*
+*All CI checks passing: rspec (127), rubocop, brakeman, eslint, vite build*
+*Security hardening: Rack::Attack, CSP, file validation, XSS sanitization, Stimulus fix, webhook idempotency*

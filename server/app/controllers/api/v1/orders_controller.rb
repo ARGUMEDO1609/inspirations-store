@@ -2,17 +2,17 @@ class Api::V1::OrdersController < Api::V1::ApiController
   before_action :authenticate_user!
 
   def index
-    @orders = current_user.orders.includes(order_items: :variant).order(created_at: :desc)
+    @orders = current_user.orders.includes(order_items: [:variant, :product]).order(created_at: :desc)
     render_success(data: OrderSerializer.new(@orders).serializable_hash[:data])
   end
 
   def show
-    @order = current_user.orders.includes(order_items: :variant).find(params[:id])
+    @order = current_user.orders.includes(order_items: [:variant, :product]).find(params[:id])
     render_success(data: OrderSerializer.new(@order).serializable_hash[:data])
   end
 
   def show_by_reference
-    @order = current_user.orders.includes(order_items: :variant).find_by!(reference: params[:reference])
+    @order = current_user.orders.includes(order_items: [:variant, :product]).find_by!(reference: params[:reference])
     render_success(data: OrderSerializer.new(@order).serializable_hash[:data])
   end
 

@@ -18,19 +18,30 @@ class Api::V1::WebhooksController < ActionController::Base
     payment_status = map_wompi_status(transaction["status"])
     transaction_id = transaction["id"].presence || "wompi-#{reference.presence || SecureRandom.hex(6)}"
 
-    Rails.logger.info "Received Wompi event: reference=#{reference.inspect} status=#{transaction['status']}"
+    event_key = "wompi:#{transaction_id}:#{transaction['status'].to_s.downcase}"
+
+    Rails.logger.info "Received Wompi event: reference=#{reference.inspect} status=#{transaction['status']} event_key=#{event_key}"
 
     if order && payment_status.present?
-      order.transaction do
-        payment = order.payments.find_or_initialize_by(transaction_id: transaction_id)
-        payment.provider = "wompi"
-        payment.status = transaction["status"]
-        payment.save!
+      if WebhookEvent.claim(provider: "wompi", event_key: event_key)
+        begin
+          order.transaction do
+            payment = order.payments.find_or_initialize_by(transaction_id: transaction_id)
+            payment.provider = "wompi"
+            payment.status = transaction["status"]
+            payment.save!
 
-        order.apply_payment_update!(
-          payment_id: transaction["id"],
-          payment_status: payment_status
-        )
+            order.apply_payment_update!(
+              payment_id: transaction["id"],
+              payment_status: payment_status
+            )
+          end
+        rescue => e
+          WebhookEvent.release(provider: "wompi", event_key: event_key)
+          raise
+        end
+      else
+        Rails.logger.info "Duplicate Wompi event skipped: event_key=#{event_key}"
       end
     else
       Rails.logger.warn(
