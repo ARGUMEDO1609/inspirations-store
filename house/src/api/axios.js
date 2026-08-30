@@ -1,9 +1,17 @@
 import axios from 'axios';
 
-const configuredApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const defaultApiUrl = () => {
+  if (typeof window === 'undefined') {
+    return 'http://localhost:3000';
+  }
+
+  return `${window.location.protocol}//${window.location.hostname}:3000`;
+};
+
+const configuredApiUrl = import.meta.env.VITE_API_URL || defaultApiUrl();
 // VITE_API_URL is the API origin, not its versioned path. Normalizing here
 // prevents an accidental /api/v1/api/v1 URL when a deploy variable includes it.
-const API_URL = configuredApiUrl.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
+export const API_URL = configuredApiUrl.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
 const CLIENT_INSTANCE_STORAGE_KEY = 'client-instance-id';
 
 export const getClientInstanceId = () => {

@@ -14,9 +14,12 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.get('/current_user');
       const userData = response.data.data;
-      setUser(userData?.attributes || userData || null);
+      const currentUser = userData?.attributes || userData || null;
+      setUser(currentUser);
+      return currentUser;
     } catch {
       setUser(null);
+      return null;
     } finally {
       setLoading(false);
     }
@@ -42,7 +45,13 @@ export const AuthProvider = ({ children }) => {
     // The server Set-Cookie response header establishes the session; nothing
     // to persist client-side.
     resetCableConsumer();
-    setUser(userData);
+    const currentUser = await checkUser();
+
+    if (!currentUser) {
+      throw new Error('No se pudo confirmar la sesión. Revisa que estés usando el mismo host para frontend y API.');
+    }
+
+    setUser(currentUser);
     return response.data;
   };
 
@@ -67,7 +76,13 @@ export const AuthProvider = ({ children }) => {
     }
 
     resetCableConsumer();
-    setUser(userResponse);
+    const currentUser = await checkUser();
+
+    if (!currentUser) {
+      throw new Error('No se pudo confirmar la sesión. Revisa que estés usando el mismo host para frontend y API.');
+    }
+
+    setUser(currentUser);
     return response.data;
   };
 

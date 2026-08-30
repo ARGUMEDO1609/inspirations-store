@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Loader2, Search, SlidersHorizontal } from 'lucide-react';
 import { motion } from 'framer-motion';
 import styled from '@emotion/styled';
@@ -199,6 +200,7 @@ const Hero = ({ filter, setFilter, sort, setSort, categories, productCount, sear
 };
 
 const Gallery = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('recent');
@@ -272,18 +274,53 @@ const Gallery = () => {
   }, [fetchProducts]);
 
    const handleAddToCart = async (product) => {
+    const productData = product.attributes || product;
+    const productId = product.id || productData.id;
+    const availableStock = productData.has_variants
+      ? (productData.variants || []).reduce((sum, variant) => sum + Number(variant.stock || 0), 0)
+      : Number(productData.stock || 0);
+
+    if (!user) {
+      toast({
+        type: 'error',
+        title: 'Acción no disponible',
+        message: 'Debes iniciar sesión para añadir productos al carrito.'
+      });
+      navigate('/login');
+      return;
+    }
+
+    if (availableStock <= 0) {
+      toast({
+        type: 'error',
+        title: 'Sin disponibilidad',
+        message: 'Este producto está agotado.'
+      });
+      return;
+    }
+
+    if (productData.has_variants) {
+      toast({
+        type: 'info',
+        title: 'Selecciona una talla',
+        message: 'Este producto requiere elegir una variante antes de añadirlo.'
+      });
+      navigate(`/product/${productId}`);
+      return;
+    }
+
     try {
-      setProcessingId(product.id);
+      setProcessingId(productId);
       await api.post('/cart_items', {
-        product_id: product.id,
+        product_id: productId,
         quantity: 1
       });
         toast({
           type: 'success',
           title: 'Producto añadido',
-          message: `${product.attributes.title} fue enviada a tu selección.`
+          message: `${productData.title} fue enviada a tu selección.`
         });
-        notifyCart(`${product.attributes.title} se agregó al carrito.`, 'success');
+        notifyCart(`${productData.title} se agregó al carrito.`, 'success');
         refreshCartCount();
     } catch (error) {
       console.error('Error adding to cart:', error);
