@@ -14,7 +14,7 @@
     "@emotion/styled": "^11.14.1",
     "@rails/actioncable": "^8.1.301",
     "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.6.1",
+    "@react-three/fiber": "^9.7.0",
     "axios": "^1.18.1",
     "framer-motion": "^13.0.0",
     "lucide-react": "^1.28.0",
