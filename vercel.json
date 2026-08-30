@@ -3,38 +3,41 @@
   "builds": [
     {
       "src": "server/Dockerfile.vercel",
-      "use": "@vercel/docker",
+      "use": "@vercel/docker"
+    },
+    {
+      "src": "house/package.json",
+      "use": "@vercel/static-build",
       "config": {
-        "env": {
-          "RAILS_ENV": "production"
-        }
+        "distDir": "dist",
+        "framework": "vite"
       }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server/Dockerfile.vercel"
+      "dest": "/server/Dockerfile.vercel"
     },
     {
       "src": "/admin/(.*)",
-      "dest": "server/Dockerfile.vercel"
+      "dest": "/server/Dockerfile.vercel"
     },
     {
       "src": "/up",
-      "dest": "server/Dockerfile.vercel"
+      "dest": "/server/Dockerfile.vercel"
     },
     {
       "src": "/cable",
-      "dest": "server/Dockerfile.vercel"
+      "dest": "/server/Dockerfile.vercel"
     },
     {
       "src": "/webhooks/(.*)",
-      "dest": "server/Dockerfile.vercel"
+      "dest": "/server/Dockerfile.vercel"
     },
     {
       "src": "/users/(.*)",
-      "dest": "server/Dockerfile.vercel"
+      "dest": "/server/Dockerfile.vercel"
     },
     {
       "src": "/(.*\\.(js|css|png|jpg|svg|ico|woff|woff2|ttf|eot))$",
