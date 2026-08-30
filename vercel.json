@@ -1,0 +1,48 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server/Dockerfile.vercel",
+      "use": "@vercel/docker",
+      "config": {
+        "env": {
+          "RAILS_ENV": "production"
+        }
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server/Dockerfile.vercel"
+    },
+    {
+      "src": "/admin/(.*)",
+      "dest": "server/Dockerfile.vercel"
+    },
+    {
+      "src": "/up",
+      "dest": "server/Dockerfile.vercel"
+    },
+    {
+      "src": "/cable",
+      "dest": "server/Dockerfile.vercel"
+    },
+    {
+      "src": "/webhooks/(.*)",
+      "dest": "server/Dockerfile.vercel"
+    },
+    {
+      "src": "/users/(.*)",
+      "dest": "server/Dockerfile.vercel"
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|svg|ico|woff|woff2|ttf|eot))$",
+      "dest": "/house/dist/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/house/dist/index.html"
+    }
+  ]
+}
