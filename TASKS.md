@@ -31,7 +31,7 @@ inspiration-store/
 ✅ **Polymorphic associations:** Reviews, Notes, Addresses on User/Order/Product  
 ✅ **Security hardening:** Rack::Attack, CSP, file validation, XSS sanitization  
 ✅ **Stimulus refresh fix:** ActiveAdmin Turbo navigation works correctly  
-✅ **All tests passing:** 127 RSpec examples, 0 failures  
+✅ **All tests passing:** 155 RSpec examples, 0 failures  
 ✅ **CI green:** rubocop, brakeman, rspec, eslint, vite build
 
 ---
@@ -100,18 +100,19 @@ inspiration-store/
 
 ### Testing Improvements
 - [ ] Run `bin/ci` as standard pre-push gate
-- [ ] Add request specs for CartItems edge cases (empty cart, variant stock)
-- [ ] Add mutation tests for order state machine
-- [ ] E2E smoke test: full checkout flow with fake Wompi
+- [x] Add request specs for CartItems edge cases (empty cart, variant stock, quantities)
+- [x] Add mutation tests for order state machine (transitions, stock restoration, status mapping)
 
 ### Frontend Polish
 - [x] Optimize bundle size — code split by route (React.lazy), main bundle 516KB→79KB gzipped
 - [x] Add React Error Boundaries for graceful degradation
-- [ ] Improve loading skeletons on Gallery/ProductDetail
+- [x] Fix Framer Motion animations (scale bug, double animation, layout perf, AnimatePresence)
+- [x] Optimize 3D viewer (lazy load on click, isolated chunk)
+- [x] Improve loading skeletons on Gallery/ProductDetail
 - [ ] Accessibility audit (ARIA labels, focus management)
 
 ### Backend Hardening
-- [ ] Add request logging correlation IDs
+- [x] Add request logging correlation IDs (X-Request-Id header + JSON logs)
 - [ ] Review and tune Rack::Attack thresholds for production
 
 ---
@@ -128,7 +129,7 @@ inspiration-store/
 | Asset compilation (ActiveAdmin CSS) | ✅ | `npm run build:css` in server/ |
 | Health check endpoint | ✅ | `/api/v1/health` with DB check, version info, timestamp |
 | Structured logging (JSON) | ✅ | JSON formatter in production with request context tags |
-| Error tracking (Sentry/Honeybadger) | ⬜ | |
+| Error tracking (Sentry) | ✅ | `sentry-ruby` + `sentry-rails` (backend), `@sentry/react` (frontend) with replay |
 | CDN for Active Storage | ⬜ | Configure CloudFront/S3 |
 | SSL/TLS termination | ⬜ | Handled by platform (Heroku/Railway/Render) |
 | **Rack::Attack hardening** | ✅ | Login 5/min, signup 3/10min, cart 30/min, checkout 10/5min |
@@ -137,6 +138,9 @@ inspiration-store/
 | **XSS sanitization** | ✅ | Reviews sanitized with SafeListSanitizer |
 | **Idempotency keys (webhooks)** | ✅ | `webhook_events` table with unique constraint, claim/release pattern |
 | **Composite DB indexes** | ✅ | orders(user_id, status), orders(user_id, created_at), cart_items(user_id, product_id, variant_id) |
+| **Error tracking (Sentry)** | ✅ | `sentry-ruby` + `sentry-rails` (backend), `@sentry/react` (frontend) with replay |
+| **E2E checkout test** | ✅ | Full flow: cart → checkout → webhook → order status (3 specs) |
+| **3D viewer optimization** | ✅ | React.lazy + isolated chunk (273KB gz, loads only on user click) |
 
 ### Phase 2 - Operational Excellence (ongoing)
 **Goal:** Reduce manual ops, improve observability
@@ -246,5 +250,5 @@ VITE_API_URL=http://localhost:3000
 ---
 
 *Last updated: 2026-08-30*
-*All CI checks passing: rspec (127), rubocop, brakeman, eslint, vite build*
-*Security hardening: Rack::Attack, CSP, file validation, XSS sanitization, Stimulus fix, webhook idempotency*
+*All CI checks passing: rspec (155), rubocop, brakeman, eslint, vite build*
+*Security hardening: Rack::Attack, CSP, file validation, XSS sanitization, Stimulus fix, webhook idempotency, Sentry error tracking, correlation IDs*

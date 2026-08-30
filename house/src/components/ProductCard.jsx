@@ -10,25 +10,26 @@ const cardVariants = {
   hidden: {
     opacity: 0,
     y: 60,
-    scale: 0.9,
+    scale: 0.92,
     filter: 'blur(1.5px)'
   },
   visible: (idx) => ({
     opacity: 1,
     y: 0,
-    scale: 0.95,
+    scale: 1,
     filter: 'blur(0px)',
     transition: {
       opacity: { duration: 0.5, ease: 'easeOut' },
       y: { type: 'spring', stiffness: 150, damping: 25 },
       delay: idx * 0.05
     }
-  })
-};
-
-const imageVariants = {
-  initial: { scale: 1 },
-  hover: { scale: 1.05 }
+  }),
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    y: 20,
+    transition: { duration: 0.25, ease: 'easeIn' }
+  }
 };
 
 const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
@@ -42,21 +43,17 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
       variants={cardVariants}
       initial="hidden"
       whileInView="visible"
+      exit="exit"
       viewport={{ once: true, margin: '-25% 0px -25% 0px' }}
       custom={index}
-      whileHover={{ scale: 1.015 }}
-      whileTap={{ scale: 0.99 }}
-      layout
     >
       <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-[var(--glow)] blur-3xl transition duration-700 group-hover:scale-125" />
 
       <Motion.div className="relative aspect-[4/4.3] overflow-hidden border-b border-[var(--border-soft)] bg-[var(--bg-elevated)]">
-        <Motion.img
+        <img
           src={product.image_url || PLACEHOLDER}
           alt={product.title}
           className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-          variants={imageVariants}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
         />
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[rgba(46,31,19,0.78)] via-[rgba(46,31,19,0.22)] to-transparent p-3 sm:p-4">
           <div className="flex items-end justify-between gap-3">

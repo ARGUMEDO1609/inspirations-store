@@ -114,7 +114,7 @@ class Order < ApplicationRecord
       :paid
     when "pending", "pendiente", "in_process", "in_mediation"
       :pending
-    when "rejected", "rechazada", "rechazado", "cancelled", "fallida", "fallido"
+    when "rejected", "rechazada", "rechazado", "declined", "cancelled", "fallida", "fallido"
       :cancelled
     else
       status.to_sym

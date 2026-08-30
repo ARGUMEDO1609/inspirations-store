@@ -6,9 +6,11 @@
 if Rails.env.production?
   Rails.application.configure do
     log_formatter = proc do |severity, datetime, _progname, msg|
+      correlation_id = Thread.current[:correlation_id]
       {
         level: severity,
         time: datetime.iso8601(3),
+        correlation_id: correlation_id,
         msg: msg.respond_to?(:dump) ? msg : msg.to_s
       }.to_json + "\n"
     end

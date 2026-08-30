@@ -3,6 +3,7 @@ class Api::V1::ApiController < ActionController::API
   include ActionController::RequestForgeryProtection
   include Pundit::Authorization
   include ApiResponses
+  include CorrelationId
   # CSRF: this is a JSON API called cross-origin from the SPA. We skip Rails
   # form CSRF protection intentionally: the cookie session is SameSite=:lax
   # (blocks cross-site POST), CORS only allows the configured frontend origins

@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Loader2, Search, SlidersHorizontal } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
+import { GallerySkeleton } from '../components/Skeleton';
 import useActionCable from '../api/useActionCable';
 import { useToast } from '../context/ToastContext';
 import useApiError from '../hooks/useApiError';
@@ -336,11 +337,7 @@ const Gallery = () => {
   };
 
   if (loading && products.length === 0) {
-    return (
-      <div className="flex items-center justify-center py-32 sm:py-40">
-        <Loader2 className="h-12 w-12 animate-spin text-[var(--accent)]" />
-      </div>
-    );
+    return <GallerySkeleton />;
   }
 
   const showEmptyState = !loading && products.length === 0;
@@ -386,15 +383,17 @@ const Gallery = () => {
           viewport={{ once: true, margin: '-15% 0px -25% 0px' }}
           variants={gridVariants}
         >
-          {products.map((item, index) => (
-            <ProductCard
-              key={item.id}
-              product={item.attributes}
-              isProcessing={processingId === item.id}
-              onAddToCart={() => handleAddToCart(item)}
-              index={index}
-            />
-          ))}
+          <AnimatePresence mode="popLayout">
+            {products.map((item, index) => (
+              <ProductCard
+                key={item.id}
+                product={item.attributes}
+                isProcessing={processingId === item.id}
+                onAddToCart={() => handleAddToCart(item)}
+                index={index}
+              />
+            ))}
+          </AnimatePresence>
         </motion.section>
       )}
     </div>

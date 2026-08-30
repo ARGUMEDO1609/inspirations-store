@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import useApiError from '../hooks/useApiError';
 import { formatCOP } from '../utils/formatCurrency';
+import { ProductDetailSkeleton } from '../components/Skeleton';
 
 const Product3DViewer = lazy(() => import('../components/Product3DViewer').then(m => ({ default: m.default })));
 
@@ -146,11 +147,7 @@ const ProductDetail = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-32 sm:py-40">
-        <Loader2 className="h-12 w-12 animate-spin text-[var(--accent)]" />
-      </div>
-    );
+    return <ProductDetailSkeleton />;
   }
 
   if (!product) {
