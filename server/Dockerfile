@@ -46,8 +46,9 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y nodejs && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Install application gems
-COPY vendor/* ./vendor/
+# Install application gems. There are no vendored gems in this application;
+# copying an optional vendor directory makes remote Docker builds fail when it
+# is absent from the build context.
 COPY Gemfile Gemfile.lock ./
 
 RUN bundle install && \
@@ -70,8 +71,22 @@ RUN npm run build:css && rm -rf node_modules
 # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
 RUN bundle exec bootsnap precompile -j 1 app/ lib/
 
-# Precompile assets without requiring the master key at build time.
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# Precompile assets without embedding runtime secrets in the image. Rails loads
+# the production environment during this step, so satisfy its validations with
+# non-sensitive build-only values. Render supplies the real values at runtime.
+RUN SECRET_KEY_BASE_DUMMY=1 \
+    APP_HOST=build.example.com \
+    FRONTEND_URL=https://build.example.com \
+    BACKEND_URL=https://api.build.example.com \
+    CORS_ORIGINS=https://build.example.com \
+    DATABASE_URL=postgresql://build:build@localhost:5432/build \
+    REDIS_URL=redis://localhost:6379/1 \
+    DEVISE_JWT_SECRET_KEY=build_only_jwt_secret \
+    WOMPI_PUBLIC_KEY=build_only_public_key \
+    WOMPI_INTEGRITY_KEY=build_only_integrity_key \
+    WOMPI_EVENT_SECRET=build_only_event_secret \
+    WOMPI_FAKE_MODE=false \
+    ./bin/rails assets:precompile
 
 
 
