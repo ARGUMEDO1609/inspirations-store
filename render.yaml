@@ -1,0 +1,58 @@
+services:
+  - type: web
+    name: inspirations-store-api
+    runtime: docker
+    plan: free
+    dockerfilePath: server/Dockerfile
+    dockerContext: server
+    healthCheckPath: /up
+    buildFilter:
+      paths:
+        - server/**
+        - render.yaml
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RACK_ENV
+        value: production
+      - key: RAILS_LOG_LEVEL
+        value: info
+      - key: SOLID_QUEUE_IN_PUMA
+        value: "true"
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: DEVISE_JWT_SECRET_KEY
+        generateValue: true
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: inspirations-store-cache
+          property: connectionString
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: BACKEND_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: APP_HOST
+        sync: false
+      - key: WOMPI_PUBLIC_KEY
+        sync: false
+      - key: WOMPI_INTEGRITY_KEY
+        sync: false
+      - key: WOMPI_EVENT_SECRET
+        sync: false
+      - key: WOMPI_CURRENCY
+        value: COP
+      - key: WOMPI_FAKE_MODE
+        value: "false"
+
+  - type: keyvalue
+    name: inspirations-store-cache
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []

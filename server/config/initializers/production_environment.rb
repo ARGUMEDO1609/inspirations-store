@@ -9,12 +9,12 @@ required_variables = %w[
   FRONTEND_URL
   BACKEND_URL
   CORS_ORIGINS
+  DATABASE_URL
   REDIS_URL
   DEVISE_JWT_SECRET_KEY
   WOMPI_PUBLIC_KEY
   WOMPI_INTEGRITY_KEY
   WOMPI_EVENT_SECRET
-  SERVER_DATABASE_PASSWORD
 ].freeze
 
 missing_variables = required_variables.select { |name| ENV[name].to_s.strip.empty? }
