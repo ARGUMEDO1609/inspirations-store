@@ -151,7 +151,7 @@ GEM
       activesupport (>= 7.0)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
-    image_processing (2.0.3)
+    image_processing (2.2.0)
     importmap-rails (2.2.3)
       actionpack (>= 6.0.0)
       activesupport (>= 6.0.0)
@@ -478,7 +478,7 @@ DEPENDENCIES
   devise (>= 5.0.3, < 6)
   factory_bot_rails (~> 6.4)
   faker (~> 3.8)
-  image_processing (~> 2.0)
+  image_processing (~> 2.2)
   importmap-rails
   jsonapi-serializer
   jwt (>= 3.2.0, < 4)
