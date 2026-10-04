@@ -36,7 +36,7 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
 
   return (
     <Motion.article
-      className="group relative flex h-full flex-col overflow-hidden border-b border-[var(--border-strong)] bg-transparent transition-colors duration-300 hover:border-[var(--accent)]"
+      className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-[var(--border-soft)] bg-[rgba(255,255,255,0.42)] transition duration-300 hover:-translate-y-1 hover:border-[var(--accent)]/70 hover:shadow-[0_12px_28px_rgba(38,24,12,0.09)]"
       variants={cardVariants}
       initial="hidden"
       whileInView="visible"
@@ -44,7 +44,7 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
       viewport={{ once: true, margin: '-25% 0px -25% 0px' }}
       custom={index}
     >
-      <Motion.div className="relative aspect-[4/4.3] overflow-hidden bg-[var(--bg-elevated)]">
+      <Motion.div className="relative aspect-[5/4] overflow-hidden bg-[var(--bg-elevated)]">
         <img
           src={product.image_url || PLACEHOLDER}
           alt={product.title}
@@ -52,16 +52,16 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
         />
       </Motion.div>
 
-      <div className="flex flex-1 flex-col px-1 pb-4 pt-4 sm:pb-5">
+      <div className="flex flex-1 flex-col p-3 sm:p-4">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="font-display text-2xl leading-tight text-[var(--text-primary)] sm:text-[1.8rem]">{product.title}</h3>
-          <span className="pt-1 text-sm font-semibold text-[var(--text-primary)]">{formatCOP(product.price)}</span>
+          <h3 className="font-display text-xl leading-tight text-[var(--text-primary)] sm:text-2xl">{product.title}</h3>
+          <span className="pt-1 text-xs font-semibold text-[var(--text-primary)] sm:text-sm">{formatCOP(product.price)}</span>
         </div>
-        <p className="mt-2 line-clamp-2 text-sm leading-6 text-[var(--text-secondary)]">
+        <p className="mt-2 line-clamp-2 text-xs leading-5 text-[var(--text-secondary)] sm:text-sm">
           {product.description}
         </p>
 
-        <div className="mt-4 flex items-center justify-between border-t border-[var(--border-soft)] pt-3 text-[10px] uppercase tracking-[0.15em] text-[var(--text-muted)]">
+        <div className="mt-3 flex items-center justify-between border-t border-[var(--border-soft)] pt-2.5 text-[9px] uppercase tracking-[0.12em] text-[var(--text-muted)] sm:text-[10px]">
           <span className="inline-flex items-center gap-1.5">
             <span className={`h-1.5 w-1.5 rounded-full ${availableStock > 0 ? 'bg-[var(--success)]' : 'bg-[var(--danger)]'}`}></span>
             {availableStock > 0 ? 'Disponible' : 'Sin stock'}
@@ -69,10 +69,10 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
           <span>{availableStock} piezas</span>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-2">
+        <div className="mt-3 grid grid-cols-2 gap-2">
           <Link
             to={`/product/${product.id}`}
-            className="inline-flex items-center justify-center gap-1.5 border border-[var(--border-soft)] px-2.5 py-2.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            className="inline-flex items-center justify-center gap-1 rounded-md border border-[var(--border-soft)] px-2 py-2 text-[8px] font-semibold uppercase tracking-[0.12em] text-[var(--text-primary)] transition hover:border-[var(--accent)] hover:text-[var(--accent)] sm:text-[9px]"
           >
             Ver producto
             <ArrowUpRight size={13} />
@@ -80,7 +80,7 @@ const ProductCard = ({ product, onAddToCart, isProcessing, index = 0 }) => {
           <button
             onClick={onAddToCart}
             disabled={isProcessing || availableStock <= 0}
-            className="inline-flex items-center justify-center gap-1.5 bg-[var(--text-primary)] px-2.5 py-2.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--ink)] transition hover:bg-[var(--accent)] disabled:opacity-70"
+            className="inline-flex items-center justify-center gap-1 rounded-md bg-[var(--text-primary)] px-2 py-2 text-[8px] font-semibold uppercase tracking-[0.12em] text-[var(--ink)] transition hover:bg-[var(--accent)] disabled:opacity-70 sm:text-[9px]"
           >
             {isProcessing ? <Loader2 size={13} className="animate-spin" /> : <ShoppingCart size={13} />}
             {availableStock > 0 ? 'Añadir' : 'Agotado'}
