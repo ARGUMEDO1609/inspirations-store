@@ -15,17 +15,16 @@ import { useAuth } from '../context/AuthContext';
 
 const HeroSection = styled(motion.section)`
   position: relative;
-  min-height: 560px;
+  min-height: 590px;
   overflow: hidden;
-  border-radius: 2.25rem;
-  border: 1px solid rgba(116, 88, 54, 0.14);
-  background: var(--bg-elevated);
+  border-radius: 0.25rem;
+  background: #ded3c5;
   isolation: isolate;
   @media (min-width: 640px) {
-    min-height: 640px;
+    min-height: 650px;
   }
   @media (min-width: 1024px) {
-    min-height: 720px;
+    min-height: 700px;
   }
 `;
 
@@ -40,16 +39,12 @@ const HeroImage = styled.img`
 const HeroGradient = styled.div`
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255, 250, 244, 0.04), rgba(41, 29, 20, 0.18) 42%, rgba(41, 29, 20, 0.34));
+  background: linear-gradient(90deg, rgba(24, 22, 18, 0.76) 0%, rgba(24, 22, 18, 0.55) 42%, rgba(24, 22, 18, 0.05) 100%);
   pointer-events: none;
 `;
 
 const HeroGlow = styled.div`
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at top right, rgba(215, 161, 74, 0.18), transparent 38%);
-  mix-blend-mode: screen;
-  pointer-events: none;
+  display: none;
 `;
 
 const heroSectionVariants = {
@@ -114,21 +109,30 @@ const Hero = ({ filter, setFilter, sort, setSort, categories, productCount, sear
       <HeroGradient />
       <HeroGlow />
 
-      <div className="relative flex min-h-[560px] flex-col justify-end p-4 sm:min-h-[640px] sm:p-6 lg:min-h-[720px] lg:p-8 xl:p-10">
-        <motion.div className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr] xl:items-end" variants={heroColumnVariants}>
+      <div className="relative flex min-h-[590px] flex-col justify-end p-5 text-white sm:min-h-[650px] sm:p-10 lg:min-h-[700px] lg:p-16">
+        <motion.div className="grid max-w-2xl gap-8" variants={heroColumnVariants}>
+          <motion.div className="max-w-xl" variants={heroCardVariants}>
+            <p className="text-[11px] font-medium uppercase tracking-[0.32em] text-white/75">Objetos para hacer tuyo el espacio</p>
+            <h1 className="mt-5 font-display text-6xl leading-[0.9] tracking-normal sm:text-7xl lg:text-8xl">Piezas con historia. Espacios con vida.</h1>
+            <p className="mt-5 max-w-md text-sm leading-7 text-white/80 sm:text-base">Una selección pequeña de objetos que vale la pena conservar.</p>
+            <a href="#piezas-destacadas" className="mt-7 inline-flex items-center gap-3 border-b border-white/70 pb-2 text-xs font-semibold uppercase tracking-[0.18em] transition hover:border-white">
+              Explorar la colección <ArrowRight size={15} />
+            </a>
+          </motion.div>
+
           <motion.div
-            className="glass-panel rounded-[1.7rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-4 sm:p-5 lg:p-6"
+            className="max-w-2xl border-t border-white/35 pt-5"
             variants={heroCardVariants}
           >
             <div className="flex flex-col gap-4">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" size={18} />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/70" size={18} />
                 <input
                   type="text"
                   placeholder="Buscar piezas exclusivas..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full rounded-full border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] py-3 pl-12 pr-6 text-sm font-medium text-[var(--text-primary)] outline-none transition focus:border-[var(--accent)]"
+                  className="w-full border-b border-white/50 bg-transparent py-3 pl-12 pr-6 text-sm text-white outline-none placeholder:text-white/65 focus:border-white"
                 />
               </div>
 
@@ -139,7 +143,7 @@ const Hero = ({ filter, setFilter, sort, setSort, categories, productCount, sear
                     setSort('recent');
                     setSearchTerm('');
                   }}
-                  className={`rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] transition ${filter === 'all' && sort !== 'popular' && !searchTerm ? 'bg-[var(--accent)] text-[var(--ink)] shadow-[0_14px_30px_rgba(215,161,74,0.2)]' : 'border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] text-[var(--text-primary)] hover:border-[var(--accent)]'}`}
+                  className={`px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.16em] transition ${filter === 'all' && sort !== 'popular' && !searchTerm ? 'bg-white text-[var(--text-primary)]' : 'border border-white/45 bg-transparent text-white hover:bg-white/10'}`}
                 >
                   Todas las piezas
                 </button>
@@ -147,7 +151,7 @@ const Hero = ({ filter, setFilter, sort, setSort, categories, productCount, sear
                   <select
                     onChange={(e) => setFilter(e.target.value)}
                     value={filter === 'all' ? 'all' : filter}
-                    className="w-full appearance-none rounded-full border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] px-5 py-3 pr-12 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--text-primary)] outline-none transition hover:border-[var(--accent)]"
+                    className="w-full appearance-none border border-white/45 bg-[#39352f]/75 px-4 py-2.5 pr-10 text-[10px] font-semibold uppercase tracking-[0.16em] text-white outline-none transition hover:border-white"
                   >
                     <option value="all">Vista por categoría</option>
                     {categories.map((cat) => (
@@ -156,11 +160,11 @@ const Hero = ({ filter, setFilter, sort, setSort, categories, productCount, sear
                       </option>
                     ))}
                   </select>
-                  <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]">▼</span>
+                  <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white">▼</span>
                 </div>
                 <button
                   onClick={() => setSort('popular')}
-                  className={`rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.22em] transition ${sort === 'popular' ? 'bg-[var(--accent)] text-[var(--ink)] shadow-[0_14px_30px_rgba(215,161,74,0.2)]' : 'border border-[rgba(116,88,54,0.14)] bg-[rgba(255,255,255,0.38)] text-[var(--text-primary)] hover:border-[var(--accent)]'}`}
+                  className={`px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.16em] transition ${sort === 'popular' ? 'bg-white text-[var(--text-primary)]' : 'border border-white/45 bg-transparent text-white hover:bg-white/10'}`}
                 >
                   Más buscadas
                 </button>
@@ -168,32 +172,6 @@ const Hero = ({ filter, setFilter, sort, setSort, categories, productCount, sear
             </div>
           </motion.div>
 
-          <motion.div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1" variants={heroColumnVariants}>
-            <motion.div
-              className="glass-panel rounded-[1.65rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-5"
-              variants={heroCardVariants}
-            >
-              <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-secondary)]">Estado de la tienda</p>
-              <p className="mt-3 font-display text-5xl leading-none text-[var(--text-primary)]">{productCount}</p>
-              <p className="mt-2 text-sm leading-6 text-[var(--text-primary)]">Productos activos</p>
-            </motion.div>
-            <motion.div
-              className="glass-panel flex flex-col justify-between rounded-[1.65rem] border border-[rgba(116,88,54,0.14)] bg-[rgba(255,250,244,0.66)] p-5"
-              variants={heroCardVariants}
-            >
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.32em] text-[var(--text-secondary)]">Dirección visual</p>
-                <h2 className="mt-3 font-display text-[2.2rem] leading-none text-[var(--text-primary)]">Boutique de colección</h2>
-                <p className="mt-3 max-w-sm text-sm leading-7 text-[var(--text-primary)] text-balance">
-                  Menos marketplace. Más selección de productos con carácter propio.
-                </p>
-              </div>
-              <div className="mt-6 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-[var(--accent)]">
-                Explorar selección
-                <ArrowRight size={15} />
-              </div>
-            </motion.div>
-          </motion.div>
         </motion.div>
       </div>
     </HeroSection>
@@ -345,7 +323,7 @@ const Gallery = () => {
     productsError || 'Los productos no pudieron cargarse. Reintenta en unos segundos.';
 
   return (
-    <div className="space-y-10 py-8 sm:space-y-12 sm:py-10 lg:space-y-14 lg:py-14">
+    <div className="space-y-8 py-8 sm:space-y-10 sm:py-10 lg:space-y-12 lg:py-12">
       <Hero
         filter={filter}
         setFilter={setFilter}
@@ -377,7 +355,7 @@ const Gallery = () => {
       ) : (
         <motion.section
           id="piezas-destacadas"
-          className="scroll-mt-28 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 sm:gap-3 xl:gap-4"
+          className="scroll-mt-28 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3 2xl:grid-cols-4"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-15% 0px -25% 0px' }}

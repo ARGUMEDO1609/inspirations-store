@@ -93,7 +93,10 @@ production:
     # A hosted PostgreSQL service (such as Fly Managed Postgres) provides one
     # connection URL. Reuse that database for the Rails primary, cache, queue,
     # and cable schemas; each connection has its own migration paths below.
-    url: <%= ENV.fetch("DATABASE_URL") %>
+    # ERB evaluates every environment block while Rails loads this file, so
+    # keep the production-only URL optional here. Production validates that
+    # DATABASE_URL is set in production_environment.rb.
+    url: <%= ENV["DATABASE_URL"] %>
   cache:
     <<: *primary_production
     migrations_paths: db/cache_migrate
