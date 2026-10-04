@@ -208,7 +208,7 @@ GEM
       net-pop
       net-smtp
     marcel (1.2.1)
-    mini_magick (5.3.3)
+    mini_magick (5.4.0)
       logger
     mini_mime (1.1.5)
     minitest (6.0.6)
@@ -483,7 +483,7 @@ DEPENDENCIES
   jsonapi-serializer
   jwt (>= 3.2.0, < 4)
   kamal
-  mini_magick (~> 5.3)
+  mini_magick (~> 5.4)
   pg (~> 1.1)
   puma (>= 5.0)
   pundit (~> 2.5)
