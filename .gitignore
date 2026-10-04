@@ -20,6 +20,11 @@
 !/tmp/pids/
 !/tmp/pids/.keep
 
+# Generated leftovers from the archived Rails app.
+/legacy/root_rails_app/tmp/cache/
+/legacy/root_rails_app/log/*.log
+*:Zone.Identifier
+
 # Uploaded files / local storage.
 /storage/*
 !/storage/.keep
