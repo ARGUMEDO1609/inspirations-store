@@ -43,8 +43,6 @@ AGENTS.md
 **/AGENTS.md
 .claude/
 **/.claude/
-.grok/
-**/.grok/
 .cursor/
 **/.cursor/
 .cursorrules
