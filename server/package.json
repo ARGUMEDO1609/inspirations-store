@@ -16,7 +16,7 @@
   "type": "commonjs",
   "dependencies": {
     "@activeadmin/activeadmin": "^3.5.2",
-    "@tailwindcss/cli": "^4.3.3",
+    "@tailwindcss/cli": "^4.3.5",
     "tailwindcss": "^4.3.1"
   }
 }
